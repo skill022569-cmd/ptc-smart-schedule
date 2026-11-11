@@ -42,6 +42,14 @@ function info(e) {
     <button class="btn" data-close style="margin-top:16px">ปิด</button>`);
 }
 
+// กันตารางล้นไปหน้า 2: ตอนเข้าโหมดพิมพ์ ถ้าสูงเกิน A4 แนวนอน (พื้นที่พิมพ์ ~194mm) ให้ย่อทั้งหน้าลงจนพอดี
+const PAGE_H = 194 * 96 / 25.4;
+matchMedia('print').addEventListener('change', mq => {
+  const main = $('main');
+  main.style.zoom = '';
+  const h = main.getBoundingClientRect().height;
+  if (mq.matches && h > PAGE_H) main.style.zoom = (PAGE_H / h * 0.97).toFixed(3);
+});
 // พิมพ์จากมือถือ: สลับเป็นตารางเต็มก่อนพิมพ์ แล้วกลับเป็นแบบรายวัน
 let printing = false;
 addEventListener('beforeprint', () => { printing = true; draw(); });

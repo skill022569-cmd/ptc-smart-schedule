@@ -170,26 +170,28 @@ table.list tbody tr:hover { background: rgba(255,255,255,.04); }
   .reveal { opacity: 1 !important; transform: none !important; }
   .aurora, .grid-bg, .side, .no-print, #toasts, .modal, .preview-bar, .viewas, .logo { display: none !important; }
   .app { display: block; } .main { padding: 0 !important; max-width: none; }
+  .main.public { width: 277mm; } /* = ความกว้างพิมพ์ได้ของ A4 แนวนอน ให้การวัดเพื่อย่อหน้าตรงกับกระดาษ */
   .card { box-shadow: none; border: 0; background: none; backdrop-filter: none; padding: 0; }
   .top { margin: 0 0 2mm; }
   .brand h1, .top h2 { color: #000 !important; -webkit-text-fill-color: #000; background: none; font-size: 15pt; }
   .muted { color: #333 !important; }
   .badge { background: none !important; color: #000 !important; padding: 0; }
   .table-wrap { overflow: visible; }
-  .tt { min-width: 0; width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; break-inside: avoid; }
+  .tt { min-width: 0; width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; }
+  .tt tr { break-inside: avoid; }
   .tt th { color: #000; font-size: 10pt; padding: 1.5mm 1mm; border: 1px solid #666; font-weight: 500; }
-  .tt th.day { width: 18mm; text-align: center; color: #000 !important; font-size: 12pt; }
-  .tt td { height: 30mm; border: 1px solid #666 !important; background: #fff !important; border-radius: 0; }
+  .tt th.day { width: 16mm; text-align: center; color: #000 !important; font-size: 12pt; }
+  .tt td { height: 28mm; border: 1px solid #666 !important; background: #fff !important; border-radius: 0; }
   /* ขาว-ดำ ตัวใหญ่ จัดกึ่งกลางช่อง อ่านง่าย */
   .tt td { vertical-align: middle; }
   .slot { height: 100%; border: 0 !important; border-radius: 0; box-shadow: none !important; transform: none !important; color: #000;
     background: transparent !important; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-    font-size: 11.5pt; line-height: 1.3; padding: 1.5mm; }
-  .slot b { font-size: 13pt; font-weight: 500; margin-bottom: .6mm; }
+    font-size: 10.5pt; line-height: 1.2; padding: 1mm; }
+  .slot b { font-size: 12pt; font-weight: 500; margin-bottom: .4mm; }
   #info { font-size: 13pt; }
   .slot .muted { color: #000 !important; }
   .slot .x { display: none; }
-  .tt th.lunch, .tt td.lunch { width: 10mm; background: #fff !important; color: #000; border: 1px solid #666 !important; font-size: 9pt; }
+  .tt th.lunch, .tt td.lunch { width: 8mm; background: #fff !important; color: #000; border: 1px solid #666 !important; font-size: 9pt; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
 
