@@ -367,12 +367,12 @@ app.post('/api/students/import', staff, async (req, res) => {
 
 // ======================= ตารางสอน: เวอร์ชัน / AI / โหมดมือ =======================
 async function loadCtx() {
-  const [teachers, rooms, groups, subjects] = await Promise.all([
+  const [teachers, rooms, groups, subjects, periods] = await Promise.all([
     q(db.from('teachers').select('id,max_hours,unavailable')), q(db.from('classrooms').select('*')),
-    q(db.from('student_groups').select('*')), q(db.from('subjects').select('*')),
+    q(db.from('student_groups').select('*')), q(db.from('subjects').select('*')), q(db.from('periods').select('*')),
   ]);
   const byId = a => Object.fromEntries(a.map(x => [x.id, x]));
-  return { teachers: byId(teachers), rooms: byId(rooms), roomList: rooms, groups: byId(groups), subjects: byId(subjects) };
+  return { teachers: byId(teachers), rooms: byId(rooms), roomList: rooms, groups: byId(groups), subjects: byId(subjects), periods };
 }
 
 async function insertEntries(versionId, entries) {
@@ -398,7 +398,7 @@ app.post('/api/versions/generate', staff, async (req, res) => {
   const d = deptOf(req), ids = await myGroupIds(req);
   const ctx = await loadCtx();
   let offerings = await q(db.from('offerings').select('*'));
-  const periods = await q(db.from('periods').select('day,period_no'));
+  const periods = await q(db.from('periods').select('day,period_no,start_time,end_time'));
   let fixed = [];
   if (ids) {
     offerings = offerings.filter(o => ids.includes(o.group_id));

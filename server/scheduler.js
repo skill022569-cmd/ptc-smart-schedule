@@ -1,7 +1,7 @@
 // AI Scheduling Engine (heuristic constraint solver)
 // shortcut: greedy + randomized restarts ใน Node ไม่ใช่ OR-Tools/GA — ถ้าวิทยาลัยมีเกิน ~100 กลุ่มเรียนแล้วจัดไม่ครบ
 //           ให้แยกเป็น Python service ที่ใช้ OR-Tools CP-SAT โดยรับ/ส่ง JSON รูปแบบเดียวกับฟังก์ชันนี้
-import { roomFits, teacherBlocked } from '../public/shared/conflicts.js';
+import { roomFits, teacherBlocked, isLunch, contiguous } from '../public/shared/conflicts.js';
 
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const rng = seed => () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
@@ -23,8 +23,8 @@ function attempt(input, rnd) {
   const entries = [];
   const unplaced = [];
   const slotsByDay = {};
-  for (const p of periods) (slotsByDay[p.day] ||= []).push(p.period_no);
-  for (const d in slotsByDay) slotsByDay[d].sort((a, b) => a - b);
+  for (const p of periods) if (!isLunch(p)) (slotsByDay[p.day] ||= []).push(p); // ไม่ลงคาบในเวลาพักเที่ยง
+  for (const d in slotsByDay) slotsByDay[d].sort((a, b) => a.period_no - b.period_no);
 
   // คาบของแผนกอื่นที่ล็อกไว้ (ครู/ห้องใช้ร่วมกัน) — จองช่องไว้ก่อน ไม่ให้ชน
   for (const e of input.fixed || []) {
@@ -44,8 +44,9 @@ function attempt(input, rnd) {
       if (used.has(`o|${b.subject_id}|${b.group_id}|${d}`)) continue; // วิชาเดียวกันไม่เรียน 2 ครั้งในวันเดียว
       const ps = slotsByDay[day];
       for (let i = 0; i + b.len <= ps.length; i++) {
-        const run = ps.slice(i, i + b.len);
-        if (run[run.length - 1] - run[0] !== b.len - 1) continue; // ต้องเป็นคาบติดกัน
+        const span = ps.slice(i, i + b.len);
+        if (!span.every((p, k) => !k || contiguous(span[k - 1], p))) continue; // ต้องติดกัน ไม่คร่อมพักเที่ยง
+        const run = span.map(p => p.period_no);
         cands.push({ d, run, score: (dayLoad[`${b.group_id}|${d}`] || 0) + i * 0.15 + rnd() }); // เกลี่ยวันให้เท่ากัน + ชอบคาบเช้า
       }
     }

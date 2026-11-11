@@ -196,7 +196,7 @@ async function loadEntries() {
   draw();
 }
 
-const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject });
+const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject, periods: L.periods });
 const myGroups = () => L.groups.filter(g => !myDept() || g.department === myDept());
 
 function draw() {

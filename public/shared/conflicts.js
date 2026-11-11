@@ -4,6 +4,15 @@
 
 export const DAYS = ['', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
 
+// พักเที่ยงทุกวัน: ห้ามลงคาบที่เวลาทับช่วงนี้ และห้ามเรียนต่อเนื่องคร่อมช่วงนี้
+export const LUNCH = { start: '12:00', end: '13:00' };
+const hm = t => String(t || '').slice(0, 5);
+export const isLunch = p => !!p?.start_time && hm(p.start_time) < LUNCH.end && hm(p.end_time) > LUNCH.start;
+// คาบ b ต่อจาก a ทันทีโดยไม่มีช่วงพักคั่น (ไม่มีเวลา = ดูจากเลขคาบอย่างเดียว)
+export const contiguous = (a, b) => !!a && !!b && b.period_no === a.period_no + 1 && (!a.end_time || hm(a.end_time) === hm(b.start_time));
+// มีพักเที่ยงคั่นระหว่างคาบ a กับ b
+export const lunchBetween = (a, b) => !!a?.end_time && !!b?.start_time && hm(a.end_time) <= LUNCH.start && hm(b.start_time) >= LUNCH.end;
+
 // ห้องที่ใช้ได้กับประเภทวิชา: ปฏิบัติ -> lab/workshop, ทฤษฎี -> lecture/lab
 export function roomFits(subject, room, group) {
   if (!room) return true;
@@ -24,6 +33,7 @@ export function findConflicts(entries, ctx = {}) {
   const add = (e, msg) => { if (!out.has(e.id)) out.set(e.id, []); out.get(e.id).push(msg); };
   const slot = new Map();
   const hours = new Map();
+  const lunch = new Set((ctx.periods || []).filter(isLunch).map(p => `${p.day}|${p.period_no}`));
 
   for (const e of entries) {
     for (const [kind, key, msg] of [
@@ -37,6 +47,7 @@ export function findConflicts(entries, ctx = {}) {
       if (other) { add(e, msg); add(other, msg); } else slot.set(k, e);
     }
     if (teacherBlocked(ctx, e.teacher_id, e.day, e.period_no)) add(e, 'ครูไม่สะดวกสอนช่วงนี้');
+    if (lunch.has(`${e.day}|${e.period_no}`)) add(e, 'ทับเวลาพักเที่ยง');
     if (!roomFits(ctx.subjects?.[e.subject_id], ctx.rooms?.[e.room_id], ctx.groups?.[e.group_id]))
       add(e, 'ห้องไม่เหมาะกับวิชา/ความจุไม่พอ');
     hours.set(e.teacher_id, (hours.get(e.teacher_id) || 0) + 1);

@@ -40,3 +40,18 @@ test('จัดเฉพาะแผนก โดยไม่ชนกับค�
   const merged = [...fixed, ...entries].map((e, i) => ({ ...e, id: i }));
   assert.equal(findConflicts(merged, { teachers, groups, subjects, rooms: byId(rooms), blocks }).size, 0);
 });
+
+test('มีพักเที่ยงทุกวัน: ไม่ลงคาบเวลาพัก และไม่เรียนคร่อมพักเที่ยง', () => {
+  const t = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  // คาบ 5 = 12:00-13:00 (ทับพักเที่ยง) — AI ต้องไม่ใช้
+  const timed = [1, 2, 3, 4, 5].flatMap(day => t.slice(0, 9).map((s, i) => ({ day, period_no: i + 1, start_time: s, end_time: t[i + 1] })));
+  const { entries, unplaced } = generateSchedule({ offerings, subjects, groups, teachers, rooms, periods: timed, blocks });
+  assert.equal(unplaced.length, 0);
+  assert.ok(!entries.some(e => e.period_no === 5), 'ห้ามลงคาบพักเที่ยง');
+  for (const g of ['g1', 'g2', 'g3']) for (const d of [1, 2, 3, 4, 5]) {
+    const ps = entries.filter(e => e.group_id === g && e.day === d && e.subject_id === 's2').map(e => e.period_no);
+    assert.ok(!(ps.some(p => p < 5) && ps.some(p => p > 5)), 'วิชาปฏิบัติต้องไม่เรียนคร่อมพักเที่ยง');
+  }
+  const c = findConflicts([{ id: 1, day: 1, period_no: 5, teacher_id: 't2', room_id: 'r2', group_id: 'g1', subject_id: 's2' }], { periods: timed, rooms: byId(rooms), groups, subjects });
+  assert.deepEqual(c.get(1), ['ทับเวลาพักเที่ยง']);
+});

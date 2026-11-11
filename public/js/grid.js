@@ -1,5 +1,5 @@
 import { esc } from './ui.js';
-import { DAYS } from '/shared/conflicts.js';
+import { DAYS, LUNCH, isLunch, contiguous, lunchBetween } from '/shared/conflicts.js';
 
 const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
 
@@ -9,22 +9,34 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   const days = [...new Set(L.periods.map(p => p.day))].sort();
   const nums = [...new Set(L.periods.map(p => p.period_no))].sort((a, b) => a - b);
   const time = n => L.periods.find(p => p.period_no === n);
+  // คอลัมน์ = คาบเรียน + ช่องพักเที่ยง (ช่วงว่างตอนเที่ยง หรือคาบที่ตั้งเวลาไว้ทับเที่ยง)
+  const cols = [];
+  nums.forEach((n, i) => {
+    if (i && lunchBetween(time(nums[i - 1]), time(n))) cols.push({ gap: true });
+    cols.push({ n, lunch: isLunch(time(n)) });
+  });
+  const hasLunch = cols.some(c => c.gap || c.lunch);
+  const LUNCH_TXT = `พักเที่ยง ${LUNCH.start}–${LUNCH.end}`;
   const key = { group: 'group_id', teacher: 'teacher_id', room: 'room_id' }[view.type];
   const mine = entries.filter(e => !view.id || e[key] === view.id);
-  // คาบติดกันที่เป็นวิชา/ครู/ห้อง/กลุ่มเดียวกัน รวมเป็นช่องเดียว (เฉพาะโหมดดู — โหมดแก้ไขต้องลากได้ทีละคาบ)
+  // คาบติดกันที่เป็นวิชา/ครู/ห้อง/กลุ่มเดียวกัน รวมเป็นช่องเดียว (เฉพาะโหมดดู — โหมดแก้ไขต้องลากได้ทีละคาบ) ไม่รวมข้ามพักเที่ยง
   const same = (a, b) => ['subject_id', 'teacher_id', 'room_id', 'group_id'].every(k => a[k] === b[k]);
   const cellsOf = d => {
     const at = n => mine.filter(e => e.day === d && e.period_no === n);
     const out = [];
-    for (let i = 0; i < nums.length;) {
-      const list = at(nums[i]);
+    for (let i = 0; i < cols.length;) {
+      const c = cols[i];
+      if (c.gap) { out.push(c); i++; continue; }
+      const list = at(c.n);
       let span = 1;
-      while (!editable && list.length === 1 && i + span < nums.length) {
-        const next = at(nums[i + span]);
+      while (!editable && !c.lunch && list.length === 1 && i + span < cols.length) {
+        const nc = cols[i + span];
+        if (nc.gap || nc.lunch || !contiguous(time(cols[i + span - 1].n), time(nc.n))) break;
+        const next = at(nc.n);
         if (next.length !== 1 || !same(list[0], next[0])) break;
         span++;
       }
-      out.push({ n: nums[i], last: nums[i + span - 1], list, span });
+      out.push({ n: c.n, last: cols[i + span - 1].n, list, span, lunch: c.lunch });
       i += span;
     }
     return out;
@@ -43,26 +55,31 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
     el.innerHTML = `<div class="agenda">${days.map(d => {
-      const cells = cellsOf(d).filter(c => c.list.length);
-      return `<h4>${DAYS[d]}</h4>` + (cells.map(c => c.list.map(e => {
+      const cells = cellsOf(d).filter(c => c.list?.length);
+      const at = hasLunch ? cells.findIndex(c => (time(c.n)?.start_time || '') >= LUNCH.end) : -2;
+      const lunchRow = `<div class="lunch-row">🍱 ${LUNCH_TXT}</div>`;
+      return `<h4>${DAYS[d]}</h4>` + (cells.map((c, k) => (k === at ? lunchRow : '') + c.list.map(e => {
         const a = time(c.n), b = time(c.last);
         const tm = a && b ? `${esc(a.start_time.slice(0, 5))}<br>${esc(b.end_time.slice(0, 5))}` : `คาบ ${c.n}`;
         return slot(e).replace('<b>', `<div class="tm">${tm}</div><div><b>`).replace(/<\/div>$/, '</div></div>');
-      }).join('')).join('') || '<div class="muted">ไม่มีเรียน</div>');
+      }).join('')).join('') + (cells.length && at === -1 ? lunchRow : '') || '<div class="muted">ไม่มีเรียน</div>');
     }).join('')}</div>`;
     el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
     return;
   }
-  el.innerHTML = `<div class="table-wrap"><table class="tt"><thead><tr><th></th>${nums.map(n => {
-    const t = time(n); return `<th>คาบ ${n}<br>${t ? esc(t.start_time.slice(0, 5) + '-' + t.end_time.slice(0, 5)) : ''}</th>`;
-  }).join('')}</tr></thead><tbody>${days.map(d => `<tr><th class="day">${DAYS[d]}</th>${cellsOf(d).map(c =>
-    `<td data-day="${d}" data-p="${c.n}"${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
+  el.innerHTML = `<div class="table-wrap"><table class="tt"><thead><tr><th></th>${cols.map(c => {
+    if (c.gap) return '<th class="lunch">พัก<br>เที่ยง</th>';
+    const t = time(c.n);
+    return `<th${c.lunch ? ' class="lunch"' : ''}>${c.lunch ? 'พักเที่ยง' : `คาบ ${c.n}`}<br>${t ? esc(t.start_time.slice(0, 5) + '-' + t.end_time.slice(0, 5)) : ''}</th>`;
+  }).join('')}</tr></thead><tbody>${days.map((d, di) => `<tr><th class="day">${DAYS[d]}</th>${cellsOf(d).map(c => c.gap
+    ? (di ? '' : `<td class="lunch" rowspan="${days.length}"><span>${LUNCH_TXT}</span></td>`)
+    : `<td data-day="${d}" data-p="${c.n}"${c.lunch ? ' class="lunch"' : ''}${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
   </tbody></table></div>`;
 
   el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
   if (!editable) return;
   el.querySelectorAll('.slot').forEach(s => s.ondragstart = ev => ev.dataTransfer.setData('text/plain', 'move:' + s.dataset.id));
-  el.querySelectorAll('td').forEach(td => {
+  el.querySelectorAll('td[data-day]').forEach(td => {
     td.ondragover = ev => { ev.preventDefault(); td.classList.add('drop'); };
     td.ondragleave = () => td.classList.remove('drop');
     td.ondrop = ev => {
