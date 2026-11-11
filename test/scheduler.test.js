@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { generateSchedule } from '../server/scheduler.js';
-import { findConflicts } from '../shared/conflicts.js';
+import { findConflicts } from '../public/shared/conflicts.js';
 
 const byId = a => Object.fromEntries(a.map(x => [x.id, x]));
 const subjects = byId([{ id: 's1', type: 'theory', periods_per_week: 2 }, { id: 's2', type: 'practice', periods_per_week: 6 }, { id: 's3', type: 'theory', periods_per_week: 4 }]);

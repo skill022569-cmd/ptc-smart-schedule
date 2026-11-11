@@ -50,15 +50,14 @@ ptc-smart-schedule/
 │   ├── scheduler.js     # AI Scheduling Engine
 │   ├── backup.js        # ส่งออก .sql / .csv และอัปโหลดขึ้น Storage
 │   └── db.js            # เชื่อมต่อ Supabase
-├── shared/conflicts.js  # ตัวตรวจคาบชน (ใช้ทั้ง server และเบราว์เซอร์)
 ├── public/              # หน้าเว็บ (index.html = login, app.html = ระบบหลัก)
+│   └── shared/conflicts.js  # ตัวตรวจคาบชน (ใช้ทั้ง server และเบราว์เซอร์)
 ├── supabase/schema.sql  # โครงสร้างฐานข้อมูล
 ├── scripts/seed.js      # สร้าง admin + ข้อมูลตัวอย่าง
 ├── scripts/backup.js    # สคริปต์สำรองข้อมูล (GitHub Actions เรียกใช้)
 ├── test/                # ทดสอบ AI จัดตาราง + ตัวตรวจคาบชน
 ├── .github/workflows/   # ci.yml (ทดสอบ), backup.yml (สำรอง 02:00 น.), seed.yml (สร้างแอดมินผ่านเว็บ)
-├── api/index.js         # จุดเข้าสำหรับ Vercel
-└── vercel.json          # ตั้งค่า deploy บน Vercel
+└── index.js             # จุดเข้าสำหรับ Vercel
 ```
 
 **ตารางในฐานข้อมูล:** `users`, `teachers`, `students`, `student_groups`, `subjects`, `classrooms`, `periods`, `offerings` (แผนการสอน), `timetable_versions` (Restore Point), `timetable`, `time_block_requests`, `logs`
@@ -277,7 +276,7 @@ Vercel จะ deploy เวอร์ชันใหม่ให้อัตโ�
 
 1. เข้า https://vercel.com → **Sign Up** → **Continue with GitHub**
 2. **Add New… → Project** → กด **Import** ที่ repo `ptc-smart-schedule`
-3. Framework Preset: **Other** (ไม่ต้องแก้ Build/Output อะไร — `vercel.json` ตั้งไว้ให้แล้ว)
+3. Framework Preset: **Express** (Vercel เลือกให้อัตโนมัติ ไม่ต้องแก้ Build/Output)
 4. เปิด **Environment Variables** แล้วเพิ่ม:
    - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
    - `JWT_SECRET` (สุ่มยาว ๆ ค่าใดก็ได้)

@@ -7,7 +7,7 @@ import {
   registerFail, isLocked, issueOtp, checkOtp, LOCK_MIN,
 } from './security.js';
 import { generateSchedule } from './scheduler.js';
-import { findConflicts, DAYS } from '../shared/conflicts.js';
+import { findConflicts, DAYS } from '../public/shared/conflicts.js';
 import { toSql, tableCsv, toCsv, BACKUP_TABLES } from './backup.js';
 
 const app = express();
@@ -19,7 +19,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.static(root + 'public'));
-app.use('/shared', express.static(root + 'shared'));
 
 const bad = (msg, status = 400) => Object.assign(new Error(msg), { status });
 const OTP_REQUIRED = process.env.OTP_REQUIRED !== 'false';

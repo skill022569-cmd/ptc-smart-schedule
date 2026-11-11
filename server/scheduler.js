@@ -1,7 +1,7 @@
 // AI Scheduling Engine (heuristic constraint solver)
 // shortcut: greedy + randomized restarts ใน Node ไม่ใช่ OR-Tools/GA — ถ้าวิทยาลัยมีเกิน ~100 กลุ่มเรียนแล้วจัดไม่ครบ
 //           ให้แยกเป็น Python service ที่ใช้ OR-Tools CP-SAT โดยรับ/ส่ง JSON รูปแบบเดียวกับฟังก์ชันนี้
-import { roomFits, teacherBlocked } from '../shared/conflicts.js';
+import { roomFits, teacherBlocked } from '../public/shared/conflicts.js';
 
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const rng = seed => () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
