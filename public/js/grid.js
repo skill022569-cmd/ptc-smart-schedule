@@ -11,6 +11,24 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   const time = n => L.periods.find(p => p.period_no === n);
   const key = { group: 'group_id', teacher: 'teacher_id', room: 'room_id' }[view.type];
   const mine = entries.filter(e => !view.id || e[key] === view.id);
+  // คาบติดกันที่เป็นวิชา/ครู/ห้อง/กลุ่มเดียวกัน รวมเป็นช่องเดียว (เฉพาะโหมดดู — โหมดแก้ไขต้องลากได้ทีละคาบ)
+  const same = (a, b) => ['subject_id', 'teacher_id', 'room_id', 'group_id'].every(k => a[k] === b[k]);
+  const cellsOf = d => {
+    const at = n => mine.filter(e => e.day === d && e.period_no === n);
+    const out = [];
+    for (let i = 0; i < nums.length;) {
+      const list = at(nums[i]);
+      let span = 1;
+      while (!editable && list.length === 1 && i + span < nums.length) {
+        const next = at(nums[i + span]);
+        if (next.length !== 1 || !same(list[0], next[0])) break;
+        span++;
+      }
+      out.push({ n: nums[i], last: nums[i + span - 1], list, span });
+      i += span;
+    }
+    return out;
+  };
 
   const slot = e => {
     const s = L.subject[e.subject_id] || {}, bad = conflicts.get(e.id);
@@ -25,16 +43,20 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
     el.innerHTML = `<div class="agenda">${days.map(d => {
-      const list = mine.filter(e => e.day === d).sort((a, b) => a.period_no - b.period_no);
-      return `<h4>${DAYS[d]}</h4>` + (list.map(e => { const t = time(e.period_no); return slot(e).replace('<b>', `<div class="tm">${t ? esc(t.start_time.slice(0, 5)) + '<br>' + esc(t.end_time.slice(0, 5)) : 'คาบ ' + e.period_no}</div><div><b>`).replace(/<\/div>$/, '</div></div>'); }).join('') || '<div class="muted">ไม่มีเรียน</div>');
+      const cells = cellsOf(d).filter(c => c.list.length);
+      return `<h4>${DAYS[d]}</h4>` + (cells.map(c => c.list.map(e => {
+        const a = time(c.n), b = time(c.last);
+        const tm = a && b ? `${esc(a.start_time.slice(0, 5))}<br>${esc(b.end_time.slice(0, 5))}` : `คาบ ${c.n}`;
+        return slot(e).replace('<b>', `<div class="tm">${tm}</div><div><b>`).replace(/<\/div>$/, '</div></div>');
+      }).join('')).join('') || '<div class="muted">ไม่มีเรียน</div>');
     }).join('')}</div>`;
     el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
     return;
   }
   el.innerHTML = `<div class="table-wrap"><table class="tt"><thead><tr><th></th>${nums.map(n => {
     const t = time(n); return `<th>คาบ ${n}<br>${t ? esc(t.start_time.slice(0, 5) + '-' + t.end_time.slice(0, 5)) : ''}</th>`;
-  }).join('')}</tr></thead><tbody>${days.map(d => `<tr><th class="day">${DAYS[d]}</th>${nums.map(n =>
-    `<td data-day="${d}" data-p="${n}">${mine.filter(e => e.day === d && e.period_no === n).map(slot).join('')}</td>`).join('')}</tr>`).join('')}
+  }).join('')}</tr></thead><tbody>${days.map(d => `<tr><th class="day">${DAYS[d]}</th>${cellsOf(d).map(c =>
+    `<td data-day="${d}" data-p="${c.n}"${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
   </tbody></table></div>`;
 
   el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
