@@ -33,12 +33,12 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   const slot = e => {
     const s = L.subject[e.subject_id] || {}, bad = conflicts.get(e.id);
     const lines = {
-      group: [L.teacher[e.teacher_id]?.full_name, '📍 ' + (L.room[e.room_id]?.code || 'ไม่ระบุห้อง')],
-      teacher: ['👥 ' + L.group[e.group_id]?.code, '📍 ' + (L.room[e.room_id]?.code || '-')],
-      room: ['👥 ' + L.group[e.group_id]?.code, L.teacher[e.teacher_id]?.full_name],
+      group: [L.teacher[e.teacher_id]?.full_name, 'ห้อง ' + (L.room[e.room_id]?.code || 'ไม่ระบุ')],
+      teacher: ['กลุ่ม ' + L.group[e.group_id]?.code, 'ห้อง ' + (L.room[e.room_id]?.code || '-')],
+      room: ['กลุ่ม ' + L.group[e.group_id]?.code, L.teacher[e.teacher_id]?.full_name],
     }[view.type];
     return `<div class="slot ${bad ? 'conflict' : ''}" style="--h:${hue(s.code)}" data-id="${e.id}" ${editable ? 'draggable="true"' : ''}
-      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.code)} ${esc(s.name)}</b>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
+      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted">${esc(s.code)}</div>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
   };
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
