@@ -14,6 +14,7 @@ create table if not exists users (
   department text,                            -- แผนกของบัญชี dept
   phone_enc text,                             -- เบอร์โทร เข้ารหัส AES-256-GCM
   email_enc text,
+  phone_verified_at timestamptz,              -- ยืนยันเบอร์ด้วย OTP แล้ว (ยังไม่ยืนยัน = ล็อกอินไม่ได้)
   pdpa_consent_at timestamptz,
   failed_attempts int not null default 0,
   locked_until timestamptz,

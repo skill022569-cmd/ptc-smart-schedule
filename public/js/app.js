@@ -360,13 +360,27 @@ function importStudents(done) {
 }
 
 // ======================= Admin: คำร้อง / สำรองข้อมูล / Logs =======================
+// ยืนยันการสมัคร: SMS ส่ง OTP ไปที่เบอร์ของเจ้าของบัญชี แล้วผู้ดูแลระบบกรอกรหัสที่เจ้าของเบอร์แจ้ง
+function otpModal(u) {
+  const m = modal(`<div style="text-align:center"><div style="font-size:42px">📱</div><h3>ยืนยันเบอร์โทรของ ${esc(u.full_name)}</h3>
+    <p class="muted">ระบบส่งรหัส OTP 6 หลักทาง SMS ไปที่ <b>${esc(u.phone)}</b> แล้ว<br>ให้เจ้าของเบอร์แจ้งรหัส แล้วกรอกด้านล่าง (รหัสมีอายุ 5 นาที)</p></div>
+    <form><input name="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" style="text-align:center;font-size:1.6rem;letter-spacing:.5em" aria-label="รหัส OTP">
+    <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" id="resend">↻ ส่งรหัสใหม่</button><button type="button" class="btn ghost" data-close>ไว้ทีหลัง</button><button class="btn ok">✔ ยืนยัน</button></div></form>`);
+  $('[name=otp]', m).focus();
+  $('form', m).onsubmit = e => {
+    e.preventDefault();
+    busy(e.submitter, async () => { await api(`/admin/accounts/${u.id}/verify`, { method: 'POST', body: { otp: e.target.otp.value } }); m.remove(); toast('✔ ยืนยันเบอร์โทรแล้ว บัญชีนี้เข้าสู่ระบบได้', 'ok'); accountsPage(); });
+  };
+  $('#resend', m).onclick = e => busy(e.currentTarget, async () => { const r = await api(`/admin/accounts/${u.id}/resend`, { method: 'POST' }); toast(`ส่งรหัสใหม่ไปที่ ${r.phone} แล้ว`); });
+}
+
 async function accountsPage() {
   const rows = await api('/admin/accounts');
   page().innerHTML = `<div class="card reveal"><div class="row" style="margin-bottom:14px;align-items:center">
       <p class="muted" style="margin:0;flex:2 1 300px">เข้าระบบได้ 2 แบบ: <b>ผู้ดูแลระบบ</b> (ทำได้ทุกอย่าง) และ <b>ฝ่ายวิชาการแผนก</b> (จัดการเฉพาะแผนกตัวเอง)</p>
       <button class="btn" id="add">＋ สร้างบัญชี</button></div>
     <div class="table-wrap"><table class="list"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>บทบาท</th><th>แผนก</th><th>เบอร์โทร (OTP)</th><th></th></tr></thead><tbody>
-    ${rows.map(u => `<tr><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td><td><span class="badge ${u.role === 'admin' ? 'pri' : 'ok'}">${ROLE[u.role]}</span></td><td>${esc(u.department || '-')}</td><td>${esc(u.phone || '-')}</td>
+    ${rows.map(u => `<tr><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td><td><span class="badge ${u.role === 'admin' ? 'pri' : 'ok'}">${ROLE[u.role]}</span></td><td>${esc(u.department || '-')}</td><td>${esc(u.phone || '-')} ${u.verified ? '<span class="badge ok">✔ ยืนยันแล้ว</span>' : `<span class="badge warn">รอยืนยัน OTP</span> <button class="btn ok sm" data-verify="${u.id}">ยืนยัน OTP</button>`}</td>
       <td style="white-space:nowrap">${u.locked ? `<button class="btn ok sm" data-unlock="${u.id}">🔓 ปลดล็อก</button> ` : ''}<button class="btn ghost sm" data-edit="${u.id}">แก้ไข</button>${u.id === me.id ? '' : ` <button class="btn danger sm" data-del="${u.id}">ลบ</button>`}</td></tr>`).join('')}
     </tbody></table></div></div>`;
   const form = u => {
@@ -376,18 +390,23 @@ async function accountsPage() {
       <label>บทบาท</label><select name="role" ${u?.id === me.id ? 'disabled' : ''}><option value="dept" ${u?.role !== 'admin' ? 'selected' : ''}>ฝ่ายวิชาการแผนก</option><option value="admin" ${u?.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option></select>
       <label>แผนก (สำหรับฝ่ายวิชาการ)</label><input name="department" list="dl-dept" value="${esc(u?.department || '')}" placeholder="เช่น ช่างยนต์">
       <datalist id="dl-dept">${departments().map(d => `<option value="${esc(d)}">`).join('')}</datalist>
-      <label>เบอร์มือถือรับ OTP ${u?.phone ? `(ปัจจุบัน ${esc(u.phone)} — เว้นว่าง = ไม่เปลี่ยน)` : ''}</label><input name="phone" inputmode="numeric" maxlength="10">
+      <label>เบอร์มือถือของเจ้าของบัญชี ${u?.phone ? `(ปัจจุบัน ${esc(u.phone)} — เว้นว่าง = ไม่เปลี่ยน, เปลี่ยนแล้วต้องยืนยัน OTP ใหม่)` : '(ระบบจะส่ง OTP ไปเบอร์นี้เพื่อยืนยันการสมัคร)'}</label><input name="phone" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" ${u ? '' : 'required'}>
       <label>${u ? 'ตั้งรหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 8 ตัว)'}</label><input name="password" type="password" minlength="8" ${u ? '' : 'required'} autocomplete="new-password">
       <div class="row" style="margin-top:18px"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn">💾 บันทึก</button></div></form>`);
     $('form', m).onsubmit = e => {
       e.preventDefault();
       const body = Object.fromEntries([...new FormData(e.target)].filter(([k, v]) => v !== '' || k === 'department'));
       if (body.role === 'dept' && !body.department) return toast('บัญชีฝ่ายวิชาการต้องระบุแผนก', 'bad');
-      busy(e.submitter, async () => { await api(u ? `/admin/accounts/${u.id}` : '/admin/accounts', { method: u ? 'PUT' : 'POST', body }); m.remove(); toast('บันทึกแล้ว', 'ok'); accountsPage(); });
+      busy(e.submitter, async () => {
+        const saved = await api(u ? `/admin/accounts/${u.id}` : '/admin/accounts', { method: u ? 'PUT' : 'POST', body });
+        m.remove(); toast('บันทึกแล้ว', 'ok'); await accountsPage();
+        if (!saved.verified && (!u || body.phone)) otpModal(saved); // เพิ่งส่ง OTP ไป
+      });
     };
   };
   $('#add').onclick = () => form(null);
   $$('[data-edit]').forEach(b => b.onclick = () => form(rows.find(u => u.id === b.dataset.edit)));
+  $$('[data-verify]').forEach(b => b.onclick = () => otpModal(rows.find(u => u.id === b.dataset.verify)));
   $$('[data-unlock]').forEach(b => b.onclick = () => api(`/admin/accounts/${b.dataset.unlock}`, { method: 'PUT', body: { unlock: true } }).then(() => { toast('ปลดล็อกแล้ว', 'ok'); accountsPage(); }));
   $$('[data-del]').forEach(b => b.onclick = () => confirm('ลบบัญชีนี้?') && api(`/admin/accounts/${b.dataset.del}`, { method: 'DELETE' }).then(() => { toast('ลบแล้ว', 'ok'); accountsPage(); }).catch(e => toast(e.message, 'bad')));
 }
@@ -405,7 +424,7 @@ async function backupPage() {
   $('#csv').onclick = () => download(`/api/admin/backup/${$('#tbl').value}.csv`);
 }
 
-const LOG_NAMES = { account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
+const LOG_NAMES = { account_verified: 'ยืนยันเบอร์บัญชี', account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
 async function logsPage(action = '') {
   const list = await api('/admin/logs' + (action ? `?action=${encodeURIComponent(action)}` : ''));
   const cls = a => /failed|locked/.test(a) ? 'bad' : /pdpa/.test(a) ? 'warn' : /ok|backup|publish/.test(a) ? 'ok' : 'pri';

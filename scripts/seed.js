@@ -7,7 +7,10 @@ const up = (t, rows, key = 'code') => q(db.from(t).upsert(rows, { onConflict: ke
 async function user(username, full_name, role, password, phone) {
   const found = await q(db.from('users').select('id').eq('username', username).maybeSingle());
   if (found) return found.id;
-  return (await q(db.from('users').insert({ username, full_name, role, password_hash: hashPassword(password), phone_enc: phone ? encrypt(phone) : null }).select().single())).id;
+  return (await q(db.from('users').insert({
+    username, full_name, role, password_hash: hashPassword(password), phone_enc: phone ? encrypt(phone) : null,
+    phone_verified_at: role === 'admin' ? new Date().toISOString() : null, // แอดมินคนแรกสร้างจาก Secrets ที่เชื่อถือได้
+  }).select().single())).id;
 }
 
 const { ADMIN_USERNAME = 'admin', ADMIN_PASSWORD, ADMIN_PHONE } = process.env;

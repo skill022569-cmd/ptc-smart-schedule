@@ -49,6 +49,7 @@ app.post('/api/auth/login', async (req, res) => {
     const locked = await registerFail(user, req.ip);
     throw bad(locked ? `ใส่รหัสผิดเกินกำหนด บัญชีถูกล็อก ${LOCK_MIN} นาที` : 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
   }
+  if (!user.phone_verified_at) throw bad('บัญชียังไม่ได้ยืนยันเบอร์โทรด้วย OTP กรุณาติดต่อผู้ดูแลระบบ', 403);
   await db.from('users').update({ failed_attempts: 0 }).eq('id', user.id);
   if (OTP_REQUIRED && user.phone_enc) {
     await issueOtp(user, 'เข้าสู่ระบบ');
@@ -183,13 +184,17 @@ app.get('/api/admin/dashboard', admin, async (req, res) => {
   });
 });
 
-const accountRow = u => ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, department: u.department, phone: maskPhone(decrypt(u.phone_enc)), locked: !!isLocked(u), created_at: u.created_at });
+const accountRow = u => ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, department: u.department, phone: maskPhone(decrypt(u.phone_enc)), verified: !!u.phone_verified_at, locked: !!isLocked(u), created_at: u.created_at });
 function accountPatch(body) {
   const patch = {};
   if (body.full_name) patch.full_name = String(body.full_name).trim();
   if (body.role) { if (!LOGIN_ROLES.includes(body.role)) throw bad('บทบาทไม่ถูกต้อง'); patch.role = body.role; }
   if (body.department !== undefined) patch.department = String(body.department).trim() || null;
-  if (body.phone) { const p = String(body.phone).replace(/\D/g, ''); if (!/^0\d{9}$/.test(p)) throw bad('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก'); patch.phone_enc = encrypt(p); }
+  if (body.phone) {
+    const p = String(body.phone).replace(/\D/g, '');
+    if (!/^0\d{9}$/.test(p)) throw bad('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก');
+    Object.assign(patch, { phone_enc: encrypt(p), phone_verified_at: null }); // เบอร์ใหม่ต้องยืนยัน OTP ใหม่
+  }
   if (body.password) { if (String(body.password).length < 8) throw bad('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); patch.password_hash = hashPassword(body.password); }
   if (body.unlock) Object.assign(patch, { locked_until: null, failed_attempts: 0 });
   return patch;
@@ -200,16 +205,34 @@ app.get('/api/admin/accounts', admin, async (req, res) => {
 app.post('/api/admin/accounts', admin, async (req, res) => {
   const patch = accountPatch({ role: 'dept', ...req.body });
   if (!req.body.username || !patch.full_name || !patch.password_hash) throw bad('กรุณากรอกชื่อผู้ใช้ ชื่อ-สกุล และรหัสผ่าน');
+  if (!patch.phone_enc) throw bad('กรุณากรอกเบอร์มือถือของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
   if (patch.role === 'dept' && !patch.department) throw bad('บัญชีฝ่ายวิชาการต้องระบุแผนก');
   const u = await q(db.from('users').insert({ ...patch, username: String(req.body.username).trim() }).select().single());
+  await issueOtp(u, 'ยืนยันการสมัครบัญชี');
   await log(req.user.sub, 'account_create', { username: u.username, role: u.role, department: u.department }, req.ip);
   res.json(accountRow(u));
 });
 app.put('/api/admin/accounts/:id', admin, async (req, res) => {
   if (req.params.id === req.user.sub && req.body.role && req.body.role !== 'admin') throw bad('เปลี่ยนบทบาทของบัญชีตัวเองไม่ได้');
-  const u = await q(db.from('users').update(accountPatch(req.body)).eq('id', req.params.id).in('role', LOGIN_ROLES).select().single());
+  const patch = accountPatch(req.body);
+  const u = await q(db.from('users').update(patch).eq('id', req.params.id).in('role', LOGIN_ROLES).select().single());
+  if (patch.phone_enc) await issueOtp(u, 'ยืนยันเบอร์โทรใหม่');
   await log(req.user.sub, 'account_update', { username: u.username }, req.ip);
   res.json(accountRow(u));
+});
+// ยืนยันเบอร์ของผู้สมัคร: เจ้าของเบอร์ได้ OTP ทาง SMS แล้วแจ้งรหัสให้ผู้ดูแลระบบกรอก
+app.post('/api/admin/accounts/:id/verify', admin, async (req, res) => {
+  const u = await checkOtp(req.params.id, req.body.otp);
+  if (!u) throw bad('รหัส OTP ไม่ถูกต้องหรือหมดอายุ (กรอกผิดได้ไม่เกิน 5 ครั้ง กดส่งรหัสใหม่ได้)');
+  const row = await q(db.from('users').update({ phone_verified_at: new Date().toISOString() }).eq('id', u.id).select().single());
+  await log(req.user.sub, 'account_verified', { username: u.username }, req.ip);
+  res.json(accountRow(row));
+});
+app.post('/api/admin/accounts/:id/resend', admin, async (req, res) => {
+  const u = await q(db.from('users').select('*').eq('id', req.params.id).in('role', LOGIN_ROLES).single());
+  if (!u.phone_enc) throw bad('บัญชีนี้ยังไม่มีเบอร์โทร');
+  await issueOtp(u, 'ยืนยันการสมัครบัญชี');
+  res.json({ ok: true, phone: maskPhone(decrypt(u.phone_enc)) });
 });
 app.delete('/api/admin/accounts/:id', admin, async (req, res) => {
   if (req.params.id === req.user.sub) throw bad('ลบบัญชีตัวเองไม่ได้');
