@@ -1,0 +1,17 @@
+name: Daily Backup
+on:
+  schedule:
+    - cron: '0 19 * * *'   # 19:00 UTC = 02:00 น. เวลาประเทศไทย
+  workflow_dispatch:        # กดรันเองได้ที่แท็บ Actions
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run backup   # ไฟล์ไปอยู่ Supabase Storage (ไม่เก็บใน GitHub เพราะมีข้อมูลส่วนบุคคล)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

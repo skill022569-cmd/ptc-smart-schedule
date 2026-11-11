@@ -1,0 +1,21 @@
+{
+  "name": "ptc-smart-schedule",
+  "version": "1.0.0",
+  "description": "ระบบจัดตารางเรียน-ตารางสอนอัตโนมัติ วิทยาลัยการอาชีพโพนทอง",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "seed": "node scripts/seed.js",
+    "backup": "node scripts/backup.js",
+    "gen-keys": "node -e \"const c=require('crypto');console.log('JWT_SECRET='+c.randomBytes(48).toString('hex'));console.log('DATA_ENCRYPTION_KEY='+c.randomBytes(32).toString('hex'))\"",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

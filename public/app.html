@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PTC Smart Schedule</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="aurora"><span></span><span></span><span></span></div><div class="grid-bg"></div>
+  <div class="app">
+    <aside class="side" id="side">
+      <div class="brand"><div class="logo">📅</div><div><h1>PTC Smart Schedule</h1><div class="muted" style="font-size:.75rem">วก.โพนทอง</div></div></div>
+      <nav class="nav" id="nav"></nav>
+      <div style="margin-top:auto"><button class="btn ghost" id="logout" style="width:100%;justify-content:center">ออกจากระบบ</button></div>
+    </aside>
+    <main class="main">
+      <div class="top">
+        <div style="display:flex;gap:12px;align-items:center;flex:1">
+          <button class="btn ghost sm menu-btn" id="menu" aria-label="เมนู">☰</button>
+          <h2 id="title"></h2>
+        </div>
+        <div class="who"><div><div id="me-name" style="text-align:right"></div><div class="muted" id="me-role" style="font-size:.8rem;text-align:right"></div></div><div class="avatar" id="me-av"></div></div>
+      </div>
+      <div id="page"><div class="card"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:85%"></div></div></div>
+    </main>
+  </div>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

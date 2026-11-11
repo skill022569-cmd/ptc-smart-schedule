@@ -1,0 +1,4 @@
+node_modules/
+.env
+*.sql.bak
+ptc-smart-schedule.zip

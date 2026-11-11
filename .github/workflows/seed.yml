@@ -1,0 +1,25 @@
+name: Setup Admin & Data
+on:
+  workflow_dispatch:        # กดรันเองที่แท็บ Actions เท่านั้น
+    inputs:
+      mode:
+        description: 'admin-only = สร้างแค่แอดมิน / sample = แอดมิน + ข้อมูลตัวอย่าง'
+        type: choice
+        options: [admin-only, sample]
+        default: admin-only
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: node scripts/seed.js ${{ inputs.mode == 'admin-only' && '--admin-only' || '' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
+          ADMIN_USERNAME: admin
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_PHONE: ${{ secrets.ADMIN_PHONE }}
