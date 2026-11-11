@@ -1,6 +1,7 @@
 import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from './ui.js';
 import { renderGrid, indexLookup } from './grid.js';
 import { findConflicts, DAYS } from '/shared/conflicts.js';
+import { showGuide } from './guide.js';
 
 const ROLE = { admin: 'ผู้ดูแลระบบ', dept: 'ฝ่ายวิชาการแผนก' };
 const NAV = {
@@ -35,6 +36,7 @@ async function boot() {
   $('#nav').innerHTML = NAV[role()].map(([k, i, t]) => i ? `<a href="#${k}" data-k="${k}"><span>${i}</span>${esc(t)}</a>` : `<div class="sec">${esc(k)}</div>`).join('');
   $('#menu').onclick = () => $('#side').classList.toggle('open');
   $('#logout').onclick = async () => { viewAs.set(''); await api('/auth/logout', { method: 'POST' }); location.href = '/'; };
+  $('#guide-btn').onclick = () => (role() === 'admin' ? showGuide('admin', 'dept', 'public') : showGuide('dept', 'public'));
   if (me.role === 'admin') viewAsControl();
   window.onhashchange = route;
   if (!me.pdpa_consent_at) pdpaModal();

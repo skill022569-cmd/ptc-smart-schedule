@@ -2,6 +2,8 @@
 import { esc, $, $$, modal } from './ui.js';
 import { renderGrid, indexLookup } from './grid.js';
 import { DAYS } from '/shared/conflicts.js';
+import { showGuide } from './guide.js';
+$('#guide-btn').onclick = () => showGuide('public');
 
 const fmt = d => new Date(d).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
 if (new URLSearchParams(location.search).has('preview')) $('#preview-bar').classList.remove('hidden');
