@@ -3,64 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>เข้าสู่ระบบ | PTC Smart Schedule</title>
+  <title>ตารางเรียน | PTC Smart Schedule</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="aurora"><span></span><span></span><span></span></div><div class="grid-bg"></div>
-  <main class="auth">
-    <div class="auth-box">
-      <div class="brand reveal" style="justify-content:center;text-align:center;flex-direction:column">
-        <div class="logo">📅</div>
-        <div><h1>PTC Smart Schedule</h1><div class="muted">ระบบจัดตารางเรียน-ตารางสอนอัจฉริยะ วิทยาลัยการอาชีพโพนทอง</div></div>
+  <div id="preview-bar" class="preview-bar hidden no-print">👁 กำลังดูในมุมมอง <b>บุคคลทั่วไป</b> <a class="btn sm" href="/app.html">← กลับหน้าผู้ดูแลระบบ</a></div>
+  <main class="main public">
+    <header class="top">
+      <div class="brand reveal" style="margin:0"><div class="logo">📅</div><div><h1>ตารางเรียน วิทยาลัยการอาชีพโพนทอง</h1><div class="muted" id="ver"></div></div></div>
+      <a class="btn ghost no-print" href="/login.html" id="login-btn">🔐 เข้าสู่ระบบ</a>
+    </header>
+    <section class="card reveal" style="animation-delay:.1s">
+      <div class="muted" style="margin-bottom:8px">เลือกแผนกวิชา</div>
+      <div class="tabs" id="depts"></div>
+      <div class="row" style="align-items:center;margin-bottom:12px">
+        <div style="flex:2 1 220px"><label for="grp">กลุ่มเรียน</label><select id="grp"></select></div>
+        <button class="btn ghost sm no-print" onclick="print()">🖨 พิมพ์ / PDF</button>
       </div>
-
-      <!-- 1) เลือกสถานะ -->
-      <section id="step-role" class="roles">
-        <div class="card role reveal" data-role="student" style="animation-delay:.1s"><span class="ico">🎓</span><h2>นักเรียน / นักศึกษา</h2><div class="muted">ดูตารางเรียน ปวช. / ปวส.</div></div>
-        <div class="card role reveal" data-role="staff" style="animation-delay:.2s"><span class="ico">👩‍🏫</span><h2>ครูผู้สอน / บุคลากร</h2><div class="muted">ตารางสอน และฝ่ายวิชาการ</div></div>
-      </section>
-
-      <!-- 2) Login -->
-      <section id="step-login" class="card login-card reveal hidden">
-        <button class="link" data-back>← เปลี่ยนสถานะ</button>
-        <h2 id="login-title" style="margin-top:10px"></h2>
-        <form id="f-login">
-          <label id="lbl-user" for="username"></label><input id="username" name="username" required autocomplete="username">
-          <label for="password">รหัสผ่าน</label><input id="password" name="password" type="password" required autocomplete="current-password">
-          <button class="btn" style="width:100%;justify-content:center;margin-top:20px">เข้าสู่ระบบ</button>
-        </form>
-        <p style="text-align:center"><button class="link" id="to-forgot">ลืมรหัสผ่าน?</button></p>
-      </section>
-
-      <!-- 3) OTP -->
-      <section id="step-otp" class="card login-card reveal hidden" style="text-align:center">
-        <div style="font-size:46px">🔐</div>
-        <h2>ยืนยันตัวตน 2 ขั้นตอน</h2>
-        <div class="muted">กรอกรหัส OTP 6 หลักที่ส่งไปยัง <b id="otp-phone"></b></div>
-        <form id="f-otp"><div class="otp" aria-label="รหัส OTP"></div>
-          <button class="btn" style="width:100%;justify-content:center">ยืนยัน</button></form>
-      </section>
-
-      <!-- 4) ลืมรหัสผ่าน -->
-      <section id="step-forgot" class="card login-card reveal hidden">
-        <button class="link" data-back>← กลับ</button>
-        <h2 style="margin-top:10px">ลืมรหัสผ่าน</h2>
-        <form id="f-forgot">
-          <label>รหัสนักเรียน / รหัสพนักงาน</label><input name="username" required>
-          <button class="btn" style="width:100%;justify-content:center;margin-top:18px">ขอรหัส OTP ทาง SMS</button>
-        </form>
-        <form id="f-reset" class="hidden">
-          <label>รหัส OTP</label><input name="otp" inputmode="numeric" maxlength="6" required>
-          <label>รหัสผ่านใหม่ (อย่างน้อย 8 ตัว)</label><input name="password" type="password" minlength="8" required autocomplete="new-password">
-          <button class="btn ok" style="width:100%;justify-content:center;margin-top:18px">ตั้งรหัสผ่านใหม่</button>
-        </form>
-      </section>
-      <p class="muted reveal" style="text-align:center;font-size:.8rem;margin-top:26px;animation-delay:.3s">ระบบเก็บรักษาข้อมูลส่วนบุคคลตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล (PDPA) พ.ศ. 2562</p>
-    </div>
+      <div id="info" style="margin-bottom:10px"></div>
+      <div id="grid"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div></div>
+      <p class="muted no-print" style="font-size:.8rem">แตะที่คาบเรียนเพื่อดูรายละเอียด</p>
+    </section>
   </main>
-  <script type="module" src="/js/login.js"></script>
+  <script type="module" src="/js/public.js"></script>
 </body>
 </html>

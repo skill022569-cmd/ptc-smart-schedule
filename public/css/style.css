@@ -165,3 +165,10 @@ table.list tbody tr:hover { background: rgba(255,255,255,.04); }
   .tt th { color: #000; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
+
+/* ---------- หน้าสาธารณะ + แถบมุมมองจำลอง ---------- */
+.main.public { max-width: 1280px; margin: 0 auto; }
+.public .brand h1 { font-size: clamp(1.1rem, 2.6vw, 1.6rem); }
+.preview-bar { position: sticky; top: 0; z-index: 60; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 10px 16px; background: linear-gradient(90deg, rgba(255,181,71,.25), rgba(166,108,255,.25)); border-bottom: 1px solid rgba(255,181,71,.5); backdrop-filter: blur(12px); }
+.viewas { display: flex; align-items: center; gap: 8px; }
+.viewas select { width: auto; padding: 7px 10px; font-size: .85rem; }

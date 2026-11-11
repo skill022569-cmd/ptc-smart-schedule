@@ -3,10 +3,18 @@ export const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;'
 export const $ = (s, el = document) => el.querySelector(s);
 export const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 
+// มุมมองจำลองของแอดมิน (ชื่อแผนก) เก็บต่อแท็บเบราว์เซอร์
+export const viewAs = {
+  get() { try { return sessionStorage.getItem('viewAsDept') || ''; } catch { return ''; } },
+  set(d) { try { d ? sessionStorage.setItem('viewAsDept', d) : sessionStorage.removeItem('viewAsDept'); } catch { /* โหมดส่วนตัว */ } },
+};
+
 export async function api(path, { method = 'GET', body } = {}) {
-  const r = await fetch('/api' + path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body && JSON.stringify(body), credentials: 'same-origin' });
+  const headers = body ? { 'Content-Type': 'application/json' } : {};
+  if (viewAs.get()) headers['X-View-As-Dept'] = encodeURIComponent(viewAs.get()); // header ต้องเป็น ASCII
+  const r = await fetch('/api' + path, { method, headers, body: body && JSON.stringify(body), credentials: 'same-origin' });
   const data = await r.json().catch(() => ({}));
-  if (r.status === 401 && !path.startsWith('/auth')) { location.href = '/'; throw new Error('session'); }
+  if (r.status === 401 && !path.startsWith('/auth')) { location.href = '/login.html'; throw new Error('session'); }
   if (!r.ok) throw Object.assign(new Error(data.error || 'เกิดข้อผิดพลาด'), { status: r.status });
   return data;
 }

@@ -31,3 +31,12 @@ test('ตรวจจับครู/ห้อง/กลุ่มชน', () => 
   assert.deepEqual(c.get(1), ['ครูสอนซ้อนคาบ', 'ห้องถูกใช้ซ้อน']);
   assert.deepEqual(c.get(3), ['ครูไม่สะดวกสอนช่วงนี้']);
 });
+
+test('จัดเฉพาะแผนก โดยไม่ชนกับคาบของแผนกอื่นที่ล็อกไว้', () => {
+  const all = generateSchedule({ offerings, subjects, groups, teachers, rooms, periods, blocks }).entries;
+  const fixed = all.filter(e => e.group_id !== 'g1'); // แผนกอื่น
+  const { entries, unplaced } = generateSchedule({ offerings: offerings.filter(o => o.group_id === 'g1'), subjects, groups, teachers, rooms, periods, blocks, fixed }, { seed: 7 });
+  assert.equal(unplaced.length, 0);
+  const merged = [...fixed, ...entries].map((e, i) => ({ ...e, id: i }));
+  assert.equal(findConflicts(merged, { teachers, groups, subjects, rooms: byId(rooms), blocks }).size, 0);
+});

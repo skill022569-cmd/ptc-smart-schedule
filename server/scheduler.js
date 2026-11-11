@@ -26,6 +26,11 @@ function attempt(input, rnd) {
   for (const p of periods) (slotsByDay[p.day] ||= []).push(p.period_no);
   for (const d in slotsByDay) slotsByDay[d].sort((a, b) => a - b);
 
+  // คาบของแผนกอื่นที่ล็อกไว้ (ครู/ห้องใช้ร่วมกัน) — จองช่องไว้ก่อน ไม่ให้ชน
+  for (const e of input.fixed || []) {
+    used.add(`t|${e.teacher_id}|${e.day}|${e.period_no}`).add(`g|${e.group_id}|${e.day}|${e.period_no}`).add(`r|${e.room_id}|${e.day}|${e.period_no}`);
+    hours[e.teacher_id] = (hours[e.teacher_id] || 0) + 1;
+  }
   const blocks = offerings.flatMap(o => toBlocks(o, subjects[o.subject_id]));
   shuffle(blocks, rnd).sort((a, b) => b.len - a.len); // บล็อกใหญ่ (ยากสุด) ก่อน
 

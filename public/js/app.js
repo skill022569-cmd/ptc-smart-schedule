@@ -1,41 +1,69 @@
-import { api, esc, $, $$, toast, modal, busy, countUp, download } from './ui.js';
+import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from './ui.js';
 import { renderGrid, indexLookup } from './grid.js';
 import { findConflicts, DAYS } from '/shared/conflicts.js';
 
-const ROLE = { admin: 'ฝ่ายวิชาการ / ผู้ดูแลระบบ', teacher: 'ครูผู้สอน', student: 'นักเรียน / นักศึกษา' };
+const ROLE = { admin: 'ผู้ดูแลระบบ', dept: 'ฝ่ายวิชาการแผนก' };
 const NAV = {
-  admin: [['ภาพรวม'], ['dashboard', '📊', 'แผงควบคุม'], ['schedule', '🤖', 'จัดตารางสอน'], ['timeblocks', '⏳', 'คำร้องบล็อกเวลา'],
-    ['ข้อมูลหลัก'], ['teachers', '👩‍🏫', 'ครูผู้สอน'], ['subjects', '📚', 'รายวิชา'], ['classrooms', '🏫', 'ห้องเรียน/โรงฝึกงาน'],
-    ['student_groups', '👥', 'กลุ่มเรียน'], ['students', '🎓', 'นักเรียน'], ['periods', '🕘', 'เวลา-คาบเรียน'], ['offerings', '🧩', 'แผนการสอน'],
-    ['ความปลอดภัย'], ['backup', '💾', 'สำรองข้อมูล'], ['logs', '🛡️', 'บันทึกกิจกรรม'], ['profile', '⚙️', 'ข้อมูลส่วนตัว']],
-  teacher: [['my', '📅', 'ตารางสอนของฉัน'], ['timeblock', '⏳', 'แจ้งเวลาไม่สะดวก'], ['mystudents', '👥', 'รายชื่อนักเรียน'], ['profile', '⚙️', 'ข้อมูลส่วนตัว & PDPA']],
-  student: [['my', '📅', 'ตารางเรียนของฉัน'], ['profile', '⚙️', 'ข้อมูลส่วนตัว & PDPA']],
+  admin: [['ภาพรวม'], ['dashboard', '📊', 'แผงควบคุม'], ['schedule', '🤖', 'จัดตารางสอน'],
+    ['ข้อมูลหลัก'], ['student_groups', '👥', 'กลุ่มเรียน'], ['teachers', '👩‍🏫', 'ครูผู้สอน'], ['students', '🎓', 'นักเรียน'], ['offerings', '🧩', 'แผนการสอน'],
+    ['subjects', '📚', 'รายวิชา'], ['classrooms', '🏫', 'ห้องเรียน/โรงฝึกงาน'], ['periods', '🕘', 'เวลา-คาบเรียน'],
+    ['ระบบ'], ['accounts', '🔑', 'บัญชีผู้ใช้'], ['backup', '💾', 'สำรองข้อมูล'], ['logs', '🛡️', 'บันทึกกิจกรรม'], ['profile', '⚙️', 'ข้อมูลส่วนตัว']],
+  dept: [['งานของแผนก'], ['schedule', '🤖', 'จัดตารางสอน'],
+    ['ข้อมูลแผนก'], ['student_groups', '👥', 'กลุ่มเรียน'], ['teachers', '👩‍🏫', 'ครูผู้สอน'], ['students', '🎓', 'นักเรียน'], ['offerings', '🧩', 'แผนการสอน'],
+    ['ข้อมูลอ้างอิง (ดูอย่างเดียว)'], ['subjects', '📚', 'รายวิชา'], ['classrooms', '🏫', 'ห้องเรียน/โรงฝึกงาน'], ['periods', '🕘', 'เวลา-คาบเรียน'],
+    ['บัญชี'], ['profile', '⚙️', 'ข้อมูลส่วนตัว']],
 };
 const STATUS = { draft: ['ฉบับร่าง', 'warn'], published: ['ประกาศใช้', 'ok'], archived: ['เก็บถาวร', ''], pending: ['รออนุมัติ', 'warn'], approved: ['อนุมัติ', 'ok'], rejected: ['ไม่อนุมัติ', 'bad'] };
 const badge = s => `<span class="badge ${STATUS[s]?.[1] || ''}">${esc(STATUS[s]?.[0] || s)}</span>`;
 const fmtDate = d => d ? new Date(d).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
 const page = () => $('#page');
 let me, L;
+// บทบาทที่ใช้งานจริงตอนนี้ (แอดมินที่กดจำลองเป็นแผนก = dept)
+const role = () => (me.view ? 'dept' : me.role);
+const myDept = () => (role() === 'dept' ? me.view?.department || me.department : null);
+const departments = () => [...new Set(L.groups.map(g => g.department))].sort((a, b) => a.localeCompare(b, 'th'));
+const dl = url => download(url + (viewAs.get() ? `?viewAs=${encodeURIComponent(viewAs.get())}` : ''));
 
 // ======================= เริ่มต้น =======================
 async function boot() {
   me = await api('/me');
+  if (me.role !== 'admin' && viewAs.get()) viewAs.set('');
   L = indexLookup(await api('/lookup'));
   $('#me-name').textContent = me.full_name;
-  $('#me-role').textContent = ROLE[me.role];
+  $('#me-role').textContent = me.view ? `👁 จำลองเป็นฝ่ายวิชาการแผนก${me.view.department}` : ROLE[me.role] + (me.department ? me.department : '');
   $('#me-av').textContent = me.full_name.replace(/^(นาย|นางสาว|นาง)/, '').trim()[0] || '?';
-  $('#nav').innerHTML = NAV[me.role].map(([k, i, t]) => i ? `<a href="#${k}" data-k="${k}"><span>${i}</span>${esc(t)}</a>` : `<div class="sec">${esc(k)}</div>`).join('');
+  $('#nav').innerHTML = NAV[role()].map(([k, i, t]) => i ? `<a href="#${k}" data-k="${k}"><span>${i}</span>${esc(t)}</a>` : `<div class="sec">${esc(k)}</div>`).join('');
   $('#menu').onclick = () => $('#side').classList.toggle('open');
-  $('#logout').onclick = async () => { await api('/auth/logout', { method: 'POST' }); location.href = '/'; };
+  $('#logout').onclick = async () => { viewAs.set(''); await api('/auth/logout', { method: 'POST' }); location.href = '/'; };
+  if (me.role === 'admin') viewAsControl();
   window.onhashchange = route;
   if (!me.pdpa_consent_at) pdpaModal();
   route();
 }
 
+// ปุ่ม "มุมมอง" ของแอดมิน: สลับไปดูแบบบุคคลทั่วไป หรือแบบฝ่ายวิชาการแผนกใดก็ได้ โดยไม่ต้องสลับบัญชี
+function viewAsControl() {
+  const cur = viewAs.get();
+  $('#viewas').classList.remove('hidden');
+  $('#viewas').innerHTML = `<label for="va" style="margin:0">👁 มุมมอง</label><select id="va">
+    <option value="">ผู้ดูแลระบบ (ตัวจริง)</option><option value="__public">บุคคลทั่วไป (หน้าดูตาราง)</option>
+    ${departments().map(d => `<option value="${esc(d)}" ${d === cur ? 'selected' : ''}>ฝ่ายวิชาการ: ${esc(d)}</option>`).join('')}</select>`;
+  $('#va').onchange = e => {
+    const v = e.target.value;
+    if (v === '__public') { viewAs.set(''); location.href = '/?preview=1'; return; }
+    viewAs.set(v); location.hash = ''; location.reload();
+  };
+  if (cur) {
+    $('#viewas-bar').classList.remove('hidden');
+    $('#viewas-bar').innerHTML = `👁 กำลังจำลองเป็น <b>ฝ่ายวิชาการแผนก${esc(cur)}</b> — สิทธิ์และข้อมูลที่เห็นเหมือนบัญชีจริงของแผนกนี้ทุกอย่าง <button class="btn sm" id="va-exit">← กลับเป็นผู้ดูแลระบบ</button>`;
+    $('#va-exit').onclick = () => { viewAs.set(''); location.hash = ''; location.reload(); };
+  }
+}
+
 function pdpaModal() {
   const m = modal(`<h2>🔒 นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h2>
     <p>วิทยาลัยการอาชีพโพนทองเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของท่าน ได้แก่ ชื่อ-สกุล รหัสประจำตัว กลุ่มเรียน/แผนก เบอร์โทรศัพท์ และอีเมล
-    เพื่อวัตถุประสงค์ในการจัดตารางเรียน-ตารางสอน ยืนยันตัวตน (OTP) และแจ้งเตือนความปลอดภัยเท่านั้น</p>
+    เพื่อวัตถุประสงค์ในการจัดตารางเรียน-ตารางสอน ยืนยันตัวตนเจ้าหน้าที่ (OTP) และแจ้งเตือนความปลอดภัยเท่านั้น</p>
     <ul class="muted"><li>ข้อมูลเบอร์โทร/อีเมลถูกเข้ารหัส (AES-256) และแสดงผลแบบปิดบังบางส่วน</li>
     <li>ท่านมีสิทธิ์ขอดู ขอสำเนา แก้ไข หรือขอลบข้อมูล ได้ที่เมนู "ข้อมูลส่วนตัว & PDPA"</li>
     <li>ข้อมูลจะถูกเก็บตลอดระยะเวลาการศึกษา/การปฏิบัติงาน และสำรองข้อมูลอย่างปลอดภัย</li></ul>
@@ -45,29 +73,14 @@ function pdpaModal() {
 }
 
 function route() {
-  const k = location.hash.slice(1) || NAV[me.role].find(n => n[1])[0];
-  const item = NAV[me.role].find(n => n[0] === k && n[1]);
-  if (!item) { location.hash = NAV[me.role].find(n => n[1])[0]; return; }
+  const k = location.hash.slice(1) || NAV[role()].find(n => n[1])[0];
+  const item = NAV[role()].find(n => n[0] === k && n[1]);
+  if (!item) { location.hash = NAV[role()].find(n => n[1])[0]; return; }
   $$('#nav a').forEach(a => a.classList.toggle('active', a.dataset.k === k));
   $('#title').textContent = item[2];
   $('#side').classList.remove('open');
   page().innerHTML = '<div class="card"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div></div>';
   (PAGES[k] || (() => masterPage(k)))().catch(e => { if (e.message !== 'session') page().innerHTML = `<div class="card">⚠ ${esc(e.message)}</div>`; });
-}
-
-// ======================= ตารางของฉัน (ครู/นักเรียน) =======================
-async function mySchedule() {
-  const { version, entries } = await api('/my/schedule');
-  const view = me.teacher ? { type: 'teacher', id: me.teacher.id } : { type: 'group', id: me.student?.group_id };
-  const g = me.student?.group;
-  page().innerHTML = `<div class="card reveal">
-    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div>${version ? `${badge('published')} <span class="muted">${esc(version.name)}</span>` : '<span class="badge warn">ฝ่ายวิชาการยังไม่ประกาศตาราง</span>'}
-      ${g ? `<div style="margin-top:6px">กลุ่ม <b>${esc(g.code)}</b> · ${esc(g.level)} ${esc(g.department)} ปี ${g.year}</div>` : ''}
-      ${me.teacher ? `<div style="margin-top:6px">รวม <b>${entries.length}</b> คาบ/สัปดาห์</div>` : ''}</div>
-      <button class="btn ghost sm no-print" onclick="print()">🖨 พิมพ์ / PDF</button></div>
-    <div id="grid"></div><p class="muted no-print" style="font-size:.8rem">แตะที่คาบเรียนเพื่อดูรายละเอียด</p></div>`;
-  renderGrid($('#grid'), { entries, L, view, onClick: classInfo });
 }
 
 function classInfo(e) {
@@ -78,31 +91,6 @@ function classInfo(e) {
     <tr><td>👩‍🏫 ครูผู้สอน</td><td>${esc(t?.full_name)}</td></tr><tr><td>👥 กลุ่มเรียน</td><td>${esc(g?.code)} ${esc(g?.department)}</td></tr>
     <tr><td>📍 สถานที่</td><td>${esc(r?.building)} ห้อง ${esc(r?.code)}</td></tr></table>
     <button class="btn" data-close style="margin-top:16px">ปิด</button>`);
-}
-
-// ======================= ครู =======================
-async function timeblockPage() {
-  const list = await api('/my/timeblocks');
-  const nums = [...new Set(L.periods.map(p => p.period_no))];
-  const opt = nums.map(n => `<option value="${n}">คาบ ${n}</option>`).join('');
-  page().innerHTML = `<div class="grid2"><form class="card reveal" id="f-tb"><h3>ส่งคำร้องช่วงเวลาไม่สะดวกสอน</h3>
-    <label>วัน</label><select name="day">${[1, 2, 3, 4, 5, 6, 7].map(d => `<option value="${d}">${DAYS[d]}</option>`).join('')}</select>
-    <div class="row"><div><label>ตั้งแต่</label><select name="period_from">${opt}</select></div><div><label>ถึง</label><select name="period_to">${opt}</select></div></div>
-    <label>เหตุผล</label><input name="reason" placeholder="เช่น ติดราชการ, อบรม" maxlength="300">
-    <button class="btn" style="margin-top:16px">📨 ส่งคำร้องไปฝ่ายวิชาการ</button></form>
-    <div class="card reveal" style="animation-delay:.1s"><h3>คำร้องของฉัน</h3><div class="table-wrap"><table class="list"><thead><tr><th>วัน</th><th>คาบ</th><th>เหตุผล</th><th>สถานะ</th></tr></thead><tbody>
-    ${list.map(r => `<tr><td>${DAYS[r.day]}</td><td>${r.period_from}-${r.period_to}</td><td>${esc(r.reason)}</td><td>${badge(r.status)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">ยังไม่มีคำร้อง</td></tr>'}
-    </tbody></table></div></div></div>`;
-  $('#f-tb').onsubmit = e => { e.preventDefault(); busy(e.submitter, async () => { await api('/my/timeblocks', { method: 'POST', body: Object.fromEntries(new FormData(e.target)) }); toast('ส่งคำร้องแล้ว', 'ok'); timeblockPage(); }); };
-}
-
-async function myStudents() {
-  const groups = await api('/my/students');
-  page().innerHTML = groups.map((g, i) => `<div class="card reveal" style="margin-bottom:16px;animation-delay:${i * .07}s">
-    <h3>👥 ${esc(g.code)} <span class="muted" style="font-size:.9rem">${esc(g.level)} ${esc(g.department)} · ${g.students.length} คน</span></h3>
-    <div class="table-wrap"><table class="list"><thead><tr><th>#</th><th>รหัสนักเรียน</th><th>ชื่อ-สกุล</th><th>หมายเหตุ</th></tr></thead><tbody>
-    ${g.students.map((s, j) => `<tr><td>${j + 1}</td><td>${esc(s.code)}</td><td>${esc(s.name)}</td><td>${esc(s.special || '')}</td></tr>`).join('')}</tbody></table></div></div>`).join('')
-    || '<div class="card">ยังไม่มีกลุ่มเรียนที่รับผิดชอบ</div>';
 }
 
 // ======================= ข้อมูลส่วนตัว & PDPA =======================
@@ -128,9 +116,9 @@ async function profilePage() {
     busy(e.submitter, async () => { await api('/me', { method: 'PUT', body }); toast('บันทึกแล้ว', 'ok'); profilePage(); });
   };
   $('#f-pw').onsubmit = e => { e.preventDefault(); busy(e.submitter, async () => { await api('/me/password', { method: 'PUT', body: Object.fromEntries(new FormData(e.target)) }); toast('เปลี่ยนรหัสผ่านแล้ว', 'ok'); e.target.reset(); }); };
-  $('#pd-exp').onclick = () => download('/api/me/export');
+  $('#pd-exp').onclick = () => dl('/api/me/export');
   $('#pd-del').onclick = () => {
-    const m = modal(`<h3>ขอลบข้อมูลส่วนบุคคล</h3><p class="muted">คำขอจะส่งถึงฝ่ายวิชาการเพื่อพิจารณา (ข้อมูลที่จำเป็นตามระเบียบสถานศึกษาอาจต้องเก็บต่อ)</p>
+    const m = modal(`<h3>ขอลบข้อมูลส่วนบุคคล</h3><p class="muted">คำขอจะส่งถึงผู้ดูแลระบบเพื่อพิจารณา (ข้อมูลที่จำเป็นตามระเบียบสถานศึกษาอาจต้องเก็บต่อ)</p>
       <label>เหตุผล</label><textarea id="rs" rows="3"></textarea><div class="row" style="margin-top:14px"><button class="btn ghost" data-close>ยกเลิก</button><button class="btn danger" id="go">ส่งคำขอ</button></div>`);
     $('#go', m).onclick = async () => { const r = await api('/me/delete-request', { method: 'POST', body: { reason: $('#rs', m).value } }); toast(r.message, 'ok'); m.remove(); };
   };
@@ -150,24 +138,23 @@ async function dashboard() {
       <div class="card reveal" style="animation-delay:.4s"><h3>🚨 การเข้าสู่ระบบที่น่าสงสัย (7 วัน)</h3>
         <div class="table-wrap" style="max-height:260px"><table class="list"><tbody>${d.suspicious.map(l => `<tr><td>${fmtDate(l.created_at)}</td><td>${esc(l.user?.username || l.detail?.username || '-')}</td><td>${l.action === 'account_locked' ? '<span class="badge bad">ล็อกบัญชี</span>' : l.action === 'otp_failed' ? '<span class="badge warn">OTP ผิด</span>' : '<span class="badge warn">รหัสผิด</span>'}</td><td class="muted">${esc(l.ip || '')}</td></tr>`).join('') || '<tr><td class="muted">ไม่พบความผิดปกติ ✅</td></tr>'}</tbody></table></div></div>
     </div>
-    ${d.pending ? `<div class="card reveal" style="margin-top:18px;animation-delay:.5s">⏳ มีคำร้องบล็อกเวลารออนุมัติ <b>${d.pending}</b> รายการ <a href="#timeblocks">ไปที่คำร้อง →</a></div>` : ''}`;
+`;
   $$('.stat .n').forEach(countUp);
   requestAnimationFrame(() => setTimeout(() => $$('.bars i').forEach(i => i.style.height = i.dataset.h + 'px'), 300));
 }
 
 // ======================= Admin: จัดตารางสอน (AI + โหมดมือ) =======================
-const S = { version: null, entries: [], view: { type: 'group', id: null }, undo: [], blocks: [] };
+const S = { version: null, entries: [], view: { type: 'group', id: null }, undo: [] };
 
 async function schedulePage() {
-  const [versions, blocks] = await Promise.all([api('/admin/versions'), api('/admin/timeblocks')]);
-  S.blocks = blocks.filter(b => b.status === 'approved');
+  const versions = await api('/versions');
   if (!S.version || !versions.some(v => v.id === S.version.id)) S.version = versions.find(v => v.status === 'draft') || versions[0] || null;
   else S.version = versions.find(v => v.id === S.version.id);
-  S.view.id ||= L.groups[0]?.id;
+  S.view.id ||= myGroups()[0]?.id;
   page().innerHTML = `<div class="card reveal" style="margin-bottom:16px">
     <div class="row">
-      <div style="flex:2 1 260px"><label>เวอร์ชันตาราง (Restore Point)</label><select id="ver">${versions.map(v => `<option value="${v.id}" ${v.id === S.version?.id ? 'selected' : ''}>${esc(v.name)} — ${STATUS[v.status][0]} (${fmtDate(v.created_at)})</option>`).join('')}</select></div>
-      <div style="flex:0 0 auto"><button class="btn" id="ai">🤖 AI จัดตารางอัตโนมัติ</button></div>
+      <div style="flex:2 1 260px"><label>เวอร์ชันตาราง (Restore Point)${myDept() ? ' — AI จะจัดเฉพาะกลุ่มเรียนของแผนก โดยล็อกคาบของแผนกอื่นในฉบับนี้ไว้' : ''}</label><select id="ver">${versions.map(v => `<option value="${v.id}" ${v.id === S.version?.id ? 'selected' : ''}>${esc(v.name)} — ${STATUS[v.status][0]} (${fmtDate(v.created_at)})</option>`).join('')}</select></div>
+      <div style="flex:0 0 auto"><button class="btn" id="ai">🤖 AI จัดตาราง${myDept() ? `แผนก${esc(myDept())}` : 'ทั้งวิทยาลัย'}</button></div>
     </div>
     <div class="row no-print" style="margin-top:12px;flex-wrap:wrap">
       <button class="btn ghost sm" id="snap" style="flex:0 0 auto">📸 Snapshot / กู้คืนเป็นฉบับร่าง</button>
@@ -185,29 +172,30 @@ async function schedulePage() {
       <div id="grid"></div></div>`;
   $('#ver').onchange = e => { S.version = versions.find(v => v.id === e.target.value); S.undo = []; loadEntries(); };
   $('#ai').onclick = e => busy(e.currentTarget, runAi);
-  $('#snap').onclick = e => S.version && busy(e.currentTarget, async () => { S.version = await api(`/admin/versions/${S.version.id}/snapshot`, { method: 'POST', body: {} }); toast('สร้างสำเนาเป็นฉบับร่างแล้ว แก้ไขได้ทันที', 'ok'); schedulePage(); });
+  $('#snap').onclick = e => S.version && busy(e.currentTarget, async () => { S.version = await api(`/versions/${S.version.id}/snapshot`, { method: 'POST', body: {} }); toast('สร้างสำเนาเป็นฉบับร่างแล้ว แก้ไขได้ทันที', 'ok'); schedulePage(); });
   $('#undo').onclick = undo;
   $('#pub').onclick = e => S.version && busy(e.currentTarget, publish);
-  $('#xls').onclick = () => S.version && download(`/api/admin/versions/${S.version.id}/export.csv`);
-  $('#delv').onclick = e => S.version && confirm('ลบเวอร์ชันนี้?') && busy(e.currentTarget, async () => { await api(`/admin/versions/${S.version.id}`, { method: 'DELETE' }); S.version = null; schedulePage(); });
+  $('#xls').onclick = () => S.version && dl(`/api/versions/${S.version.id}/export.csv`);
+  $('#delv').onclick = e => S.version && confirm('ลบเวอร์ชันนี้?') && busy(e.currentTarget, async () => { await api(`/versions/${S.version.id}`, { method: 'DELETE' }); S.version = null; schedulePage(); });
   $$('#vtabs button').forEach(b => b.onclick = () => { S.view = { type: b.dataset.v, id: null }; $$('#vtabs button').forEach(x => x.classList.toggle('active', x === b)); fillViewSelect(); draw(); });
   fillViewSelect();
   await loadEntries();
 }
 
 function fillViewSelect() {
-  const list = { group: L.groups.map(g => [g.id, `${g.code} (${g.level} ${g.department})`]), teacher: L.teachers.map(t => [t.id, t.full_name]), room: L.rooms.map(r => [r.id, `${r.code} ${r.building || ''}`]) }[S.view.type];
+  const list = { group: myGroups().map(g => [g.id, `${g.code} (${g.level} ${g.department})`]), teacher: L.teachers.map(t => [t.id, t.full_name]), room: L.rooms.map(r => [r.id, `${r.code} ${r.building || ''}`]) }[S.view.type];
   S.view.id ||= list[0]?.[0];
   $('#vid').innerHTML = list.map(([id, n]) => `<option value="${id}" ${id === S.view.id ? 'selected' : ''}>${esc(n)}</option>`).join('');
   $('#vid').onchange = e => { S.view.id = e.target.value; draw(); };
 }
 
 async function loadEntries() {
-  S.entries = S.version ? await api(`/admin/versions/${S.version.id}/entries`) : [];
+  S.entries = S.version ? await api(`/versions/${S.version.id}/entries`) : [];
   draw();
 }
 
-const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject, blocks: S.blocks });
+const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject });
+const myGroups = () => L.groups.filter(g => !myDept() || g.department === myDept());
 
 function draw() {
   if (!$('#grid')) return;
@@ -226,7 +214,7 @@ function draw() {
 }
 
 async function runAi() {
-  const r = await api('/admin/versions/generate', { method: 'POST', body: {} });
+  const r = await api('/versions/generate', { method: 'POST', body: { base_version_id: S.version?.id } });
   S.version = r.version; S.undo = [];
   toast(`🤖 AI จัดตารางเสร็จใน ${r.ms} ms — วางแล้ว ${r.placed} คาบ`, 'ok');
   if (r.unplaced.length) modal(`<h3>⚠ มีรายวิชาที่ AI จัดไม่ลง ${r.unplaced.length} รายการ</h3><p class="muted">ตรวจสอบความจุห้อง ชั่วโมงสอนสูงสุดของครู หรือเพิ่มคาบเรียน แล้วสั่งใหม่ หรือลากวางเองในโหมดมือ</p>
@@ -240,7 +228,7 @@ async function move(id, day, period_no, record = true) {
   if (!e || (e.day === day && e.period_no === period_no)) return;
   const from = { day: e.day, period_no: e.period_no };
   Object.assign(e, { day, period_no }); draw(); // อัปเดตทันที แล้วค่อยบันทึก
-  try { await api(`/admin/entries/${id}`, { method: 'PUT', body: { day, period_no } }); if (record) S.undo.push({ t: 'move', id, from }); }
+  try { await api(`/entries/${id}`, { method: 'PUT', body: { day, period_no } }); if (record) S.undo.push({ t: 'move', id, from }); }
   catch (err) { Object.assign(e, from); draw(); toast(err.message, 'bad'); }
   const c = findConflicts(S.entries, ctx()).get(id);
   if (c) toast('⚠ ' + c.join(', '), 'bad');
@@ -249,12 +237,12 @@ async function move(id, day, period_no, record = true) {
 async function add(offeringId, day, period_no) {
   const o = L.offerings.find(x => x.id === offeringId);
   const room = L.rooms.find(r => !S.entries.some(e => e.room_id === r.id && e.day === day && e.period_no === period_no) && (L.subject[o.subject_id]?.type === 'practice') === (r.room_type !== 'lecture'));
-  const e = await api('/admin/entries', { method: 'POST', body: { version_id: S.version.id, day, period_no, subject_id: o.subject_id, teacher_id: o.teacher_id, group_id: o.group_id, room_id: room?.id } });
+  const e = await api('/entries', { method: 'POST', body: { version_id: S.version.id, day, period_no, subject_id: o.subject_id, teacher_id: o.teacher_id, group_id: o.group_id, room_id: room?.id } });
   S.entries.push(e); S.undo.push({ t: 'add', id: e.id }); draw();
 }
 
 async function removeEntry(e, record = true) {
-  await api(`/admin/entries/${e.id}`, { method: 'DELETE' });
+  await api(`/entries/${e.id}`, { method: 'DELETE' });
   S.entries = S.entries.filter(x => x.id !== e.id);
   if (record) S.undo.push({ t: 'del', entry: e });
   draw();
@@ -265,8 +253,8 @@ async function undo() {
   if (!u) return toast('ไม่มีรายการให้ย้อนกลับ');
   if (u.t === 'move') await move(u.id, u.from.day, u.from.period_no, false);
   if (u.t === 'add') await removeEntry(S.entries.find(e => e.id === u.id), false);
-  if (u.t === 'room') { await api(`/admin/entries/${u.e.id}`, { method: 'PUT', body: { room_id: u.from } }); u.e.room_id = u.from; draw(); }
-  if (u.t === 'del') { const { id, ...rest } = u.entry; S.entries.push(await api('/admin/entries', { method: 'POST', body: rest })); draw(); }
+  if (u.t === 'room') { await api(`/entries/${u.e.id}`, { method: 'PUT', body: { room_id: u.from } }); u.e.room_id = u.from; draw(); }
+  if (u.t === 'del') { const { id, ...rest } = u.entry; S.entries.push(await api('/entries', { method: 'POST', body: rest })); draw(); }
   toast('↶ ย้อนกลับแล้ว');
 }
 
@@ -275,30 +263,32 @@ function editEntry(e, problems) {
     ${problems ? `<p class="badge bad">⚠ ${esc(problems.join(', '))}</p>` : ''}
     <label>ห้องเรียน</label><select id="rm">${L.rooms.map(r => `<option value="${r.id}" ${r.id === e.room_id ? 'selected' : ''}>${esc(r.code)} · ${esc(r.building || '')} · ${r.room_type} · ${r.capacity} ที่นั่ง${S.entries.some(x => x.id !== e.id && x.room_id === r.id && x.day === e.day && x.period_no === e.period_no) ? ' (ไม่ว่าง)' : ''}</option>`).join('')}</select>
     <div class="row" style="margin-top:16px"><button class="btn danger" id="del">ลบคาบนี้</button><button class="btn ghost" data-close>ปิด</button><button class="btn" id="save">บันทึก</button></div>`);
-  $('#save', m).onclick = async () => { const room_id = $('#rm', m).value; await api(`/admin/entries/${e.id}`, { method: 'PUT', body: { room_id } }); S.undo.push({ t: 'room', e, from: e.room_id }); e.room_id = room_id; m.remove(); draw(); };
+  $('#save', m).onclick = async () => { const room_id = $('#rm', m).value; await api(`/entries/${e.id}`, { method: 'PUT', body: { room_id } }); S.undo.push({ t: 'room', e, from: e.room_id }); e.room_id = room_id; m.remove(); draw(); };
   $('#del', m).onclick = async () => { await removeEntry(e); m.remove(); };
 }
 
 async function publish() {
-  try { await api(`/admin/versions/${S.version.id}/publish`, { method: 'POST', body: {} }); }
+  let r;
+  try { r = await api(`/versions/${S.version.id}/publish`, { method: 'POST', body: {} }); }
   catch (e) {
     if (e.status !== 409 || !confirm(e.message + '\n\nต้องการประกาศใช้ทั้งที่ยังชนกันหรือไม่?')) throw e;
-    await api(`/admin/versions/${S.version.id}/publish`, { method: 'POST', body: { force: true } });
+    r = await api(`/versions/${S.version.id}/publish`, { method: 'POST', body: { force: true } });
   }
-  toast('🚀 ประกาศใช้แล้ว ครูและนักเรียนเห็นตารางนี้ทันที', 'ok');
+  S.version = r.version;
+  toast(myDept() ? `🚀 นำตารางแผนก${myDept()}ไปรวมกับตารางที่ประกาศแล้ว (แผนกอื่นไม่ถูกแก้)` : '🚀 ประกาศใช้แล้ว ทุกคนเห็นตารางนี้ที่หน้าแรกทันที', 'ok');
   schedulePage();
 }
 
 // ======================= Admin: ข้อมูลหลัก (CRUD) =======================
 const DAY_OPTS = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map(d => [d, DAYS[d]]));
 const MASTER = {
-  subjects: { fields: [['code', 'รหัสวิชา'], ['name', 'ชื่อวิชา'], ['credits', 'หน่วยกิต', 'number'], ['periods_per_week', 'คาบ/สัปดาห์', 'number'], ['type', 'ประเภท', { theory: 'ทฤษฎี', practice: 'ปฏิบัติ' }]] },
-  classrooms: { fields: [['code', 'ชื่อ/รหัสห้อง'], ['building', 'อาคาร'], ['room_type', 'ประเภท', { lecture: 'ห้องเรียนทั่วไป', lab: 'ห้อง Lab', workshop: 'โรงฝึกงาน' }], ['capacity', 'ความจุ', 'number']] },
+  subjects: { adminOnly: true, fields: [['code', 'รหัสวิชา'], ['name', 'ชื่อวิชา'], ['credits', 'หน่วยกิต', 'number'], ['periods_per_week', 'คาบ/สัปดาห์', 'number'], ['type', 'ประเภท', { theory: 'ทฤษฎี', practice: 'ปฏิบัติ' }]] },
+  classrooms: { adminOnly: true, fields: [['code', 'ชื่อ/รหัสห้อง'], ['building', 'อาคาร'], ['room_type', 'ประเภท', { lecture: 'ห้องเรียนทั่วไป', lab: 'ห้อง Lab', workshop: 'โรงฝึกงาน' }], ['capacity', 'ความจุ', 'number']] },
   student_groups: { fields: [['code', 'รหัสกลุ่ม'], ['department', 'แผนกวิชา'], ['level', 'ระดับ', { 'ปวช.': 'ปวช.', 'ปวส.': 'ปวส.' }], ['year', 'ชั้นปี', 'number'], ['size', 'จำนวนนักเรียน', 'number'], ['program', 'รูปแบบ', { 'ปกติ': 'ปกติ', 'ทวิภาคี': 'ทวิภาคี' }]] },
-  periods: { fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time']] },
-  offerings: { fields: [['group_id', 'กลุ่มเรียน', () => Object.fromEntries(L.groups.map(g => [g.id, g.code]))], ['subject_id', 'รายวิชา', () => Object.fromEntries(L.subjects.map(s => [s.id, `${s.code} ${s.name}`]))], ['teacher_id', 'ครูผู้สอน', () => Object.fromEntries(L.teachers.map(t => [t.id, t.full_name]))]] },
-  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['phone', 'เบอร์โทร'], ['department', 'กลุ่มวิชา/แผนก'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
-  students: { people: 'student_code', fields: [['student_code', 'รหัสนักเรียน'], ['full_name', 'ชื่อ-สกุล'], ['phone', 'เบอร์โทร'], ['group_id', 'กลุ่มเรียน', () => Object.fromEntries(L.groups.map(g => [g.id, g.code]))], ['special_needs', 'เงื่อนไขพิเศษ']] },
+  periods: { adminOnly: true, fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time']] },
+  offerings: { fields: [['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['subject_id', 'รายวิชา', () => Object.fromEntries(L.subjects.map(s => [s.id, `${s.code} ${s.name}`]))], ['teacher_id', 'ครูผู้สอน', () => Object.fromEntries(L.teachers.map(t => [t.id, t.full_name]))]] },
+  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
+  students: { people: 'student_code', fields: [['student_code', 'รหัสนักเรียน'], ['full_name', 'ชื่อ-สกุล'], ['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['special_needs', 'เงื่อนไขพิเศษ']] },
 };
 const optsOf = t => typeof t === 'function' ? t() : t;
 const show = (f, v) => f[2] === 'slots' ? `${(v || []).length} ช่วง` : f[2] && typeof f[2] !== 'string' ? optsOf(f[2])[v] ?? v : v;
@@ -306,28 +296,26 @@ const show = (f, v) => f[2] === 'slots' ? `${(v || []).length} ช่วง` : f
 async function masterPage(name) {
   const cfg = MASTER[name];
   if (!cfg) throw new Error('ไม่พบหน้านี้');
-  const base = cfg.people ? `/admin/people/${name}` : `/admin/data/${name}`;
+  const base = cfg.people ? `/people/${name}` : `/data/${name}`;
+  const ro = cfg.adminOnly && role() !== 'admin';
   let rows = await api(base);
   const reload = async () => { L = indexLookup(await api('/lookup')); masterPage(name); };
   page().innerHTML = `<div class="card reveal"><div class="row" style="margin-bottom:14px">
       <input id="q" placeholder="🔎 ค้นหา..." style="flex:2 1 220px"><div style="flex:0 0 auto" class="row">
-      ${name === 'students' ? '<button class="btn ghost" id="imp" style="flex:0 0 auto">📥 นำเข้า CSV</button>' : ''}<button class="btn" id="add" style="flex:0 0 auto">＋ เพิ่มข้อมูล</button></div></div>
+      ${ro ? '<span class="badge">ดูอย่างเดียว — แก้ไขได้เฉพาะผู้ดูแลระบบ</span>' : `${name === 'students' ? '<button class="btn ghost" id="imp" style="flex:0 0 auto">📥 นำเข้า CSV</button>' : ''}<button class="btn" id="add" style="flex:0 0 auto">＋ เพิ่มข้อมูล</button>`}</div></div>
     <div class="table-wrap"><table class="list"><thead><tr>${cfg.fields.map(f => `<th>${f[1]}</th>`).join('')}<th></th></tr></thead><tbody id="tb"></tbody></table></div>
     <p class="muted" id="cnt"></p></div>`;
   const paint = () => {
     const k = $('#q').value.toLowerCase();
     const list = rows.filter(r => !k || cfg.fields.some(f => String(show(f, r[f[0]]) ?? '').toLowerCase().includes(k)));
-    $('#tb').innerHTML = list.map(r => `<tr>${cfg.fields.map(f => `<td>${esc(show(f, r[f[0]]))}</td>`).join('')}<td style="white-space:nowrap">
-      ${r.locked ? `<button class="btn ok sm" data-unlock="${r.id}">🔓 ปลดล็อก</button>` : ''}
-      <button class="btn ghost sm" data-edit="${r.id}">แก้ไข</button> <button class="btn danger sm" data-del="${r.id}">ลบ</button></td></tr>`).join('') || `<tr><td colspan="9" class="muted">ไม่มีข้อมูล</td></tr>`;
+    $('#tb').innerHTML = list.map(r => `<tr>${cfg.fields.map(f => `<td>${esc(show(f, r[f[0]]))}</td>`).join('')}<td style="white-space:nowrap">${ro ? '' : `<button class="btn ghost sm" data-edit="${r.id}">แก้ไข</button> <button class="btn danger sm" data-del="${r.id}">ลบ</button>`}</td></tr>`).join('') || `<tr><td colspan="9" class="muted">ไม่มีข้อมูล</td></tr>`;
     $('#cnt').textContent = `ทั้งหมด ${list.length} รายการ`;
     $$('[data-edit]').forEach(b => b.onclick = () => form(cfg, rows.find(r => r.id === b.dataset.edit), base, reload));
     $$('[data-del]').forEach(b => b.onclick = () => confirm('ยืนยันการลบ? ข้อมูลที่เกี่ยวข้องจะถูกลบด้วย') && api(`${base}/${b.dataset.del}`, { method: 'DELETE' }).then(() => { toast('ลบแล้ว', 'ok'); reload(); }).catch(e => toast(e.message, 'bad')));
-    $$('[data-unlock]').forEach(b => b.onclick = () => api(`${base}/${b.dataset.unlock}`, { method: 'PUT', body: { unlock: true } }).then(() => { toast('ปลดล็อกแล้ว', 'ok'); reload(); }));
   };
   $('#q').oninput = paint;
-  $('#add').onclick = () => form(cfg, null, base, reload);
-  if (name === 'students') $('#imp').onclick = () => importStudents(reload);
+  if (!ro) $('#add').onclick = () => form(cfg, null, base, reload);
+  if (!ro && name === 'students') $('#imp').onclick = () => importStudents(reload);
   paint();
 }
 
@@ -338,12 +326,12 @@ function form(cfg, row, base, done) {
     if (t === 'slots') return `<label>${label} (ติ๊กช่องที่ไม่สะดวก)</label><div class="table-wrap"><table class="list"><tr><th></th>${nums.map(n => `<th>${n}</th>`).join('')}</tr>
       ${days.map(d => `<tr><td>${DAYS[d]}</td>${nums.map(n => `<td><input type="checkbox" style="width:auto" data-slot="${d}-${n}" ${(v || []).some(u => u.day === d && u.period === n) ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}</table></div>`;
     if (t && typeof t !== 'string') return `<label>${label}</label><select name="${k}">${Object.entries(optsOf(t)).map(([o, n]) => `<option value="${esc(o)}" ${String(v) === o ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
-    const ro = row && k === cfg.people ? 'readonly' : '';
-    const val = k === 'phone' ? '' : v;
-    return `<label>${label}</label><input name="${k}" type="${t || 'text'}" value="${esc(val)}" ${ro} ${k === 'phone' && row ? `placeholder="ปัจจุบัน ${esc(v)} — กรอกเพื่อเปลี่ยน"` : ''} ${!row && ['code', 'name', 'full_name', cfg.people].includes(k) ? 'required' : ''}>`;
+    const lockDept = k === 'department' && myDept();
+    const ro = (row && k === cfg.people) || lockDept ? 'readonly' : '';
+    const val = lockDept ? myDept() : v;
+    return `<label>${label}</label><input name="${k}" type="${t || 'text'}" value="${esc(val)}" ${ro} ${!row && ['code', 'name', 'full_name', cfg.people].includes(k) ? 'required' : ''}>`;
   };
   const m = modal(`<h3>${row ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}</h3><form>${cfg.fields.map(input).join('')}
-    ${cfg.people ? `<label>${row ? 'ตั้งรหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่านเริ่มต้น (เว้นว่าง = ใช้รหัสประจำตัว)'}</label><input name="password" type="password" autocomplete="new-password">` : ''}
     <div class="row" style="margin-top:18px"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn">💾 บันทึก</button></div></form>`);
   $('form', m).onsubmit = e => {
     e.preventDefault();
@@ -356,8 +344,8 @@ function form(cfg, row, base, done) {
 
 function importStudents(done) {
   const m = modal(`<h3>📥 นำเข้าข้อมูลนักเรียน (CSV)</h3>
-    <p class="muted">คอลัมน์: <code>student_code,full_name,group_code,phone</code> (แถวแรกเป็นหัวตาราง) — ส่งออกจาก Excel เป็น "CSV UTF-8"</p>
-    <input type="file" accept=".csv,text/csv" id="file"><label>หรือวางข้อมูล</label><textarea id="csv" rows="8" placeholder="student_code,full_name,group_code,phone&#10;68201001,นายสมปอง ตั้งใจเรียน,ชย.1/1,0812345678"></textarea>
+    <p class="muted">คอลัมน์: <code>student_code,full_name,group_code</code> (แถวแรกเป็นหัวตาราง) — ส่งออกจาก Excel เป็น "CSV UTF-8"</p>
+    <input type="file" accept=".csv,text/csv" id="file"><label>หรือวางข้อมูล</label><textarea id="csv" rows="8" placeholder="student_code,full_name,group_code&#10;68201001,นายสมปอง ตั้งใจเรียน,ชย.1/1"></textarea>
     <div id="res"></div><div class="row" style="margin-top:14px"><button class="btn ghost" data-close>ปิด</button><button class="btn" id="go">นำเข้า</button></div>`);
   $('#file', m).onchange = async e => { $('#csv', m).value = (await e.target.files[0].text()).replace(/^﻿/, ''); };
   $('#go', m).onclick = e => busy(e.currentTarget, async () => {
@@ -365,20 +353,43 @@ function importStudents(done) {
     const cols = head.split(',').map(s => s.trim());
     // shortcut: แยกด้วย , ธรรมดา ไม่รองรับ "ค่าที่มี , ในเครื่องหมายคำพูด" — ชื่อนักเรียนไม่มี , จึงพอ
     const rows = lines.map(l => Object.fromEntries(l.split(',').map((v, i) => [cols[i], v.trim()])));
-    const r = await api('/admin/students/import', { method: 'POST', body: { rows } });
+    const r = await api('/students/import', { method: 'POST', body: { rows } });
     $('#res', m).innerHTML = `<p class="badge ok">นำเข้าสำเร็จ ${r.ok} คน</p>${r.errors.map(x => `<div class="muted" style="color:var(--bad)">${esc(x)}</div>`).join('')}`;
     if (r.ok) done();
   });
 }
 
 // ======================= Admin: คำร้อง / สำรองข้อมูล / Logs =======================
-async function timeblocksAdmin() {
-  const list = await api('/admin/timeblocks');
-  page().innerHTML = `<div class="card reveal"><div class="table-wrap"><table class="list"><thead><tr><th>วันที่ส่ง</th><th>ครู</th><th>วัน</th><th>คาบ</th><th>เหตุผล</th><th>สถานะ</th><th></th></tr></thead><tbody>
-    ${list.map(r => `<tr><td>${fmtDate(r.created_at)}</td><td>${esc(r.teacher?.user?.full_name)}</td><td>${DAYS[r.day]}</td><td>${r.period_from}-${r.period_to}</td><td>${esc(r.reason)}</td><td>${badge(r.status)}</td>
-      <td style="white-space:nowrap">${r.status === 'pending' ? `<button class="btn ok sm" data-s="approved" data-id="${r.id}">อนุมัติ</button> <button class="btn danger sm" data-s="rejected" data-id="${r.id}">ไม่อนุมัติ</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">ไม่มีคำร้อง</td></tr>'}
-    </tbody></table></div><p class="muted">คำร้องที่อนุมัติแล้ว AI จะหลีกเลี่ยงช่วงเวลานั้นอัตโนมัติ และโหมดมือจะแจ้งเตือนสีแดงหากวางทับ</p></div>`;
-  $$('[data-s]').forEach(b => b.onclick = async () => { await api(`/admin/timeblocks/${b.dataset.id}`, { method: 'PUT', body: { status: b.dataset.s } }); toast('บันทึกแล้ว', 'ok'); timeblocksAdmin(); });
+async function accountsPage() {
+  const rows = await api('/admin/accounts');
+  page().innerHTML = `<div class="card reveal"><div class="row" style="margin-bottom:14px;align-items:center">
+      <p class="muted" style="margin:0;flex:2 1 300px">เข้าระบบได้ 2 แบบ: <b>ผู้ดูแลระบบ</b> (ทำได้ทุกอย่าง) และ <b>ฝ่ายวิชาการแผนก</b> (จัดการเฉพาะแผนกตัวเอง)</p>
+      <button class="btn" id="add">＋ สร้างบัญชี</button></div>
+    <div class="table-wrap"><table class="list"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>บทบาท</th><th>แผนก</th><th>เบอร์โทร (OTP)</th><th></th></tr></thead><tbody>
+    ${rows.map(u => `<tr><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td><td><span class="badge ${u.role === 'admin' ? 'pri' : 'ok'}">${ROLE[u.role]}</span></td><td>${esc(u.department || '-')}</td><td>${esc(u.phone || '-')}</td>
+      <td style="white-space:nowrap">${u.locked ? `<button class="btn ok sm" data-unlock="${u.id}">🔓 ปลดล็อก</button> ` : ''}<button class="btn ghost sm" data-edit="${u.id}">แก้ไข</button>${u.id === me.id ? '' : ` <button class="btn danger sm" data-del="${u.id}">ลบ</button>`}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  const form = u => {
+    const m = modal(`<h3>${u ? 'แก้ไขบัญชี' : 'สร้างบัญชีใหม่'}</h3><form>
+      <label>ชื่อผู้ใช้ (ใช้ล็อกอิน)</label><input name="username" value="${esc(u?.username || '')}" ${u ? 'readonly' : 'required'} autocomplete="off">
+      <label>ชื่อ-สกุล</label><input name="full_name" value="${esc(u?.full_name || '')}" required>
+      <label>บทบาท</label><select name="role" ${u?.id === me.id ? 'disabled' : ''}><option value="dept" ${u?.role !== 'admin' ? 'selected' : ''}>ฝ่ายวิชาการแผนก</option><option value="admin" ${u?.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option></select>
+      <label>แผนก (สำหรับฝ่ายวิชาการ)</label><input name="department" list="dl-dept" value="${esc(u?.department || '')}" placeholder="เช่น ช่างยนต์">
+      <datalist id="dl-dept">${departments().map(d => `<option value="${esc(d)}">`).join('')}</datalist>
+      <label>เบอร์มือถือรับ OTP ${u?.phone ? `(ปัจจุบัน ${esc(u.phone)} — เว้นว่าง = ไม่เปลี่ยน)` : ''}</label><input name="phone" inputmode="numeric" maxlength="10">
+      <label>${u ? 'ตั้งรหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 8 ตัว)'}</label><input name="password" type="password" minlength="8" ${u ? '' : 'required'} autocomplete="new-password">
+      <div class="row" style="margin-top:18px"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn">💾 บันทึก</button></div></form>`);
+    $('form', m).onsubmit = e => {
+      e.preventDefault();
+      const body = Object.fromEntries([...new FormData(e.target)].filter(([k, v]) => v !== '' || k === 'department'));
+      if (body.role === 'dept' && !body.department) return toast('บัญชีฝ่ายวิชาการต้องระบุแผนก', 'bad');
+      busy(e.submitter, async () => { await api(u ? `/admin/accounts/${u.id}` : '/admin/accounts', { method: u ? 'PUT' : 'POST', body }); m.remove(); toast('บันทึกแล้ว', 'ok'); accountsPage(); });
+    };
+  };
+  $('#add').onclick = () => form(null);
+  $$('[data-edit]').forEach(b => b.onclick = () => form(rows.find(u => u.id === b.dataset.edit)));
+  $$('[data-unlock]').forEach(b => b.onclick = () => api(`/admin/accounts/${b.dataset.unlock}`, { method: 'PUT', body: { unlock: true } }).then(() => { toast('ปลดล็อกแล้ว', 'ok'); accountsPage(); }));
+  $$('[data-del]').forEach(b => b.onclick = () => confirm('ลบบัญชีนี้?') && api(`/admin/accounts/${b.dataset.del}`, { method: 'DELETE' }).then(() => { toast('ลบแล้ว', 'ok'); accountsPage(); }).catch(e => toast(e.message, 'bad')));
 }
 
 async function backupPage() {
@@ -394,7 +405,7 @@ async function backupPage() {
   $('#csv').onclick = () => download(`/api/admin/backup/${$('#tbl').value}.csv`);
 }
 
-const LOG_NAMES = { login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
+const LOG_NAMES = { account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
 async function logsPage(action = '') {
   const list = await api('/admin/logs' + (action ? `?action=${encodeURIComponent(action)}` : ''));
   const cls = a => /failed|locked/.test(a) ? 'bad' : /pdpa/.test(a) ? 'warn' : /ok|backup|publish/.test(a) ? 'ok' : 'pri';
@@ -405,6 +416,6 @@ async function logsPage(action = '') {
   $('#act').onchange = e => logsPage(e.target.value);
 }
 
-const PAGES = { dashboard, schedule: schedulePage, timeblocks: timeblocksAdmin, backup: backupPage, logs: () => logsPage(), my: mySchedule, timeblock: timeblockPage, mystudents: myStudents, profile: profilePage };
+const PAGES = { dashboard, schedule: schedulePage, accounts: accountsPage, backup: backupPage, logs: () => logsPage(), profile: profilePage };
 
 boot().catch(() => {});

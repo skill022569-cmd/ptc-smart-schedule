@@ -10,7 +10,8 @@ create table if not exists users (
   username text unique not null,              -- รหัสนักเรียน / รหัสพนักงาน
   password_hash text not null,                -- scrypt
   full_name text not null,
-  role text not null check (role in ('admin','teacher','student')),
+  role text not null check (role in ('admin','dept','teacher','student')), -- เข้าระบบได้เฉพาะ admin และ dept (ฝ่ายวิชาการแผนก)
+  department text,                            -- แผนกของบัญชี dept
   phone_enc text,                             -- เบอร์โทร เข้ารหัส AES-256-GCM
   email_enc text,
   pdpa_consent_at timestamptz,

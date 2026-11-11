@@ -40,7 +40,7 @@ export const maskEmail = e => (e ? e.replace(/^(.).*(@.*)$/, '$1***$2') : '');
 // ---------- JWT ใน httpOnly cookie ----------
 export const COOKIE = 'ptc_token';
 export function setSession(res, user) {
-  const token = jwt.sign({ sub: user.id, role: user.role, name: user.full_name }, JWT_SECRET(), { expiresIn: '8h' });
+  const token = jwt.sign({ sub: user.id, role: user.role, name: user.full_name, dept: user.department }, JWT_SECRET(), { expiresIn: '8h' });
   res.cookie(COOKIE, token, { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production', maxAge: 8 * 3600e3 });
 }
 export const signTemp = (userId, purpose) => jwt.sign({ sub: userId, purpose }, JWT_SECRET(), { expiresIn: '5m' });
@@ -61,6 +61,9 @@ export function auth(...roles) {
       req.user = jwt.verify(readCookie(req, COOKIE), JWT_SECRET());
       if (req.user.purpose) throw new Error('temp token');
     } catch { return res.status(401).json({ error: 'กรุณาเข้าสู่ระบบ' }); }
+    // ปุ่ม "มุมมอง" ของแอดมิน: จำลองเป็นฝ่ายวิชาการแผนกนั้นจริง ๆ ทั้งสิทธิ์และขอบเขตข้อมูล
+    const viewAs = req.headers['x-view-as-dept'] || req.query?.viewAs; // query ใช้กับลิงก์ดาวน์โหลด
+    if (viewAs && req.user.role === 'admin') req.user = { ...req.user, role: 'dept', dept: decodeURIComponent(viewAs), viewAs: true };
     if (roles.length && !roles.includes(req.user.role)) return res.status(403).json({ error: 'ไม่มีสิทธิ์เข้าถึง' });
     next();
   };

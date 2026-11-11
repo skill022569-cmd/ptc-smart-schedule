@@ -1,26 +1,17 @@
-import { api, toast, $, $$, busy, tilt } from './ui.js';
+import { api, toast, $, $$, busy } from './ui.js';
 
-let role = 'student', temp = null, resetTemp = null;
+let temp = null, resetTemp = null;
 const show = id => { $$('section').forEach(s => s.classList.add('hidden')); $(id).classList.remove('hidden'); };
 const go = () => { location.href = '/app.html'; };
 
-$$('.role').forEach(el => {
-  tilt(el);
-  el.onclick = () => {
-    role = el.dataset.role;
-    $('#login-title').textContent = role === 'student' ? '🎓 นักเรียน / นักศึกษา' : '👩‍🏫 ครูผู้สอน / บุคลากร';
-    $('#lbl-user').textContent = role === 'student' ? 'รหัสนักเรียน' : 'รหัสพนักงาน';
-    show('#step-login'); $('#username').focus();
-  };
-});
-$$('[data-back]').forEach(b => b.onclick = () => show('#step-role'));
+$$('[data-back]').forEach(b => b.onclick = () => show('#step-login'));
 $('#to-forgot').onclick = () => show('#step-forgot');
 
 $('#f-login').onsubmit = e => {
   e.preventDefault();
   const f = Object.fromEntries(new FormData(e.target));
   busy(e.submitter, async () => {
-    const r = await api('/auth/login', { method: 'POST', body: { ...f, role } });
+    const r = await api('/auth/login', { method: 'POST', body: f });
     if (!r.otp) return go();
     temp = r.temp; $('#otp-phone').textContent = r.phone; show('#step-otp'); cells[0].focus(); toast('ส่งรหัส OTP ทาง SMS แล้ว');
   });
@@ -55,7 +46,7 @@ $('#f-reset').onsubmit = e => {
   busy(e.submitter, async () => {
     await api('/auth/reset', { method: 'POST', body: { ...Object.fromEntries(new FormData(e.target)), temp: resetTemp } });
     toast('ตั้งรหัสผ่านใหม่เรียบร้อย กรุณาเข้าสู่ระบบ', 'ok');
-    e.target.reset(); e.target.classList.add('hidden'); $('#f-forgot').classList.remove('hidden'); show('#step-role');
+    e.target.reset(); e.target.classList.add('hidden'); $('#f-forgot').classList.remove('hidden'); show('#step-login');
   });
 };
 

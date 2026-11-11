@@ -17,11 +17,13 @@
       <div style="margin-top:auto"><button class="btn ghost" id="logout" style="width:100%;justify-content:center">ออกจากระบบ</button></div>
     </aside>
     <main class="main">
+      <div id="viewas-bar" class="preview-bar hidden no-print" style="margin:-26px -36px 18px;border-radius:0"></div>
       <div class="top">
         <div style="display:flex;gap:12px;align-items:center;flex:1">
           <button class="btn ghost sm menu-btn" id="menu" aria-label="เมนู">☰</button>
           <h2 id="title"></h2>
         </div>
+        <div class="viewas hidden no-print" id="viewas"></div>
         <div class="who"><div><div id="me-name" style="text-align:right"></div><div class="muted" id="me-role" style="font-size:.8rem;text-align:right"></div></div><div class="avatar" id="me-av"></div></div>
       </div>
       <div id="page"><div class="card"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:85%"></div></div></div>
