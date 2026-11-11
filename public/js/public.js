@@ -29,7 +29,7 @@ function draw() {
   const n = data.entries.filter(e => e.group_id === group).length;
   $('#info').innerHTML = g ? `กลุ่ม <b>${esc(g.code)}</b> · ${esc(g.level)} ${esc(g.department)} ปี ${g.year} · <span class="badge pri">${n} คาบ/สัปดาห์</span>` : '';
   if (!data.version || !g) { $('#grid').innerHTML = '<p class="muted">ยังไม่มีตารางเรียนให้แสดง</p>'; return; }
-  renderGrid($('#grid'), { entries: data.entries, L, view: { type: 'group', id: group }, onClick: info });
+  renderGrid($('#grid'), { entries: data.entries, L, view: { type: 'group', id: group }, onClick: info, fullGrid: printing });
 }
 
 function info(e) {
@@ -42,4 +42,8 @@ function info(e) {
     <button class="btn" data-close style="margin-top:16px">ปิด</button>`);
 }
 
+// พิมพ์จากมือถือ: สลับเป็นตารางเต็มก่อนพิมพ์ แล้วกลับเป็นแบบรายวัน
+let printing = false;
+addEventListener('beforeprint', () => { printing = true; draw(); });
+addEventListener('afterprint', () => { printing = false; draw(); });
 draw();

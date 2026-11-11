@@ -5,7 +5,7 @@ const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 36
 
 // แสดงตารางรายสัปดาห์ (แถว = วัน, คอลัมน์ = คาบ)
 // view: { type: 'group'|'teacher'|'room', id }, L = ข้อมูล lookup ที่ index ด้วย id แล้ว
-export function renderGrid(el, { entries, L, view, editable = false, conflicts = new Map(), onMove, onAdd, onClick }) {
+export function renderGrid(el, { entries, L, view, editable = false, conflicts = new Map(), onMove, onAdd, onClick, fullGrid = false }) {
   const days = [...new Set(L.periods.map(p => p.day))].sort();
   const nums = [...new Set(L.periods.map(p => p.period_no))].sort((a, b) => a - b);
   const time = n => L.periods.find(p => p.period_no === n);
@@ -23,7 +23,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
       title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.code)} ${esc(s.name)}</b>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
   };
 
-  if (!editable && matchMedia('(max-width: 700px)').matches) {
+  if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
     el.innerHTML = `<div class="agenda">${days.map(d => {
       const list = mine.filter(e => e.day === d).sort((a, b) => a.period_no - b.period_no);
       return `<h4>${DAYS[d]}</h4>` + (list.map(e => { const t = time(e.period_no); return slot(e).replace('<b>', `<div class="tm">${t ? esc(t.start_time.slice(0, 5)) + '<br>' + esc(t.end_time.slice(0, 5)) : 'คาบ ' + e.period_no}</div><div><b>`).replace(/<\/div>$/, '</div></div>'); }).join('') || '<div class="muted">ไม่มีเรียน</div>');

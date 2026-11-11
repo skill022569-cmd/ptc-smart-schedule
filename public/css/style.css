@@ -157,12 +157,29 @@ table.list tbody tr:hover { background: rgba(255,255,255,.04); }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ---------- พิมพ์ / Save as PDF ---------- */
+/* ---------- พิมพ์ / Save as PDF: A4 แนวนอน 1 หน้า ---------- */
 @media print {
-  body { background: #fff; color: #000; }
-  .aurora, .grid-bg, .side, .top .actions, .no-print, #toasts { display: none !important; }
-  .app { display: block; } .card { box-shadow: none; border: 0; background: none; backdrop-filter: none; }
-  .tt td, .slot { border: 1px solid #999 !important; background: #fff !important; color: #000; animation: none !important; }
-  .tt th { color: #000; }
+  @page { size: A4 landscape; margin: 8mm; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html, body { background: #fff !important; color: #000; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .aurora, .grid-bg, .side, .no-print, #toasts, .modal, .preview-bar, .viewas, .logo { display: none !important; }
+  .app { display: block; } .main { padding: 0 !important; max-width: none; }
+  .card { box-shadow: none; border: 0; background: none; backdrop-filter: none; padding: 0; }
+  .top { margin: 0 0 2mm; }
+  .brand h1, .top h2 { color: #000 !important; -webkit-text-fill-color: #000; background: none; font-size: 15pt; }
+  .muted { color: #333 !important; }
+  .badge { background: none !important; color: #000 !important; padding: 0; }
+  .table-wrap { overflow: visible; }
+  .tt { min-width: 0; width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; break-inside: avoid; }
+  .tt th { color: #000; font-size: 8pt; padding: 1mm; border: 1px solid #666; font-weight: 500; }
+  .tt th.day { width: 15mm; text-align: center; color: #000 !important; font-size: 10pt; }
+  .tt td { height: 28mm; border: 1px solid #666 !important; background: #fff !important; border-radius: 0; }
+  .slot { height: 100%; border: 0 !important; border-radius: 0; box-shadow: none !important; transform: none !important; color: #000;
+    background: hsla(var(--h), 70%, 90%, 1) !important; font-size: 7.5pt; line-height: 1.25; padding: 1mm 1.2mm;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slot .muted { color: #222 !important; }
+  .slot .x { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
 
