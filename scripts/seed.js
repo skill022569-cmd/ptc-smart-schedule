@@ -21,11 +21,11 @@ const times = [['08:00', '09:00'], ['09:00', '10:00'], ['10:00', '11:00'], ['11:
 await up('periods', [1, 2, 3, 4, 5].flatMap(day => times.map(([s, e], i) => ({ day, period_no: i + 1, start_time: s, end_time: e }))), 'day,period_no');
 
 const groups = await up('student_groups', [
-  { code: 'ชย.1/1', department: 'ช่างยนต์', level: 'ปวช.', year: 1, size: 30 },
-  { code: 'ชฟ.1/1', department: 'ไฟฟ้ากำลัง', level: 'ปวช.', year: 1, size: 28 },
-  { code: 'บช.1/1', department: 'การบัญชี', level: 'ปวช.', year: 1, size: 32 },
-  { code: 'ทส.1/1', department: 'เทคโนโลยีสารสนเทศ', level: 'ปวช.', year: 1, size: 25 },
-  { code: 'ชย.ส1/1', department: 'ช่างยนต์', level: 'ปวส.', year: 1, size: 24 },
+  { code: 'ชย.1/1', department: 'ช่างยนต์', level: 'ปวช.', year: 1, size: 30, program: 'ปกติ' },
+  { code: 'ชฟ.1/1', department: 'ไฟฟ้ากำลัง', level: 'ปวช.', year: 1, size: 28, program: 'ปกติ' },
+  { code: 'บช.1/1', department: 'การบัญชี', level: 'ปวช.', year: 1, size: 32, program: 'ปกติ' },
+  { code: 'ทส.1/1', department: 'เทคโนโลยีสารสนเทศ', level: 'ปวช.', year: 1, size: 25, program: 'ปกติ' },
+  { code: 'ชย.ส1/1', department: 'ช่างยนต์', level: 'ปวส.', year: 1, size: 24, program: 'ปกติ' },
   { code: 'ชฟ.ส1/1', department: 'ไฟฟ้ากำลัง', level: 'ปวส.', year: 1, size: 20, program: 'ทวิภาคี' },
 ]);
 const subjects = await up('subjects', [
