@@ -1,14 +1,19 @@
-/* ธีมทางการแบบราชการไทย (กรมท่า-ทอง) ที่ยังทันสมัย: พื้นขาว ตัวอักษร Sarabun เงาบาง ๆ เคลื่อนไหวนุ่มนวล */
+/* ธีมทางการแบบราชการไทย (กรมท่า-ทอง) ที่ยังทันสมัย: พื้นขาว ฟอนต์ TH Sarabun New เงาบาง ๆ เคลื่อนไหวนุ่มนวล */
+/* TH Sarabun New ฟอนต์แห่งชาติของ SIPA (ใช้และแจกจ่ายได้ฟรี) ฝังในเว็บ ทุกเครื่องเห็นเหมือนกัน */
+@font-face { font-family: 'TH Sarabun New'; src: url('/fonts/THSarabunNew.woff') format('woff'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'TH Sarabun New'; src: url('/fonts/THSarabunNew-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
 :root {
   --navy: #1b2a5e; --navy2: #24387a; --gold: #c9a227; --gold2: #f3e7bf;
   --bg: #f4f6fa; --card: #ffffff; --card-b: #dfe3ec; --line: #c7cdd9;
   --text: #1d2433; --muted: #5d6779; --pri: #24387a; --ok: #17803d; --warn: #a86b00; --bad: #c0392b;
   --radius: 10px; --shadow: 0 1px 2px rgba(20,30,60,.06), 0 4px 14px rgba(20,30,60,.06);
-  font-family: 'Sarabun', system-ui, sans-serif;
+  font-family: 'TH Sarabun New', 'TH SarabunPSK', sans-serif;
 }
+html { font-size: 19px; } /* TH Sarabun ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายฐานขึ้นเล็กน้อย */
+button, input, select, textarea { font-family: inherit; }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
-body { background: var(--bg); color: var(--text); font-size: 15.5px; overflow-x: hidden; }
+body { background: var(--bg); color: var(--text); font-size: 1rem; line-height: 1.35; overflow-x: hidden; }
 a { color: var(--pri); }
 h1, h2, h3 { font-weight: 600; margin: 0 0 .6em; color: var(--navy); }
 .muted { color: var(--muted); }
@@ -144,7 +149,8 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .form-head .fh-left { padding: 12px 14px; border-right: 1px solid #8a93a6; }
 .form-head .emblem-wrap { text-align: center; margin-bottom: 8px; }
 .form-head .emblem { width: 76px; height: 76px; object-fit: contain; }
-.form-head .college { text-align: center; font-weight: 700; color: var(--navy); font-size: 1.05rem; }
+.form-head .college { text-align: center; font-weight: 700; color: var(--navy); font-size: 1.15rem; }
+.form-head .form-title { text-align: center; font-weight: 700; font-size: 1rem; }
 .form-head dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 12px 0 0; font-size: .92rem; }
 .form-head dt { font-weight: 700; }
 .form-head dd { margin: 0; }
@@ -152,7 +158,8 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .subj th, .subj td { border: 1px solid #8a93a6; padding: 3px 5px; height: 22px; }
 .subj th { background: #f3f5f9; font-weight: 600; text-align: center; }
 .subj td.c { text-align: center; }
-.subj .code { width: 13%; } .subj .num { width: 4.5%; }
+.subj .code { width: 14%; } .subj .num { width: 3.5%; }
+.subj td.c { white-space: nowrap; }
 .signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; text-align: center; font-size: .88rem; }
 .signs .ln { margin-bottom: 4px; }
 .signs > div { min-width: 0; overflow-wrap: anywhere; }
@@ -183,31 +190,34 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .viewas select { width: auto; padding: 6px 10px; font-size: .88rem; }
 
 /* ---------- พิมพ์ / Save as PDF: A4 แนวนอน 1 หน้า ขาว-ดำ ---------- */
+.print-only { display: none; }
 @media print {
+  body.print-form-mode .main > :not(#print-sheet) { display: none !important; }
+  body.print-form-mode #print-sheet { display: block; }
+  .print-form { width: 277mm; } /* = ความกว้างพิมพ์ได้ของ A4 แนวนอน ให้การวัดเพื่อย่อหน้าตรงกับกระดาษ */
   @page { size: A4 landscape; margin: 8mm; }
   *, *::before, *::after { animation: none !important; transition: none !important; box-shadow: none !important; }
-  html, body { background: #fff !important; color: #000; font-size: 10pt; }
+  html, body { background: #fff !important; color: #000; font-size: 13pt; }
   .gov-bar, .side, .no-print, #toasts, .modal, .preview-bar, .viewas { display: none !important; }
   .app { display: block; } .main { padding: 0 !important; max-width: none; }
-  .main.public { width: 277mm; } /* = ความกว้างพิมพ์ได้ของ A4 แนวนอน ให้การวัดเพื่อย่อหน้าตรงกับกระดาษ */
   .card { border: 0; padding: 0; background: none; }
   .top { margin: 0 0 2mm; border: 0; }
   h1, h2, h3, .slot b, .form-head .college, .tt td.band { color: #000 !important; }
   .muted { color: #000 !important; }
   .table-wrap { overflow: visible; }
   .form-head, .form-head .fh-left, .subj th, .subj td, .tt th, .tt td { border-color: #000 !important; }
-  .form-head .emblem { width: 20mm; height: 20mm; }
-  .form-head dl { font-size: 10pt; }
-  .subj { font-size: 8.5pt; } .subj th, .subj td { height: 4.6mm; padding: .4mm 1mm; background: #fff !important; }
+  .form-head .emblem { width: 16mm; height: 16mm; }
+  .form-head dl { font-size: 12.5pt; margin-top: 2mm; line-height: 1.15; }
+  .subj { font-size: 11pt; line-height: 1.22; } .subj th, .subj td { height: 4.4mm; padding: .2mm 1mm; background: #fff !important; }
   .tt { min-width: 0; }
   .tt tr { break-inside: avoid; }
-  .tt th { font-size: 9pt; padding: 1mm; background: #fff !important; }
-  .tt th.hd-first, .tt th.day { width: 18mm; }
-  .tt th.day { font-size: 10pt; }
-  .tt td { height: 17mm; background: #fff !important; }
-  .tt td.band, .tt th.band { width: 9mm; background: #fff !important; font-size: 9pt; }
-  .slot { height: 100%; border: 0 !important; border-radius: 0; background: transparent !important; color: #000; font-size: 8.5pt; line-height: 1.2; padding: .5mm; outline: 0 !important; }
-  .slot b { font-size: 9.5pt; }
-  .signs { margin-top: 5mm; font-size: 10pt; }
+  .tt th { font-size: 12pt; padding: .6mm 1mm; background: #fff !important; }
+  .tt th.hd-first, .tt th.day { width: 27mm; white-space: nowrap; }
+  .tt th.day { font-size: 12.5pt; }
+  .tt td { height: 15mm; background: #fff !important; }
+  .tt td.band, .tt th.band { width: 10mm; background: #fff !important; font-size: 11pt; line-height: 1.1; padding: .5mm 0; }
+  .slot { height: 100%; border: 0 !important; border-radius: 0; background: transparent !important; color: #000; font-size: 10.5pt; line-height: 1.2; padding: .3mm .5mm; outline: 0 !important; }
+  .slot b { font-size: 12.5pt; line-height: 1.1; }
+  .signs { margin-top: 4mm; font-size: 13pt; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

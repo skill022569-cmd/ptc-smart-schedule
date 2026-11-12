@@ -2,6 +2,7 @@ import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from '
 import { renderGrid, indexLookup } from './grid.js';
 import { findConflicts, DAYS } from '/shared/conflicts.js';
 import { showGuide } from './guide.js';
+import { renderForm, autoFit } from './form.js';
 
 const ROLE = { admin: 'ผู้ดูแลระบบ', dept: 'ฝ่ายวิชาการแผนก' };
 const NAV = {
@@ -438,5 +439,14 @@ async function logsPage(action = '') {
 }
 
 const PAGES = { dashboard, schedule: schedulePage, accounts: accountsPage, backup: backupPage, logs: () => logsPage(), profile: profilePage };
+
+// ปุ่มพิมพ์/PDF ในหน้าจัดตาราง: พิมพ์เป็นแบบฟอร์มราชการเดียวกับหน้าบุคคลทั่วไป (ตามมุมมอง กลุ่ม/ครู/ห้อง ที่เลือกอยู่)
+addEventListener('beforeprint', () => {
+  const on = !!($('#vid') && S.version && S.view.id);
+  document.body.classList.toggle('print-form-mode', on);
+  if (on) renderForm($('#print-sheet'), { L, entries: S.entries, view: S.view, fullGrid: true });
+});
+addEventListener('afterprint', () => { document.body.classList.remove('print-form-mode'); $('#print-sheet').innerHTML = ''; });
+autoFit($('#print-sheet'));
 
 boot().catch(() => {});

@@ -73,8 +73,8 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   const morning = first && first.start_time.slice(0, 5) >= MORNING.end;
   const band = txt => `<td class="band" rowspan="${days.length + 1}"><span>${txt}</span></td>`;
   el.innerHTML = `<div class="table-wrap"><table class="tt"><tbody>
-    <tr><th class="hd-first">เวลา</th>${morning ? `<th class="band">${MORNING.start} - ${MORNING.end}</th>` : ''}${cols.map(c =>
-      c.gap ? `<th class="band">${LUNCH.start} - ${LUNCH.end}</th>` : `<th>${range(time(c.n))}</th>`).join('')}</tr>
+    <tr><th class="hd-first">เวลา</th>${morning ? `<th class="band">${MORNING.start}<br>${MORNING.end}</th>` : ''}${cols.map(c =>
+      c.gap ? `<th class="band">${LUNCH.start}<br>${LUNCH.end}</th>` : `<th>${range(time(c.n))}</th>`).join('')}</tr>
     <tr><th class="hd-first">วัน/คาบ</th>${morning ? band(MORNING.label) : ''}${cols.map(c =>
       c.gap ? band('พักกลางวัน') : `<th>${c.lunch ? 'พัก' : c.n}</th>`).join('')}</tr>
     ${days.map(d => `<tr><th class="day">วัน${DAYS[d]}</th>${cellsOf(d).map(c => c.gap ? ''

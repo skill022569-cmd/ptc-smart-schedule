@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PTC Smart Schedule</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/THSarabunNew.woff" as="font" type="font/woff" crossorigin>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -25,6 +24,7 @@
         <div class="viewas hidden no-print" id="viewas"></div>
         <div class="who"><div><div id="me-name" style="text-align:right"></div><div class="muted" id="me-role" style="font-size:.8rem;text-align:right"></div></div><div class="avatar" id="me-av"></div></div>
       </div>
+      <div id="print-sheet" class="print-form print-only"></div>
       <div id="page"><div class="card"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:85%"></div></div></div>
     </main>
   </div>
