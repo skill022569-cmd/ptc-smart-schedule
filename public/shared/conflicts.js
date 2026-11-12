@@ -4,6 +4,10 @@
 
 export const DAYS = ['', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
 
+// จำนวนคาบสูงสุดต่อสัปดาห์ ทั้งครูแต่ละคน และกลุ่มเรียนแต่ละกลุ่ม
+export const WEEKLY_MAX = 12;
+export const teacherMax = t => Math.min(t?.max_hours || WEEKLY_MAX, WEEKLY_MAX);
+
 // พักเที่ยงทุกวัน: ห้ามลงคาบที่เวลาทับช่วงนี้ และห้ามเรียนต่อเนื่องคร่อมช่วงนี้
 export const LUNCH = { start: '12:00', end: '13:00' };
 const hm = t => String(t || '').slice(0, 5);
@@ -33,6 +37,7 @@ export function findConflicts(entries, ctx = {}) {
   const add = (e, msg) => { if (!out.has(e.id)) out.set(e.id, []); out.get(e.id).push(msg); };
   const slot = new Map();
   const hours = new Map();
+  const ghours = new Map();
   const lunch = new Set((ctx.periods || []).filter(isLunch).map(p => `${p.day}|${p.period_no}`));
 
   for (const e of entries) {
@@ -51,10 +56,12 @@ export function findConflicts(entries, ctx = {}) {
     if (!roomFits(ctx.subjects?.[e.subject_id], ctx.rooms?.[e.room_id], ctx.groups?.[e.group_id]))
       add(e, 'ห้องไม่เหมาะกับวิชา/ความจุไม่พอ');
     hours.set(e.teacher_id, (hours.get(e.teacher_id) || 0) + 1);
+    ghours.set(e.group_id, (ghours.get(e.group_id) || 0) + 1);
   }
   for (const e of entries) {
-    const max = ctx.teachers?.[e.teacher_id]?.max_hours;
-    if (max && hours.get(e.teacher_id) > max) add(e, `ครูสอนเกิน ${max} คาบ/สัปดาห์`);
+    const max = teacherMax(ctx.teachers?.[e.teacher_id]);
+    if (hours.get(e.teacher_id) > max) add(e, `ครูสอนเกิน ${max} คาบ/สัปดาห์`);
+    if (ghours.get(e.group_id) > WEEKLY_MAX) add(e, `กลุ่มเรียนเกิน ${WEEKLY_MAX} คาบ/สัปดาห์`);
   }
   return out;
 }

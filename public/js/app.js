@@ -290,7 +290,7 @@ const MASTER = {
   student_groups: { fields: [['code', 'รหัสกลุ่ม'], ['department', 'แผนกวิชา'], ['level', 'ระดับ', { 'ปวช.': 'ปวช.', 'ปวส.': 'ปวส.' }], ['year', 'ชั้นปี', 'number'], ['size', 'จำนวนนักเรียน', 'number'], ['program', 'รูปแบบ', { 'ปกติ': 'ปกติ', 'ทวิภาคี': 'ทวิภาคี' }], ['advisor', 'ครูที่ปรึกษา']] },
   periods: { adminOnly: true, fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time']] },
   offerings: { fields: [['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['subject_id', 'รายวิชา', () => Object.fromEntries(L.subjects.map(s => [s.id, `${s.code} ${s.name}`]))], ['teacher_id', 'ครูผู้สอน', () => Object.fromEntries(L.teachers.map(t => [t.id, t.full_name]))]] },
-  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
+  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์ (ไม่เกิน 12)', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
   students: { people: 'student_code', fields: [['student_code', 'รหัสนักเรียน'], ['full_name', 'ชื่อ-สกุล'], ['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['special_needs', 'เงื่อนไขพิเศษ']] },
 };
 const optsOf = t => typeof t === 'function' ? t() : t;

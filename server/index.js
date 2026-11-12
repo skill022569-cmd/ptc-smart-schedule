@@ -7,7 +7,7 @@ import {
   registerFail, isLocked, issueOtp, checkOtp, LOCK_MIN,
 } from './security.js';
 import { generateSchedule } from './scheduler.js';
-import { findConflicts, DAYS } from '../public/shared/conflicts.js';
+import { findConflicts, DAYS, WEEKLY_MAX } from '../public/shared/conflicts.js';
 import { toSql, tableCsv, toCsv, BACKUP_TABLES } from './backup.js';
 
 const app = express();
@@ -272,14 +272,27 @@ app.get('/api/data/:table', staff, async (req, res) => {
   if (d !== null && t === 'offerings') qq = qq.in('group_id', await myGroupIds(req));
   res.json(await q(qq));
 });
+// แผนการสอนของกลุ่มเรียนรวมกันต้องไม่เกิน 12 คาบ/สัปดาห์
+async function assertGroupLoad(body, id) {
+  const cur = id ? await q(db.from('offerings').select('*').eq('id', id).single()) : {};
+  const groupId = body.group_id || cur.group_id, subjectId = body.subject_id || cur.subject_id;
+  if (!groupId || !subjectId) return;
+  const [offs, subs] = await Promise.all([q(db.from('offerings').select('id,subject_id').eq('group_id', groupId)), q(db.from('subjects').select('id,periods_per_week'))]);
+  const ppw = Object.fromEntries(subs.map(s => [s.id, s.periods_per_week]));
+  const total = offs.filter(o => o.id !== id).reduce((a, o) => a + (ppw[o.subject_id] || 0), 0) + (ppw[subjectId] || 0);
+  if (total > WEEKLY_MAX) throw bad(`กลุ่มเรียนนี้จะมี ${total} คาบ/สัปดาห์ เกินกำหนด ${WEEKLY_MAX} คาบ`);
+}
+
 app.post('/api/data/:table', staff, async (req, res) => {
   const t = crudTable(req), body = pick(req.body, CRUD[t]);
   await guardData(req, t, body);
+  if (t === 'offerings') await assertGroupLoad(body);
   res.json(await q(db.from(t).insert(body).select().single()));
 });
 app.put('/api/data/:table/:id', staff, async (req, res) => {
   const t = crudTable(req), body = pick(req.body, CRUD[t]);
   await guardData(req, t, body, req.params.id);
+  if (t === 'offerings') await assertGroupLoad(body, req.params.id);
   res.json(await q(db.from(t).update(body).eq('id', req.params.id).select().single()));
 });
 app.delete('/api/data/:table/:id', staff, async (req, res) => {
@@ -298,6 +311,7 @@ const PEOPLE = {
 const people = req => { const p = PEOPLE[req.params.kind]; if (!p) throw bad('ไม่รู้จักประเภท', 404); return p; };
 
 async function guardPerson(req, kind, body, id) {
+  if (kind === 'teachers' && body && +body.max_hours > WEEKLY_MAX) throw bad(`คาบสอนสูงสุดต้องไม่เกิน ${WEEKLY_MAX} คาบ/สัปดาห์`);
   const d = deptOf(req);
   if (d === null) return;
   if (kind === 'teachers') {

@@ -1,7 +1,7 @@
 // AI Scheduling Engine (heuristic constraint solver)
 // shortcut: greedy + randomized restarts ใน Node ไม่ใช่ OR-Tools/GA — ถ้าวิทยาลัยมีเกิน ~100 กลุ่มเรียนแล้วจัดไม่ครบ
 //           ให้แยกเป็น Python service ที่ใช้ OR-Tools CP-SAT โดยรับ/ส่ง JSON รูปแบบเดียวกับฟังก์ชันนี้
-import { roomFits, teacherBlocked, isLunch, contiguous } from '../public/shared/conflicts.js';
+import { roomFits, teacherBlocked, isLunch, contiguous, teacherMax, WEEKLY_MAX } from '../public/shared/conflicts.js';
 
 const shuffle = (a, rnd) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const rng = seed => () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
@@ -19,6 +19,7 @@ function attempt(input, rnd) {
   const ctx = { teachers, blocks: input.blocks };
   const used = new Set();
   const hours = {};
+  const ghours = {}; // คาบต่อสัปดาห์ของแต่ละกลุ่มเรียน
   const dayLoad = {};
   const entries = [];
   const unplaced = [];
@@ -30,6 +31,7 @@ function attempt(input, rnd) {
   for (const e of input.fixed || []) {
     used.add(`t|${e.teacher_id}|${e.day}|${e.period_no}`).add(`g|${e.group_id}|${e.day}|${e.period_no}`).add(`r|${e.room_id}|${e.day}|${e.period_no}`);
     hours[e.teacher_id] = (hours[e.teacher_id] || 0) + 1;
+    ghours[e.group_id] = (ghours[e.group_id] || 0) + 1;
   }
   const blocks = offerings.flatMap(o => toBlocks(o, subjects[o.subject_id]));
   shuffle(blocks, rnd).sort((a, b) => b.len - a.len); // บล็อกใหญ่ (ยากสุด) ก่อน
@@ -37,7 +39,7 @@ function attempt(input, rnd) {
   for (const b of blocks) {
     const subject = subjects[b.subject_id];
     const group = groups[b.group_id];
-    const max = teachers[b.teacher_id]?.max_hours ?? 99;
+    const max = teacherMax(teachers[b.teacher_id]);
     const cands = [];
     for (const day in slotsByDay) {
       const d = +day;
@@ -54,7 +56,7 @@ function attempt(input, rnd) {
 
     let placed = false;
     for (const { d, run } of cands) {
-      if ((hours[b.teacher_id] || 0) + b.len > max) break;
+      if ((hours[b.teacher_id] || 0) + b.len > max || (ghours[b.group_id] || 0) + b.len > WEEKLY_MAX) break;
       const ok = run.every(p => !used.has(`t|${b.teacher_id}|${d}|${p}`) && !used.has(`g|${b.group_id}|${d}|${p}`) &&
         !teacherBlocked(ctx, b.teacher_id, d, p));
       if (!ok) continue;
@@ -67,6 +69,7 @@ function attempt(input, rnd) {
       }
       used.add(`o|${b.subject_id}|${b.group_id}|${d}`);
       hours[b.teacher_id] = (hours[b.teacher_id] || 0) + b.len;
+      ghours[b.group_id] = (ghours[b.group_id] || 0) + b.len;
       dayLoad[`${b.group_id}|${d}`] = (dayLoad[`${b.group_id}|${d}`] || 0) + b.len;
       placed = true;
       break;

@@ -6,10 +6,10 @@ import { findConflicts } from '../public/shared/conflicts.js';
 const byId = a => Object.fromEntries(a.map(x => [x.id, x]));
 const subjects = byId([{ id: 's1', type: 'theory', periods_per_week: 2 }, { id: 's2', type: 'practice', periods_per_week: 6 }, { id: 's3', type: 'theory', periods_per_week: 4 }]);
 const groups = byId([{ id: 'g1', size: 30 }, { id: 'g2', size: 30 }, { id: 'g3', size: 30 }]);
-const teachers = byId([{ id: 't1', max_hours: 20, unavailable: [{ day: 1, period: 1 }] }, { id: 't2', max_hours: 20, unavailable: [] }]);
+const teachers = byId([{ id: 't1', max_hours: 12, unavailable: [{ day: 1, period: 1 }] }, { id: 't2', max_hours: 12, unavailable: [] }, { id: 't3', max_hours: 12, unavailable: [] }, { id: 't4', max_hours: 12, unavailable: [] }]);
 const rooms = [{ id: 'r1', room_type: 'lecture', capacity: 40 }, { id: 'r2', room_type: 'workshop', capacity: 40 }];
 const periods = [1, 2, 3, 4, 5].flatMap(day => [1, 2, 3, 4, 5, 6, 7, 8].map(period_no => ({ day, period_no })));
-const offerings = ['g1', 'g2', 'g3'].flatMap(g => [{ group_id: g, subject_id: 's1', teacher_id: 't1' }, { group_id: g, subject_id: 's2', teacher_id: 't2' }, { group_id: g, subject_id: 's3', teacher_id: 't1' }]);
+const offerings = ['g1', 'g2', 'g3'].flatMap(g => [{ group_id: g, subject_id: 's1', teacher_id: 't1' }, { group_id: g, subject_id: 's2', teacher_id: g === 'g3' ? 't4' : 't2' }, { group_id: g, subject_id: 's3', teacher_id: g === 'g3' ? 't1' : 't3' }]);
 const blocks = [{ teacher_id: 't1', day: 2, period_from: 1, period_to: 8 }];
 
 test('AI จัดตารางครบและไม่มีคาบชน', () => {
@@ -54,4 +54,19 @@ test('มีพักเที่ยงทุกวัน: ไม่ลงคา
   }
   const c = findConflicts([{ id: 1, day: 1, period_no: 5, teacher_id: 't2', room_id: 'r2', group_id: 'g1', subject_id: 's2' }], { periods: timed, rooms: byId(rooms), groups, subjects });
   assert.deepEqual(c.get(1), ['ทับเวลาพักเที่ยง']);
+});
+
+test('ครูและกลุ่มเรียนไม่เกิน 12 คาบ/สัปดาห์', () => {
+  // กลุ่ม g1 มีแผน 2+6+4+6 = 18 คาบ -> AI ต้องจัดได้ไม่เกิน 12 และแจ้งส่วนที่เหลือ
+  const extra = [{ id: 's4', type: 'practice', periods_per_week: 6 }];
+  const subj = { ...subjects, ...byId(extra) };
+  const many = [...offerings, { group_id: 'g1', subject_id: 's4', teacher_id: 't3' }];
+  const { entries, unplaced } = generateSchedule({ offerings: many, subjects: subj, groups, teachers, rooms, periods, blocks });
+  const count = (k, v) => entries.filter(e => e[k] === v).length;
+  for (const g of ['g1', 'g2', 'g3']) assert.ok(count('group_id', g) <= 12, `กลุ่ม ${g} เกิน 12`);
+  for (const t of ['t1', 't2', 't3']) assert.ok(count('teacher_id', t) <= 12, `ครู ${t} เกิน 12`);
+  assert.ok(unplaced.some(u => u.group_id === 'g1'), 'ต้องแจ้งวิชาที่จัดไม่ลงเพราะเกิน 12 คาบ');
+  // ตัวตรวจคาบชน: กลุ่มที่มี 13 คาบต้องขึ้นเตือน
+  const e13 = Array.from({ length: 13 }, (_, i) => ({ id: i, day: 1 + (i % 5), period_no: 1 + Math.floor(i / 5), teacher_id: 't' + (1 + (i % 3)), room_id: null, group_id: 'g1', subject_id: 's1' }));
+  assert.ok([...findConflicts(e13, { teachers: { t1: {}, t2: {}, t3: {} } }).values()].flat().includes('กลุ่มเรียนเกิน 12 คาบ/สัปดาห์'));
 });
