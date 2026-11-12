@@ -233,11 +233,12 @@ async function move(id, day, period_no, record = true) {
   Object.assign(e, { day, period_no }); draw(); // อัปเดตทันที แล้วค่อยบันทึก
   try { await api(`/entries/${id}`, { method: 'PUT', body: { day, period_no } }); if (record) S.undo.push({ t: 'move', id, from }); }
   catch (err) { Object.assign(e, from); draw(); return toast(err.message, 'bad'); } // บันทึกไม่สำเร็จ = ไม่ได้ย้าย
-  clashModal(e);
+  if (record) clashModal(e); // ย้อนกลับ (undo) ไม่ต้องเตือนซ้ำ
 }
 
 // กล่องแจ้งเตือนเมื่อย้าย/วางคาบแล้วชน: บอกว่าซ้อนกับคาบไหน วิชา กลุ่ม/แผนก ครู ห้อง
 function clashModal(e) {
+  $$('.modal.clash').forEach(x => x.remove()); // มีได้ทีละกล่อง ไม่ขึ้นซ้อน
   const problems = findConflicts(S.entries, ctx()).get(e.id);
   if (!problems) return;
   const same = (k, x) => e[k] && x[k] === e[k];
@@ -253,6 +254,7 @@ function clashModal(e) {
     ${clashes.length ? `<p style="margin-bottom:6px"><b>ซ้อนกับ:</b></p><div class="table-wrap"><table class="list"><thead><tr><th>วิชา</th><th>กลุ่ม / แผนก</th><th>ครู</th><th>ห้อง</th><th>สาเหตุ</th></tr></thead><tbody>${clashes.map(row).join('')}</tbody></table></div>` : ''}
     <p class="muted">ปัญหาทั้งหมด: ${esc(problems.join(', '))}</p>
     <div class="row" style="margin-top:14px"><button class="btn" data-close>ทราบแล้ว</button></div>`);
+  m.classList.add('clash');
   $('.card', m).style.width = 'min(780px, 100%)'; // ตารางรายละเอียดต้องกว้างพอ
 }
 
