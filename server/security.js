@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 import { db, log } from './db.js';
 
 const need = k => { if (!process.env[k]) throw new Error(`ยังไม่ได้ตั้งค่า ${k} ใน .env`); return process.env[k]; };
@@ -34,7 +35,6 @@ export function decrypt(blob) {
   return Buffer.concat([d.update(data), d.final()]).toString('utf8');
 }
 // Data masking: 0812345612 -> 08X-XXX-XX12
-export const maskPhone = p => (p && p.length >= 4 ? `${p.slice(0, 2)}X-XXX-XX${p.slice(-2)}` : '');
 export const maskEmail = e => (e ? e.replace(/^(.).*(@.*)$/, '$1***$2') : '');
 
 // ---------- JWT ใน httpOnly cookie ----------
@@ -43,12 +43,13 @@ export function setSession(res, user) {
   const token = jwt.sign({ sub: user.id, role: user.role, name: user.full_name, dept: user.department }, JWT_SECRET(), { expiresIn: '8h' });
   res.cookie(COOKIE, token, { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production', maxAge: 8 * 3600e3 });
 }
-export const signTemp = (userId, purpose) => jwt.sign({ sub: userId, purpose }, JWT_SECRET(), { expiresIn: '5m' });
-export function verifyTemp(token, purpose) {
+export const signTemp = (userId, purpose, extra = {}) => jwt.sign({ ...extra, sub: userId, purpose }, JWT_SECRET(), { expiresIn: '10m' });
+export function tempPayload(token, purpose) {
   const p = jwt.verify(token, JWT_SECRET());
   if (p.purpose !== purpose) throw new Error('bad token');
-  return p.sub;
+  return p;
 }
+export const verifyTemp = (token, purpose) => tempPayload(token, purpose).sub;
 
 function readCookie(req, name) {
   const m = (req.headers.cookie || '').split(/;\s*/).find(c => c.startsWith(name + '='));
@@ -80,17 +81,19 @@ export async function registerFail(user, ip) {
     locked_until: locked ? new Date(Date.now() + LOCK_MIN * 60e3).toISOString() : user.locked_until,
   }).eq('id', user.id);
   await log(user.id, locked ? 'account_locked' : 'login_failed', { fails }, ip);
-  if (locked) await sendSms(decrypt(user.phone_enc), `PTC Smart Schedule: บัญชีของคุณถูกล็อก ${LOCK_MIN} นาที เนื่องจากใส่รหัสผ่านผิดหลายครั้ง`, user.id);
+  if (locked) await sendMail(decrypt(user.email_enc), 'แจ้งเตือน: บัญชีถูกล็อกชั่วคราว', `บัญชี ${user.username} ในระบบตารางเรียน-ตารางสอน วิทยาลัยการอาชีพโพนทอง ถูกล็อก ${LOCK_MIN} นาที เนื่องจากใส่รหัสผ่านผิดหลายครั้ง หากไม่ใช่คุณ โปรดแจ้งผู้ดูแลระบบ`, user.id).catch(() => {});
   return locked;
 }
 export const isLocked = u => u.locked_until && new Date(u.locked_until) > new Date();
 
 // ---------- OTP 6 หลัก ----------
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
-export async function issueOtp(user, purpose) {
+// ส่งไปอีเมลของบัญชี หรืออีเมลใหม่ที่กำลังขอเปลี่ยน (to)
+export async function issueOtp(user, purpose, to = decrypt(user.email_enc)) {
   const otp = String(crypto.randomInt(0, 1e6)).padStart(6, '0');
   await db.from('users').update({ otp_hash: sha(otp + user.id), otp_expires: new Date(Date.now() + 5 * 60e3).toISOString(), otp_attempts: 0 }).eq('id', user.id);
-  await sendSms(decrypt(user.phone_enc), `รหัส OTP (${purpose}) PTC Smart Schedule: ${otp} ใช้ได้ 5 นาที ห้ามบอกผู้อื่น`, user.id);
+  await sendMail(to, `รหัส OTP (${purpose}) ระบบตารางเรียน วก.โพนทอง`,
+    `รหัส OTP (${purpose}) PTC Smart Schedule: ${otp} ใช้ได้ 5 นาที ห้ามบอกผู้อื่น\n\nหากคุณไม่ได้ทำรายการนี้ โปรดเพิกเฉยต่ออีเมลนี้`, user.id);
 }
 export async function checkOtp(userId, otp) {
   const { data: u } = await db.from('users').select('*').eq('id', userId).single();
@@ -103,19 +106,29 @@ export async function checkOtp(userId, otp) {
   return u;
 }
 
-// ---------- SMS Gateway (ThaiBulkSMS API v2) ----------
-export async function sendSms(phone, message, userId) {
-  if (!phone) return;
-  const { THAIBULKSMS_API_KEY: key, THAIBULKSMS_API_SECRET: secret, THAIBULKSMS_SENDER: sender } = process.env;
-  if (!key || !secret) {
-    // โหมดทดสอบ: ยังไม่มีบัญชี SMS ให้ดู OTP ใน log ของเซิร์ฟเวอร์ (ห้ามใช้บน production)
-    console.log(`[SMS-DEV] to ${maskPhone(phone)}: ${message}`);
-    return log(userId, 'sms_dev', { to: maskPhone(phone) });
+// ---------- อีเมลวิทยาลัย (@pticec.ac.th) ----------
+export const COLLEGE_DOMAIN = 'pticec.ac.th';
+export function collegeEmail(v) {
+  const e = String(v || '').trim().toLowerCase();
+  if (!/^[^@\s]+@pticec\.ac\.th$/.test(e)) throw Object.assign(new Error(`ใช้ได้เฉพาะอีเมลของวิทยาลัย (@${COLLEGE_DOMAIN}) เท่านั้น`), { status: 400 });
+  return e;
+}
+
+// ส่งอีเมลผ่าน SMTP (เช่น Google Workspace ของวิทยาลัย) — ยังไม่ตั้งค่า = โหมดทดสอบ แสดงใน log ของเซิร์ฟเวอร์
+let transport;
+export async function sendMail(to, subject, text, userId) {
+  if (!to) return;
+  const { SMTP_HOST, SMTP_PORT = '465', SMTP_USER, SMTP_PASS, MAIL_FROM } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    console.log(`[MAIL-DEV] to ${maskEmail(to)}: ${text}`); // ห้ามใช้บน production
+    return log(userId, 'mail_dev', { to: maskEmail(to) });
   }
-  const r = await fetch('https://api-v2.thaibulksms.com/sms', {
-    method: 'POST',
-    headers: { Authorization: 'Basic ' + Buffer.from(`${key}:${secret}`).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ msisdn: phone, message, sender: sender || 'SMS' }),
-  });
-  await log(userId, r.ok ? 'sms_sent' : 'sms_failed', { to: maskPhone(phone), status: r.status });
+  transport ||= nodemailer.createTransport({ host: SMTP_HOST, port: +SMTP_PORT, secure: +SMTP_PORT === 465, auth: { user: SMTP_USER, pass: SMTP_PASS } });
+  try {
+    await transport.sendMail({ from: MAIL_FROM || `ระบบตารางเรียน วก.โพนทอง <${SMTP_USER}>`, to, subject, text });
+    await log(userId, 'mail_sent', { to: maskEmail(to) });
+  } catch (e) {
+    await log(userId, 'mail_failed', { to: maskEmail(to), error: String(e.message).slice(0, 200) });
+    throw Object.assign(new Error('ส่งอีเมลไม่สำเร็จ กรุณาลองใหม่ หรือแจ้งผู้ดูแลระบบให้ตรวจการตั้งค่าอีเมล (SMTP)'), { status: 502 });
+  }
 }

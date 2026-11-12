@@ -167,6 +167,9 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .subj td.c { text-align: center; }
 .subj .code { width: 14%; } .subj .num { width: 3.5%; }
 .subj td.c { white-space: nowrap; }
+.subj .ot { font-weight: 700; white-space: nowrap; }
+/* ตารางรายวิชายืดเต็มความสูงหัวฟอร์ม เส้นตารางต่อกันครบ ไม่มีช่องว่าง */
+.form-head .table-wrap { height: 100%; } .form-head .subj { height: 100%; }
 .signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; text-align: center; font-size: 1rem; }
 .signs .ln { margin-bottom: 4px; }
 .signs > div { min-width: 0; overflow-wrap: anywhere; }
@@ -234,7 +237,8 @@ table.list tbody tr:hover { background: #f6f8fc; }
   .app { display: block; } .main { padding: 0 !important; max-width: none; }
   .card { border: 0; padding: 0; margin: 0 !important; background: none; }
   h1, h2, h3, .slot b, .form-head .college, .tt td.band, .tt th.band, .muted { color: #000 !important; }
-  .form-head, .form-head .fh-left, .subj th, .subj td, .tt th, .tt td { border-color: #000 !important; background: #fff !important; }
+  .form-head, .form-head .fh-left, .subj th, .subj td, .tt th, .tt td { border: 1px solid #000 !important; background: #fff !important; }
+  .form-head { border-bottom: 0 !important; } .subj { border-collapse: collapse; }
   .slot { background: transparent !important; border: 0 !important; outline: 0 !important; }
   .tt tr { break-inside: avoid; }
 }

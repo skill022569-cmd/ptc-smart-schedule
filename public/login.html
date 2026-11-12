@@ -32,7 +32,7 @@
       <section id="step-otp" class="card login-card reveal hidden" style="text-align:center">
         <div style="font-size:46px">🔐</div>
         <h2>ยืนยันตัวตน 2 ขั้นตอน</h2>
-        <div class="muted">กรอกรหัส OTP 6 หลักที่ส่งไปยัง <b id="otp-phone"></b></div>
+        <div class="muted">กรอกรหัส OTP 6 หลักที่ส่งไปยังอีเมล <b id="otp-to"></b><br>(ตรวจกล่องจดหมาย หรือโฟลเดอร์จดหมายขยะ)</div>
         <form id="f-otp"><div class="otp" aria-label="รหัส OTP"></div>
           <button class="btn" style="width:100%;justify-content:center">ยืนยัน</button></form>
       </section>
@@ -43,7 +43,7 @@
         <h2 style="margin-top:10px">ลืมรหัสผ่าน</h2>
         <form id="f-forgot">
           <label>ชื่อผู้ใช้</label><input name="username" required>
-          <button class="btn" style="width:100%;justify-content:center;margin-top:18px">ขอรหัส OTP ทาง SMS</button>
+          <button class="btn" style="width:100%;justify-content:center;margin-top:18px">ขอรหัส OTP ทางอีเมล</button>
         </form>
         <form id="f-reset" class="hidden">
           <label>รหัส OTP</label><input name="otp" inputmode="numeric" maxlength="6" required>

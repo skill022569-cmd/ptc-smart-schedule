@@ -15,8 +15,9 @@ function infoOf(L, view, mine) {
     const t = L.teacher[view.id] || {};
     const ot = new Set(L.periods.filter(p => p.overtime).map(p => `${p.day}|${p.period_no}`));
     const out = mine.filter(e => ot.has(`${e.day}|${e.period_no}`)).length;
-    return ['ตารางสอน', [sem, ['ชื่อครูผู้สอน', t.full_name], ['แผนกวิชา', t.department || '—'], ['หน้าที่พิเศษ', t.special_duty || '—'],
-      ['คาบสอน', `ในเวลา ${mine.length - out} · นอกเวลา ${out} · รวม ${mine.length} คาบ/สัปดาห์`]]];
+    const advises = L.groups.filter(g => t.full_name && (g.advisor || '').includes(t.full_name)).map(g => g.code).join(', ');
+    return ['ตารางสอน', [sem, ['ชื่อครูผู้สอน', t.full_name], ['แผนกวิชา', t.department || '—'], ['ครูที่ปรึกษากลุ่ม', advises || '—'], ['หน้าที่พิเศษ', t.special_duty || '—'],
+      ['คาบสอน', `ในเวลา ${mine.length - out} · คาบนอก/พิเศษ ${out} · รวม ${mine.length} คาบ/สัปดาห์`]]];
   }
   if (view.type === 'room') {
     const r = L.room[view.id] || {};
@@ -30,12 +31,13 @@ function infoOf(L, view, mine) {
 // ตารางรายวิชา (ท.=ทฤษฎี ป.=ปฏิบัติ น.=หน่วยกิต ช.=ชั่วโมง/สัปดาห์)
 // shortcut: ท./ป. คิดจากประเภทวิชา (ทฤษฎีหรือปฏิบัติล้วน) — ถ้าต้องการแบบ 1-3-2 ให้เพิ่มคอลัมน์ชั่วโมงทฤษฎี/ปฏิบัติในรายวิชา
 function subjectTable(L, mine) {
+  const ot = new Set(L.periods.filter(p => p.overtime).map(p => `${p.day}|${p.period_no}`));
   const rows = [...new Set(mine.map(e => e.subject_id))].map(id => {
-    const s = L.subject[id] || {}, h = mine.filter(e => e.subject_id === id).length;
-    return { code: s.code, name: s.name, t: s.type === 'practice' ? 0 : h, p: s.type === 'practice' ? h : 0, n: s.credits || 0, h };
+    const s = L.subject[id] || {}, list = mine.filter(e => e.subject_id === id), h = list.length;
+    return { code: s.code, name: s.name, t: s.type === 'practice' ? 0 : h, p: s.type === 'practice' ? h : 0, n: s.credits || 0, h, o: list.filter(e => ot.has(`${e.day}|${e.period_no}`)).length };
   }).sort((a, b) => String(a.code).localeCompare(String(b.code)));
   const per = Math.max(5, Math.ceil(rows.length / 2));
-  const cell = r => r ? `<td class="c">${esc(r.code)}</td><td>${esc(r.name)}</td><td class="c">${r.t}</td><td class="c">${r.p}</td><td class="c">${r.n}</td><td class="c">${r.h}</td>`
+  const cell = r => r ? `<td class="c">${esc(r.code)}</td><td>${esc(r.name)}${r.o ? ` <span class="ot">(คาบนอก/พิเศษ ${r.o} คาบ)</span>` : ''}</td><td class="c">${r.t}</td><td class="c">${r.p}</td><td class="c">${r.n}</td><td class="c">${r.h}</td>`
     : '<td></td><td></td><td></td><td></td><td></td><td></td>';
   const sum = k => rows.reduce((a, r) => a + r[k], 0);
   const half = '<col class="code"><col><col class="num"><col class="num"><col class="num"><col class="num">';
@@ -43,7 +45,7 @@ function subjectTable(L, mine) {
   return `<div class="table-wrap"><table class="subj"><colgroup>${half}${half}</colgroup>
     <tr>${hd}${hd}</tr>
     ${Array.from({ length: per }, (_, i) => `<tr>${cell(rows[i])}${cell(rows[i + per])}</tr>`).join('')}
-    <tr><th colspan="2" style="text-align:right">รวม</th><td class="c">${sum('t')}</td><td class="c">${sum('p')}</td><td class="c">${sum('n')}</td><td class="c">${sum('h')}</td><td colspan="6"></td></tr>
+    <tr><th colspan="2" style="text-align:right">รวม${sum('o') ? ` <span class="ot">(ในเวลา ${sum('h') - sum('o')} · คาบนอก/พิเศษ ${sum('o')} คาบ)</span>` : ''}</th><td class="c">${sum('t')}</td><td class="c">${sum('p')}</td><td class="c">${sum('n')}</td><td class="c">${sum('h')}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
   </table></div>`;
 }
 

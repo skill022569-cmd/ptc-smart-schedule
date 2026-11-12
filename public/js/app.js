@@ -67,7 +67,7 @@ function pdpaModal() {
   const m = modal(`<h2>🔒 นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h2>
     <p>วิทยาลัยการอาชีพโพนทองเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของท่าน ได้แก่ ชื่อ-สกุล รหัสประจำตัว กลุ่มเรียน/แผนก เบอร์โทรศัพท์ และอีเมล
     เพื่อวัตถุประสงค์ในการจัดตารางเรียน-ตารางสอน ยืนยันตัวตนเจ้าหน้าที่ (OTP) และแจ้งเตือนความปลอดภัยเท่านั้น</p>
-    <ul class="muted"><li>ข้อมูลเบอร์โทร/อีเมลถูกเข้ารหัส (AES-256) และแสดงผลแบบปิดบังบางส่วน</li>
+    <ul class="muted"><li>อีเมลถูกเข้ารหัส (AES-256) และแสดงผลแบบปิดบังบางส่วน</li>
     <li>ท่านมีสิทธิ์ขอดู ขอสำเนา แก้ไข หรือขอลบข้อมูล ได้ที่เมนู "ข้อมูลส่วนตัว & PDPA"</li>
     <li>ข้อมูลจะถูกเก็บตลอดระยะเวลาการศึกษา/การปฏิบัติงาน และสำรองข้อมูลอย่างปลอดภัย</li></ul>
     <div class="row" style="margin-top:18px"><button class="btn ghost" id="pd-no">ไม่ยอมรับ (ออกจากระบบ)</button><button class="btn ok" id="pd-yes">✔ ยอมรับและเข้าใช้งาน</button></div>`, { closable: false });
@@ -100,11 +100,10 @@ function classInfo(e) {
 async function profilePage() {
   me = await api('/me');
   page().innerHTML = `<div class="grid2">
-    <form class="card reveal" id="f-prof"><h3>📇 ข้อมูลติดต่อ</h3>
+    <div class="card reveal"><h3>📇 ข้อมูลบัญชี</h3>
       <p class="muted">${esc(me.username)} · ${esc(me.full_name)}</p>
-      <label>เบอร์โทรศัพท์ (รับ OTP) — ปัจจุบัน: <b>${esc(me.phone || 'ยังไม่ระบุ')}</b></label><input name="phone" inputmode="numeric" placeholder="กรอกเบอร์ใหม่ 10 หลัก" maxlength="10">
-      <label>อีเมล — ปัจจุบัน: <b>${esc(me.email || 'ยังไม่ระบุ')}</b></label><input name="email" type="email" placeholder="กรอกอีเมลใหม่">
-      <button class="btn" style="margin-top:16px">บันทึก</button></form>
+      <p>อีเมลรับ OTP: <b>${esc(me.email || 'ยังไม่ระบุ')}</b></p>
+      <p class="muted" style="font-size:.9rem">ต้องการเปลี่ยนอีเมล ติดต่อผู้ดูแลระบบ (ใช้ได้เฉพาะ @pticec.ac.th และต้องยืนยัน OTP ที่อีเมลใหม่)</p></div>
     <form class="card reveal" id="f-pw" style="animation-delay:.08s"><h3>🔑 เปลี่ยนรหัสผ่าน</h3>
       <label>รหัสผ่านเดิม</label><input name="old" type="password" required autocomplete="current-password">
       <label>รหัสผ่านใหม่ (อย่างน้อย 8 ตัว)</label><input name="password" type="password" minlength="8" required autocomplete="new-password">
@@ -112,12 +111,6 @@ async function profilePage() {
     <div class="card reveal" style="animation-delay:.16s"><h3>🛡️ สิทธิ์ของเจ้าของข้อมูล (PDPA)</h3>
       <p>ยอมรับนโยบายเมื่อ: <b>${fmtDate(me.pdpa_consent_at)}</b></p>
       <div class="row"><button class="btn ghost" id="pd-exp">⬇ ขอสำเนาข้อมูลของฉัน</button><button class="btn danger" id="pd-del">🗑 ขอลบข้อมูล</button></div></div></div>`;
-  $('#f-prof').onsubmit = e => {
-    e.preventDefault();
-    const body = Object.fromEntries([...new FormData(e.target)].filter(([, v]) => v));
-    if (!Object.keys(body).length) return toast('ยังไม่ได้กรอกข้อมูลใหม่');
-    busy(e.submitter, async () => { await api('/me', { method: 'PUT', body }); toast('บันทึกแล้ว', 'ok'); profilePage(); });
-  };
   $('#f-pw').onsubmit = e => { e.preventDefault(); busy(e.submitter, async () => { await api('/me/password', { method: 'PUT', body: Object.fromEntries(new FormData(e.target)) }); toast('เปลี่ยนรหัสผ่านแล้ว', 'ok'); e.target.reset(); }); };
   $('#pd-exp').onclick = () => dl('/api/me/export');
   $('#pd-del').onclick = () => {
@@ -474,18 +467,20 @@ function importStudents(done) {
 }
 
 // ======================= Admin: คำร้อง / สำรองข้อมูล / Logs =======================
-// ยืนยันการสมัคร: SMS ส่ง OTP ไปที่เบอร์ของเจ้าของบัญชี แล้วผู้ดูแลระบบกรอกรหัสที่เจ้าของเบอร์แจ้ง
-function otpModal(u) {
-  const m = modal(`<div style="text-align:center"><div style="font-size:42px">📱</div><h3>ยืนยันเบอร์โทรของ ${esc(u.full_name)}</h3>
-    <p class="muted">ระบบส่งรหัส OTP 6 หลักทาง SMS ไปที่ <b>${esc(u.phone)}</b> แล้ว<br>ให้เจ้าของเบอร์แจ้งรหัส แล้วกรอกด้านล่าง (รหัสมีอายุ 5 นาที)</p></div>
+// ยืนยันอีเมล: ระบบส่ง OTP ไปที่อีเมลวิทยาลัยของเจ้าของบัญชี แล้วผู้ดูแลระบบกรอกรหัสที่เจ้าของอีเมลแจ้ง
+// pending = กำลังเปลี่ยนเป็นอีเมลใหม่ (บันทึกเมื่อยืนยันสำเร็จ)
+function otpModal(u, pending = null) {
+  const to = pending?.email || u.email;
+  const m = modal(`<div style="text-align:center"><div style="font-size:42px">📧</div><h3>ยืนยันอีเมลของ ${esc(u.full_name)}</h3>
+    <p class="muted">ระบบส่งรหัส OTP 6 หลักไปที่อีเมล <b>${esc(to)}</b> แล้ว<br>ให้เจ้าของอีเมลเปิดกล่องจดหมายแล้วแจ้งรหัส จากนั้นกรอกด้านล่าง (รหัสมีอายุ 5 นาที)</p></div>
     <form><input name="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code" style="text-align:center;font-size:1.6rem;letter-spacing:.5em" aria-label="รหัส OTP">
     <div class="row" style="margin-top:16px"><button type="button" class="btn ghost" id="resend">↻ ส่งรหัสใหม่</button><button type="button" class="btn ghost" data-close>ไว้ทีหลัง</button><button class="btn ok">✔ ยืนยัน</button></div></form>`);
   $('[name=otp]', m).focus();
   $('form', m).onsubmit = e => {
     e.preventDefault();
-    busy(e.submitter, async () => { await api(`/admin/accounts/${u.id}/verify`, { method: 'POST', body: { otp: e.target.otp.value } }); m.remove(); toast('✔ ยืนยันเบอร์โทรแล้ว บัญชีนี้เข้าสู่ระบบได้', 'ok'); accountsPage(); });
+    busy(e.submitter, async () => { await api(`/admin/accounts/${u.id}/verify`, { method: 'POST', body: { otp: e.target.otp.value, pending: pending?.token } }); m.remove(); toast('✔ ยืนยันอีเมลแล้ว', 'ok'); accountsPage(); });
   };
-  $('#resend', m).onclick = e => busy(e.currentTarget, async () => { const r = await api(`/admin/accounts/${u.id}/resend`, { method: 'POST' }); toast(`ส่งรหัสใหม่ไปที่ ${r.phone} แล้ว`); });
+  $('#resend', m).onclick = e => busy(e.currentTarget, async () => { const r = await api(`/admin/accounts/${u.id}/resend`, { method: 'POST', body: { pending: pending?.token } }); toast(`ส่งรหัสใหม่ไปที่ ${r.email} แล้ว`); });
 }
 
 async function accountsPage() {
@@ -493,8 +488,8 @@ async function accountsPage() {
   page().innerHTML = `<div class="card reveal"><div class="row" style="margin-bottom:14px;align-items:center">
       <p class="muted" style="margin:0;flex:2 1 300px">เข้าระบบได้ 2 แบบ: <b>ผู้ดูแลระบบ</b> (ทำได้ทุกอย่าง) และ <b>ฝ่ายวิชาการแผนก</b> (จัดการเฉพาะแผนกตัวเอง)</p>
       <button class="btn" id="add">＋ สร้างบัญชี</button></div>
-    <div class="table-wrap"><table class="list"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>บทบาท</th><th>แผนก</th><th>เบอร์โทร (OTP)</th><th></th></tr></thead><tbody>
-    ${rows.map(u => `<tr><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td><td><span class="badge ${u.role === 'admin' ? 'pri' : 'ok'}">${ROLE[u.role]}</span></td><td>${esc(u.department || '-')}</td><td>${esc(u.phone || '-')} ${u.verified ? '<span class="badge ok">✔ ยืนยันแล้ว</span>' : `<span class="badge warn">รอยืนยัน OTP</span> <button class="btn ok sm" data-verify="${u.id}">ยืนยัน OTP</button>`}</td>
+    <div class="table-wrap"><table class="list"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>บทบาท</th><th>แผนก</th><th>อีเมล (รับ OTP)</th><th></th></tr></thead><tbody>
+    ${rows.map(u => `<tr><td>${esc(u.username)}</td><td>${esc(u.full_name)}</td><td><span class="badge ${u.role === 'admin' ? 'pri' : 'ok'}">${ROLE[u.role]}</span></td><td>${esc(u.department || '-')}</td><td>${esc(u.email || '-')} ${u.verified ? '<span class="badge ok">✔ ยืนยันแล้ว</span>' : `<span class="badge warn">รอยืนยัน OTP</span> <button class="btn ok sm" data-verify="${u.id}">ยืนยัน OTP</button>`}</td>
       <td style="white-space:nowrap">${u.locked ? `<button class="btn ok sm" data-unlock="${u.id}">🔓 ปลดล็อก</button> ` : ''}<button class="btn ghost sm" data-edit="${u.id}">แก้ไข</button>${u.id === me.id ? '' : ` <button class="btn danger sm" data-del="${u.id}">ลบ</button>`}</td></tr>`).join('')}
     </tbody></table></div></div>`;
   const form = u => {
@@ -504,7 +499,7 @@ async function accountsPage() {
       <label>บทบาท</label><select name="role" ${u?.id === me.id ? 'disabled' : ''}><option value="dept" ${u?.role !== 'admin' ? 'selected' : ''}>ฝ่ายวิชาการแผนก</option><option value="admin" ${u?.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option></select>
       <label>แผนก (สำหรับฝ่ายวิชาการ)</label><input name="department" list="dl-dept" value="${esc(u?.department || '')}" placeholder="เช่น ช่างยนต์">
       <datalist id="dl-dept">${departments().map(d => `<option value="${esc(d)}">`).join('')}</datalist>
-      <label>เบอร์มือถือของเจ้าของบัญชี ${u?.phone ? `(ปัจจุบัน ${esc(u.phone)} — เว้นว่าง = ไม่เปลี่ยน, เปลี่ยนแล้วต้องยืนยัน OTP ใหม่)` : '(ระบบจะส่ง OTP ไปเบอร์นี้เพื่อยืนยันการสมัคร)'}</label><input name="phone" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" ${u ? '' : 'required'}>
+      <label>อีเมลของวิทยาลัย (@pticec.ac.th) ${u?.email ? `— ปัจจุบัน ${esc(u.email)} (เว้นว่าง = ไม่เปลี่ยน, เปลี่ยนแล้วต้องยืนยัน OTP ที่อีเมลใหม่)` : '— ระบบจะส่ง OTP ไปยืนยัน'}</label><input name="email" type="email" pattern=".+@pticec\\.ac\\.th" title="ใช้ได้เฉพาะอีเมล @pticec.ac.th" placeholder="ชื่อ@pticec.ac.th" ${u ? '' : 'required'} autocomplete="off">
       <label>${u ? 'ตั้งรหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 8 ตัว)'}</label><input name="password" type="password" minlength="8" ${u ? '' : 'required'} autocomplete="new-password">
       <div class="row" style="margin-top:18px"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn">💾 บันทึก</button></div></form>`);
     $('form', m).onsubmit = e => {
@@ -514,7 +509,8 @@ async function accountsPage() {
       busy(e.submitter, async () => {
         const saved = await api(u ? `/admin/accounts/${u.id}` : '/admin/accounts', { method: u ? 'PUT' : 'POST', body });
         m.remove(); toast('บันทึกแล้ว', 'ok'); await accountsPage();
-        if (!saved.verified && (!u || body.phone)) otpModal(saved); // เพิ่งส่ง OTP ไป
+        if (saved.pending) otpModal(saved, saved.pending); // เปลี่ยนอีเมล: ยืนยันอีเมลใหม่
+        else if (!saved.verified && !u) otpModal(saved); // บัญชีใหม่: เพิ่งส่ง OTP ไป
       });
     };
   };
@@ -530,15 +526,16 @@ async function backupPage() {
   const tables = ['users', 'student_groups', 'teachers', 'students', 'subjects', 'classrooms', 'periods', 'offerings', 'timetable_versions', 'timetable', 'time_block_requests', 'logs'];
   page().innerHTML = `<div class="grid2">
     <div class="card reveal"><h3>💾 ดาวน์โหลดข้อมูลสำรอง (Manual Backup)</h3>
-      <button class="btn" onclick="location.href='/api/admin/backup.sql'">⬇ ฐานข้อมูลทั้งหมด (.sql)</button>
+      <div class="row"><button class="btn" onclick="location.href='/api/admin/backup.sql'">⬇ ฐานข้อมูลทั้งหมด (.sql)</button><button class="btn ok" onclick="location.href='/api/admin/backup.xlsx'">⬇ ทั้งหมด (Excel .xlsx)</button></div>
+      <p class="muted" style="font-size:.85rem;margin-bottom:0">ไฟล์ .sql ใช้กู้คืนระบบ · ไฟล์ Excel เปิดดู/ตรวจข้อมูลได้ทันที (1 ตาราง = 1 แผ่นงาน)</p>
       <label>หรือเลือกตาราง (.csv)</label><div class="row"><select id="tbl">${tables.map(t => `<option>${t}</option>`).join('')}</select><button class="btn ghost" style="flex:0 0 auto" id="csv">⬇ CSV</button></div>
-      <p class="muted" style="font-size:.85rem">⚠ ไฟล์สำรองมีข้อมูลส่วนบุคคล (รหัสผ่านเป็น hash, เบอร์โทรเข้ารหัส) เก็บในที่ปลอดภัยตาม PDPA</p></div>
+      <p class="muted" style="font-size:.85rem">⚠ ไฟล์สำรองมีข้อมูลส่วนบุคคล (รหัสผ่านเป็น hash, อีเมล/เบอร์โทรเข้ารหัส) เก็บในที่ปลอดภัยตาม PDPA</p></div>
     <div class="card reveal" style="animation-delay:.1s"><h3>☁️ สำรองอัตโนมัติทุกวัน 02:00 น.</h3><p class="muted">GitHub Actions → Supabase Storage (bucket: backups)</p>
       <div class="table-wrap" style="max-height:300px"><table class="list"><tbody>${files.map(f => `<tr><td>${esc(f.name)}</td><td class="muted">${f.metadata?.size ? (f.metadata.size / 1024).toFixed(1) + ' KB' : ''}</td></tr>`).join('') || '<tr><td class="muted">ยังไม่มีไฟล์สำรองอัตโนมัติ</td></tr>'}</tbody></table></div></div></div>`;
   $('#csv').onclick = () => download(`/api/admin/backup/${$('#tbl').value}.csv`);
 }
 
-const LOG_NAMES = { settings_update: 'แก้ไขการตั้งค่า', account_verified: 'ยืนยันเบอร์บัญชี', account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
+const LOG_NAMES = { settings_update: 'แก้ไขการตั้งค่า', account_verified: 'ยืนยันอีเมลบัญชี', mail_sent: 'ส่งอีเมล', mail_failed: 'ส่งอีเมลไม่สำเร็จ', mail_dev: 'อีเมล (ทดสอบ)', account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
 async function logsPage(action = '') {
   const list = await api('/admin/logs' + (action ? `?action=${encodeURIComponent(action)}` : ''));
   const cls = a => /failed|locked/.test(a) ? 'bad' : /pdpa/.test(a) ? 'warn' : /ok|backup|publish/.test(a) ? 'ok' : 'pri';

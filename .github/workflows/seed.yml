@@ -22,4 +22,4 @@ jobs:
           DATA_ENCRYPTION_KEY: ${{ secrets.DATA_ENCRYPTION_KEY }}
           ADMIN_USERNAME: admin
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          ADMIN_PHONE: ${{ secrets.ADMIN_PHONE }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}

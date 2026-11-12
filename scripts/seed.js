@@ -4,18 +4,18 @@ import { hashPassword, encrypt } from '../server/security.js';
 
 const up = (t, rows, key = 'code') => q(db.from(t).upsert(rows, { onConflict: key }).select());
 
-async function user(username, full_name, role, password, phone) {
+async function user(username, full_name, role, password, email) {
   const found = await q(db.from('users').select('id').eq('username', username).maybeSingle());
   if (found) return found.id;
   return (await q(db.from('users').insert({
-    username, full_name, role, password_hash: hashPassword(password), phone_enc: phone ? encrypt(phone) : null,
+    username, full_name, role, password_hash: hashPassword(password), email_enc: email ? encrypt(email.trim().toLowerCase()) : null,
     phone_verified_at: role === 'admin' ? new Date().toISOString() : null, // แอดมินคนแรกสร้างจาก Secrets ที่เชื่อถือได้
   }).select().single())).id;
 }
 
-const { ADMIN_USERNAME = 'admin', ADMIN_PASSWORD, ADMIN_PHONE } = process.env;
+const { ADMIN_USERNAME = 'admin', ADMIN_PASSWORD, ADMIN_EMAIL } = process.env;
 if (!ADMIN_PASSWORD) throw new Error('กรุณาตั้งค่า ADMIN_PASSWORD ใน .env');
-await user(ADMIN_USERNAME, 'ฝ่ายวิชาการ วก.โพนทอง', 'admin', ADMIN_PASSWORD, ADMIN_PHONE);
+await user(ADMIN_USERNAME, 'ฝ่ายวิชาการ วก.โพนทอง', 'admin', ADMIN_PASSWORD, ADMIN_EMAIL);
 console.log(`✔ ผู้ดูแลระบบ: ${ADMIN_USERNAME}`);
 if (process.argv.includes('--admin-only')) process.exit(0);
 

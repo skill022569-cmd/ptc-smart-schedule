@@ -13,7 +13,7 @@ $('#f-login').onsubmit = e => {
   busy(e.submitter, async () => {
     const r = await api('/auth/login', { method: 'POST', body: f });
     if (!r.otp) return go();
-    temp = r.temp; $('#otp-phone').textContent = r.phone; show('#step-otp'); cells[0].focus(); toast('ส่งรหัส OTP ทาง SMS แล้ว');
+    temp = r.temp; $('#otp-to').textContent = r.email; show('#step-otp'); cells[0].focus(); toast('ส่งรหัส OTP ไปที่อีเมลแล้ว');
   });
 };
 

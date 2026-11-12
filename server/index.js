@@ -3,12 +3,12 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { db, q, log } from './db.js';
 import {
-  auth, setSession, signTemp, verifyTemp, COOKIE, hashPassword, verifyPassword, encrypt, decrypt, maskPhone, maskEmail,
+  auth, setSession, signTemp, verifyTemp, tempPayload, COOKIE, hashPassword, verifyPassword, encrypt, decrypt, maskEmail, collegeEmail,
   registerFail, isLocked, issueOtp, checkOtp, LOCK_MIN,
 } from './security.js';
 import { generateSchedule } from './scheduler.js';
 import { findConflicts, DAYS, WEEKLY_MAX } from '../public/shared/conflicts.js';
-import { toSql, tableCsv, toCsv, BACKUP_TABLES } from './backup.js';
+import { toSql, toXlsx, tableCsv, toCsv, BACKUP_TABLES } from './backup.js';
 
 const app = express();
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -49,11 +49,11 @@ app.post('/api/auth/login', async (req, res) => {
     const locked = await registerFail(user, req.ip);
     throw bad(locked ? `ใส่รหัสผิดเกินกำหนด บัญชีถูกล็อก ${LOCK_MIN} นาที` : 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 401);
   }
-  if (!user.phone_verified_at) throw bad('บัญชียังไม่ได้ยืนยันเบอร์โทรด้วย OTP กรุณาติดต่อผู้ดูแลระบบ', 403);
+  if (!user.phone_verified_at) throw bad('บัญชียังไม่ได้ยืนยันอีเมลด้วย OTP กรุณาติดต่อผู้ดูแลระบบ', 403); // phone_verified_at = ยืนยันตัวตนแล้ว (ปัจจุบันยืนยันทางอีเมล)
   await db.from('users').update({ failed_attempts: 0 }).eq('id', user.id);
-  if (OTP_REQUIRED && user.phone_enc) {
+  if (OTP_REQUIRED && user.email_enc) {
     await issueOtp(user, 'เข้าสู่ระบบ');
-    return res.json({ otp: true, temp: signTemp(user.id, 'login'), phone: maskPhone(decrypt(user.phone_enc)) });
+    return res.json({ otp: true, temp: signTemp(user.id, 'login'), email: maskEmail(decrypt(user.email_enc)) });
   }
   setSession(res, user);
   await log(user.id, 'login_ok', null, req.ip);
@@ -71,9 +71,9 @@ app.post('/api/auth/otp', async (req, res) => {
 
 app.post('/api/auth/forgot', async (req, res) => {
   const { data: user } = await db.from('users').select('*').eq('username', String(req.body.username || '').trim()).maybeSingle();
-  if (user?.phone_enc && LOGIN_ROLES.includes(user.role) && !isLocked(user)) { await issueOtp(user, 'รีเซ็ตรหัสผ่าน'); await log(user.id, 'password_reset_requested', null, req.ip); }
+  if (user?.email_enc && LOGIN_ROLES.includes(user.role) && !isLocked(user)) { await issueOtp(user, 'รีเซ็ตรหัสผ่าน'); await log(user.id, 'password_reset_requested', null, req.ip); }
   // ตอบเหมือนกันทุกกรณี ป้องกันการเดาชื่อผู้ใช้
-  res.json({ temp: signTemp(user?.id || crypto.randomUUID(), 'reset'), message: 'หากชื่อผู้ใช้ถูกต้องและมีเบอร์โทรในระบบ จะได้รับ OTP ทาง SMS' });
+  res.json({ temp: signTemp(user?.id || crypto.randomUUID(), 'reset'), message: 'หากชื่อผู้ใช้ถูกต้องและมีอีเมลในระบบ จะได้รับ OTP ทางอีเมล' });
 });
 
 app.post('/api/auth/reset', async (req, res) => {
@@ -97,7 +97,7 @@ app.get('/api/me', staff, async (req, res) => {
   const u = await myUser(req.user.sub);
   res.json({
     id: u.id, username: u.username, full_name: u.full_name, role: u.role, department: u.department, pdpa_consent_at: u.pdpa_consent_at,
-    phone: maskPhone(decrypt(u.phone_enc)), email: maskEmail(decrypt(u.email_enc)),
+    email: maskEmail(decrypt(u.email_enc)),
     view: req.user.viewAs ? { role: 'dept', department: req.user.dept } : null,
   });
 });
@@ -105,19 +105,6 @@ app.get('/api/me', staff, async (req, res) => {
 app.post('/api/me/consent', staff, async (req, res) => {
   await q(db.from('users').update({ pdpa_consent_at: new Date().toISOString() }).eq('id', req.user.sub));
   await log(req.user.sub, 'pdpa_consent', null, req.ip);
-  res.json({ ok: true });
-});
-
-app.put('/api/me', staff, async (req, res) => {
-  const patch = {};
-  if (req.body.phone !== undefined) {
-    const p = String(req.body.phone).replace(/\D/g, '');
-    if (p && !/^0\d{9}$/.test(p)) throw bad('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก');
-    patch.phone_enc = encrypt(p);
-  }
-  if (req.body.email !== undefined) patch.email_enc = encrypt(String(req.body.email).trim());
-  await q(db.from('users').update(patch).eq('id', req.user.sub));
-  await log(req.user.sub, 'profile_update', { fields: Object.keys(patch) }, req.ip);
   res.json({ ok: true });
 });
 
@@ -197,17 +184,12 @@ app.get('/api/admin/dashboard', admin, async (req, res) => {
   });
 });
 
-const accountRow = u => ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, department: u.department, phone: maskPhone(decrypt(u.phone_enc)), verified: !!u.phone_verified_at, locked: !!isLocked(u), created_at: u.created_at });
+const accountRow = u => ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, department: u.department, email: maskEmail(decrypt(u.email_enc)), verified: !!u.phone_verified_at, locked: !!isLocked(u), created_at: u.created_at });
 function accountPatch(body) {
   const patch = {};
   if (body.full_name) patch.full_name = String(body.full_name).trim();
   if (body.role) { if (!LOGIN_ROLES.includes(body.role)) throw bad('บทบาทไม่ถูกต้อง'); patch.role = body.role; }
   if (body.department !== undefined) patch.department = String(body.department).trim() || null;
-  if (body.phone) {
-    const p = String(body.phone).replace(/\D/g, '');
-    if (!/^0\d{9}$/.test(p)) throw bad('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก');
-    Object.assign(patch, { phone_enc: encrypt(p), phone_verified_at: null }); // เบอร์ใหม่ต้องยืนยัน OTP ใหม่
-  }
   if (body.password) { if (String(body.password).length < 8) throw bad('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); patch.password_hash = hashPassword(body.password); }
   if (body.unlock) Object.assign(patch, { locked_until: null, failed_attempts: 0 });
   return patch;
@@ -218,7 +200,8 @@ app.get('/api/admin/accounts', admin, async (req, res) => {
 app.post('/api/admin/accounts', admin, async (req, res) => {
   const patch = accountPatch({ role: 'dept', ...req.body });
   if (!req.body.username || !patch.full_name || !patch.password_hash) throw bad('กรุณากรอกชื่อผู้ใช้ ชื่อ-สกุล และรหัสผ่าน');
-  if (!patch.phone_enc) throw bad('กรุณากรอกเบอร์มือถือของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
+  if (!req.body.email) throw bad('กรุณากรอกอีเมลของวิทยาลัย (@pticec.ac.th) ของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
+  patch.email_enc = encrypt(collegeEmail(req.body.email));
   if (patch.role === 'dept' && !patch.department) throw bad('บัญชีฝ่ายวิชาการต้องระบุแผนก');
   const u = await q(db.from('users').insert({ ...patch, username: String(req.body.username).trim() }).select().single());
   await issueOtp(u, 'ยืนยันการสมัครบัญชี');
@@ -227,25 +210,40 @@ app.post('/api/admin/accounts', admin, async (req, res) => {
 });
 app.put('/api/admin/accounts/:id', admin, async (req, res) => {
   if (req.params.id === req.user.sub && req.body.role && req.body.role !== 'admin') throw bad('เปลี่ยนบทบาทของบัญชีตัวเองไม่ได้');
-  const patch = accountPatch(req.body);
-  const u = await q(db.from('users').update(patch).eq('id', req.params.id).in('role', LOGIN_ROLES).select().single());
-  if (patch.phone_enc) await issueOtp(u, 'ยืนยันเบอร์โทรใหม่');
+  const { email, ...rest } = req.body;
+  const patch = accountPatch(rest);
+  const u = Object.keys(patch).length ? await q(db.from('users').update(patch).eq('id', req.params.id).in('role', LOGIN_ROLES).select().single())
+    : await q(db.from('users').select('*').eq('id', req.params.id).in('role', LOGIN_ROLES).single());
+  // เปลี่ยนอีเมล: ยังไม่บันทึกจนกว่าจะยืนยัน OTP ที่อีเมลใหม่ (กันพิมพ์ผิดแล้วรับ OTP ไม่ได้)
+  let pending = null;
+  if (email) {
+    const e = collegeEmail(email);
+    if (e !== decrypt(u.email_enc)) { await issueOtp(u, 'ยืนยันอีเมลใหม่', e); pending = { token: signTemp(u.id, 'email', { email_enc: encrypt(e) }), email: maskEmail(e) }; }
+  }
   await log(req.user.sub, 'account_update', { username: u.username }, req.ip);
-  res.json(accountRow(u));
+  res.json({ ...accountRow(u), pending });
 });
-// ยืนยันเบอร์ของผู้สมัคร: เจ้าของเบอร์ได้ OTP ทาง SMS แล้วแจ้งรหัสให้ผู้ดูแลระบบกรอก
+// ยืนยันอีเมลของผู้สมัคร: เจ้าของอีเมลได้ OTP ในกล่องจดหมาย แล้วแจ้งรหัสให้ผู้ดูแลระบบกรอก
 app.post('/api/admin/accounts/:id/verify', admin, async (req, res) => {
   const u = await checkOtp(req.params.id, req.body.otp);
   if (!u) throw bad('รหัส OTP ไม่ถูกต้องหรือหมดอายุ (กรอกผิดได้ไม่เกิน 5 ครั้ง กดส่งรหัสใหม่ได้)');
-  const row = await q(db.from('users').update({ phone_verified_at: new Date().toISOString() }).eq('id', u.id).select().single());
+  let email_enc;
+  if (req.body.pending) {
+    let pl; try { pl = tempPayload(req.body.pending, 'email'); } catch { throw bad('หมดเวลายืนยันอีเมลใหม่ กรุณาแก้ไขอีเมลอีกครั้ง'); }
+    if (pl.sub !== u.id) throw bad('ข้อมูลยืนยันไม่ตรงกับบัญชี');
+    email_enc = pl.email_enc;
+  }
+  const row = await q(db.from('users').update({ phone_verified_at: new Date().toISOString(), ...(email_enc && { email_enc }) }).eq('id', u.id).select().single());
   await log(req.user.sub, 'account_verified', { username: u.username }, req.ip);
   res.json(accountRow(row));
 });
 app.post('/api/admin/accounts/:id/resend', admin, async (req, res) => {
   const u = await q(db.from('users').select('*').eq('id', req.params.id).in('role', LOGIN_ROLES).single());
-  if (!u.phone_enc) throw bad('บัญชีนี้ยังไม่มีเบอร์โทร');
-  await issueOtp(u, 'ยืนยันการสมัครบัญชี');
-  res.json({ ok: true, phone: maskPhone(decrypt(u.phone_enc)) });
+  let to = decrypt(u.email_enc);
+  if (req.body?.pending) { try { to = decrypt(tempPayload(req.body.pending, 'email').email_enc); } catch { throw bad('หมดเวลายืนยันอีเมลใหม่ กรุณาแก้ไขอีเมลอีกครั้ง'); } }
+  if (!to) throw bad('บัญชีนี้ยังไม่มีอีเมล');
+  await issueOtp(u, 'ยืนยันอีเมล', to);
+  res.json({ ok: true, email: maskEmail(to) });
 });
 app.delete('/api/admin/accounts/:id', admin, async (req, res) => {
   if (req.params.id === req.user.sub) throw bad('ลบบัญชีตัวเองไม่ได้');
@@ -530,6 +528,10 @@ app.get('/api/versions/:id/export.csv', staff, async (req, res) => {
 app.get('/api/admin/backup.sql', admin, async (req, res) => {
   await log(req.user.sub, 'backup', { format: 'sql', manual: true }, req.ip);
   res.attachment(`ptc-backup-${new Date().toISOString().slice(0, 10)}.sql`).type('application/sql').send(await toSql());
+});
+app.get('/api/admin/backup.xlsx', admin, async (req, res) => {
+  await log(req.user.sub, 'backup', { format: 'xlsx', manual: true }, req.ip);
+  res.attachment(`ptc-backup-${new Date().toISOString().slice(0, 10)}.xlsx`).type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet').send(await toXlsx());
 });
 app.get('/api/admin/backup/:table.csv', admin, async (req, res) => {
   if (!BACKUP_TABLES.includes(req.params.table)) throw bad('ไม่รู้จักตารางนี้', 404);
