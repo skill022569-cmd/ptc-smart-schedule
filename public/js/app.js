@@ -2,7 +2,7 @@ import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from '
 import { renderGrid, indexLookup } from './grid.js';
 import { findConflicts, DAYS } from '/shared/conflicts.js';
 import { showGuide } from './guide.js';
-import { renderForm, autoFit } from './form.js';
+import { renderForm } from './form.js';
 
 const ROLE = { admin: 'ผู้ดูแลระบบ', dept: 'ฝ่ายวิชาการแผนก' };
 const NAV = {
@@ -447,6 +447,5 @@ addEventListener('beforeprint', () => {
   if (on) renderForm($('#print-sheet'), { L, entries: S.entries, view: S.view, fullGrid: true });
 });
 addEventListener('afterprint', () => { document.body.classList.remove('print-form-mode'); $('#print-sheet').innerHTML = ''; });
-autoFit($('#print-sheet'));
 
 boot().catch(() => {});

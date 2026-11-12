@@ -59,13 +59,3 @@ export function renderForm(el, { L, entries, view, onClick, fullGrid = false }) 
     <div class="signs">${SIGNERS.map(r => `<div><div class="ln">ลงชื่อ.............................................</div><div>(.............................................)</div><div>${r}</div></div>`).join('')}</div>`;
   renderGrid(el.querySelector('.form-grid'), { entries, L, view, onClick, fullGrid });
 }
-
-// กันฟอร์มล้นไปหน้า 2: ตอนเข้าโหมดพิมพ์ ถ้าสูงเกิน A4 แนวนอน (พื้นที่พิมพ์ ~194mm) ให้ย่อลงจนพอดี
-const PAGE_H = 194 * 96 / 25.4;
-export function autoFit(el) {
-  matchMedia('print').addEventListener('change', mq => {
-    el.style.zoom = '';
-    const h = el.getBoundingClientRect().height;
-    if (mq.matches && h > PAGE_H) el.style.zoom = (PAGE_H / h * 0.97).toFixed(3);
-  });
-}

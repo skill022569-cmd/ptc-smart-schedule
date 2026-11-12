@@ -50,7 +50,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
       room: ['กลุ่ม ' + L.group[e.group_id]?.code, L.teacher[e.teacher_id]?.full_name],
     }[view.type];
     return `<div class="slot ${bad ? 'conflict' : ''}" style="--h:${hue(s.code)}" data-id="${e.id}" ${editable ? 'draggable="true"' : ''}
-      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted">${esc(s.code)}</div>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
+      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted code">${esc(s.code)}</div>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
   };
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
@@ -72,7 +72,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   const first = time(nums[0]);
   const morning = first && first.start_time.slice(0, 5) >= MORNING.end;
   const band = txt => `<td class="band" rowspan="${days.length + 1}"><span>${txt}</span></td>`;
-  el.innerHTML = `<div class="table-wrap"><table class="tt"><tbody>
+  el.innerHTML = `<div class="table-wrap"><table class="tt" style="--days:${days.length}"><tbody>
     <tr><th class="hd-first">เวลา</th>${morning ? `<th class="band">${MORNING.start}<br>${MORNING.end}</th>` : ''}${cols.map(c =>
       c.gap ? `<th class="band">${LUNCH.start}<br>${LUNCH.end}</th>` : `<th>${range(time(c.n))}</th>`).join('')}</tr>
     <tr><th class="hd-first">วัน/คาบ</th>${morning ? band(MORNING.label) : ''}${cols.map(c =>
