@@ -205,7 +205,8 @@ function draw() {
   if (!S.version) { $('#grid').innerHTML = '<p class="muted">ยังไม่มีตาราง — กดปุ่ม "🤖 AI จัดตารางอัตโนมัติ" เพื่อเริ่ม</p>'; $('#palette-box').innerHTML = ''; return; }
   const editable = S.version.status !== 'published';
   const conflicts = findConflicts(S.entries, ctx());
-  $('#cstat').innerHTML = conflicts.size ? `<span class="badge bad">⚠ ชนกัน ${conflicts.size} คาบ</span>` : '<span class="badge ok">✔ ไม่มีคาบชน</span>';
+  $('#cstat').innerHTML = conflicts.size ? `<button type="button" class="badge bad" id="cstat-btn" title="กดดูว่าคาบไหนซ้อนกับคาบไหน" style="cursor:pointer">⚠ ชนกัน ${conflicts.size} คาบ — กดดู</button>` : '<span class="badge ok">✔ ไม่มีคาบชน</span>';
+  $('#cstat-btn')?.addEventListener('click', conflictsModal);
   // คาบที่ยังจัดไม่ครบ ลากไปวางในตารางได้ (เฉพาะมุมมองกลุ่มเรียน)
   const pal = $('#palette-box');
   if (editable && S.view.type === 'group') {
@@ -236,26 +237,52 @@ async function move(id, day, period_no, record = true) {
   if (record) clashModal(e); // ย้อนกลับ (undo) ไม่ต้องเตือนซ้ำ
 }
 
+const whenOf = e => { const p = L.periods.find(x => x.day === e.day && x.period_no === e.period_no);
+  return `วัน${DAYS[e.day]} คาบ ${e.period_no}${p ? ` (${p.start_time.slice(0, 5)}–${p.end_time.slice(0, 5)} น.)` : ''}`; };
+const clashRow = (x, why, extra = '') => { const g = L.group[x.group_id], s = L.subject[x.subject_id];
+  return `<tr><td><b>${esc(s?.code)}</b> ${esc(s?.name)}</td><td>${esc(g?.code)}<br><span class="muted">${esc(g?.department)}</span></td><td>${esc(L.teacher[x.teacher_id]?.full_name)}</td><td>${esc(L.room[x.room_id]?.code || '-')}</td><td><span class="badge bad">${esc(why || '—')}</span></td>${extra}</tr>`; };
+const CLASH_HEAD = '<th>วิชา</th><th>กลุ่ม / แผนก</th><th>ครู</th><th>ห้อง</th><th>สาเหตุ</th>';
+function clashBox(html) {
+  $$('.modal.clash').forEach(x => x.remove()); // มีได้ทีละกล่อง ไม่ขึ้นซ้อน
+  const m = modal(html);
+  m.classList.add('clash');
+  $('.card', m).style.width = 'min(820px, 100%)'; // ตารางรายละเอียดต้องกว้างพอ
+  return m;
+}
+
+// ป้าย "ชนกัน N คาบ": รายการคาบที่ชนทั้งหมด จัดกลุ่มตามวัน/คาบ ให้เห็นว่าอันไหนซ้อนกับอันไหน
+function conflictsModal() {
+  const conf = findConflicts(S.entries, ctx());
+  const bad = S.entries.filter(e => conf.has(e.id)).sort((a, b) => a.day - b.day || a.period_no - b.period_no);
+  const slots = [...new Map(bad.map(e => [`${e.day}|${e.period_no}`, e])).values()];
+  const m = clashBox(`<h3>⚠ รายการคาบที่ชนกัน (${bad.length} คาบ)</h3>
+    <p class="muted" style="margin-top:0">คาบที่อยู่ในช่วงเวลาเดียวกันด้านล่างคือคาบที่ซ้อนกัน — กด "ไปดู" เพื่อเปิดตารางของกลุ่มนั้นแล้วลากแก้</p>
+    ${slots.map(t => `<p style="margin:14px 0 6px"><b>${whenOf(t)}</b></p>
+      <div class="table-wrap"><table class="list"><thead><tr>${CLASH_HEAD}<th></th></tr></thead><tbody>
+      ${bad.filter(e => e.day === t.day && e.period_no === t.period_no).map(e => clashRow(e, conf.get(e.id).join(', '),
+        `<td><button class="btn ghost sm" data-goto="${e.group_id}">ไปดู</button></td>`)).join('')}
+      </tbody></table></div>`).join('')}
+    <div class="row" style="margin-top:14px"><button class="btn" data-close>ทราบแล้ว</button></div>`);
+  $$('[data-goto]', m).forEach(b => b.onclick = () => {
+    S.view = { type: 'group', id: b.dataset.goto };
+    $$('#vtabs button').forEach(x => x.classList.toggle('active', x.dataset.v === 'group'));
+    fillViewSelect(); draw(); m.remove();
+  });
+}
+
 // กล่องแจ้งเตือนเมื่อย้าย/วางคาบแล้วชน: บอกว่าซ้อนกับคาบไหน วิชา กลุ่ม/แผนก ครู ห้อง
 function clashModal(e) {
-  $$('.modal.clash').forEach(x => x.remove()); // มีได้ทีละกล่อง ไม่ขึ้นซ้อน
   const problems = findConflicts(S.entries, ctx()).get(e.id);
-  if (!problems) return;
+  if (!problems) return $$('.modal.clash').forEach(x => x.remove());
   const same = (k, x) => e[k] && x[k] === e[k];
   const clashes = S.entries.filter(x => x.id !== e.id && x.day === e.day && x.period_no === e.period_no &&
     (same('teacher_id', x) || same('room_id', x) || same('group_id', x)));
   const why = x => [same('teacher_id', x) && 'ครูซ้อน', same('room_id', x) && 'ห้องซ้อน', same('group_id', x) && 'กลุ่มเรียนซ้อน'].filter(Boolean).join(', ');
-  const p = L.periods.find(x => x.day === e.day && x.period_no === e.period_no);
-  const when = `วัน${DAYS[e.day]} คาบ ${e.period_no}${p ? ` (${p.start_time.slice(0, 5)}–${p.end_time.slice(0, 5)} น.)` : ''}`;
-  const row = x => { const g = L.group[x.group_id], s = L.subject[x.subject_id];
-    return `<tr><td><b>${esc(s?.code)}</b> ${esc(s?.name)}</td><td>${esc(g?.code)}<br><span class="muted">${esc(g?.department)}</span></td><td>${esc(L.teacher[x.teacher_id]?.full_name)}</td><td>${esc(L.room[x.room_id]?.code || '-')}</td><td><span class="badge bad">${why(x) || '—'}</span></td></tr>`; };
-  const m = modal(`<h3>⚠ คาบเรียนซ้อนกัน</h3>
-    <p>คาบที่ย้ายไป <b>${when}</b><br>${esc(L.subject[e.subject_id]?.name)} · กลุ่ม ${esc(L.group[e.group_id]?.code)} (${esc(L.group[e.group_id]?.department)}) · ${esc(L.teacher[e.teacher_id]?.full_name)}</p>
-    ${clashes.length ? `<p style="margin-bottom:6px"><b>ซ้อนกับ:</b></p><div class="table-wrap"><table class="list"><thead><tr><th>วิชา</th><th>กลุ่ม / แผนก</th><th>ครู</th><th>ห้อง</th><th>สาเหตุ</th></tr></thead><tbody>${clashes.map(row).join('')}</tbody></table></div>` : ''}
+  clashBox(`<h3>⚠ คาบเรียนซ้อนกัน</h3>
+    <p>คาบที่ย้ายไป <b>${whenOf(e)}</b><br>${esc(L.subject[e.subject_id]?.name)} · กลุ่ม ${esc(L.group[e.group_id]?.code)} (${esc(L.group[e.group_id]?.department)}) · ${esc(L.teacher[e.teacher_id]?.full_name)}</p>
+    ${clashes.length ? `<p style="margin-bottom:6px"><b>ซ้อนกับ:</b></p><div class="table-wrap"><table class="list"><thead><tr>${CLASH_HEAD}</tr></thead><tbody>${clashes.map(x => clashRow(x, why(x))).join('')}</tbody></table></div>` : ''}
     <p class="muted">ปัญหาทั้งหมด: ${esc(problems.join(', '))}</p>
     <div class="row" style="margin-top:14px"><button class="btn" data-close>ทราบแล้ว</button></div>`);
-  m.classList.add('clash');
-  $('.card', m).style.width = 'min(780px, 100%)'; // ตารางรายละเอียดต้องกว้างพอ
 }
 
 async function add(offeringId, day, period_no) {
