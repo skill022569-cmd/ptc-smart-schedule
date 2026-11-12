@@ -31,7 +31,7 @@ function subjectTable(L, mine) {
     const s = L.subject[id] || {}, h = mine.filter(e => e.subject_id === id).length;
     return { code: s.code, name: s.name, t: s.type === 'practice' ? 0 : h, p: s.type === 'practice' ? h : 0, n: s.credits || 0, h };
   }).sort((a, b) => String(a.code).localeCompare(String(b.code)));
-  const per = Math.max(8, Math.ceil(rows.length / 2));
+  const per = Math.max(5, Math.ceil(rows.length / 2));
   const cell = r => r ? `<td class="c">${esc(r.code)}</td><td>${esc(r.name)}</td><td class="c">${r.t}</td><td class="c">${r.p}</td><td class="c">${r.n}</td><td class="c">${r.h}</td>`
     : '<td></td><td></td><td></td><td></td><td></td><td></td>';
   const sum = k => rows.reduce((a, r) => a + r[k], 0);

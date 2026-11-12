@@ -50,7 +50,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
       room: ['กลุ่ม ' + L.group[e.group_id]?.code, L.teacher[e.teacher_id]?.full_name],
     }[view.type];
     return `<div class="slot ${bad ? 'conflict' : ''}" style="--h:${hue(s.code)}" data-id="${e.id}" ${editable ? 'draggable="true"' : ''}
-      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted code">${esc(s.code)}</div>${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>`;
+      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted code">${esc(s.code)}</div><div class="meta">${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div></div>`;
   };
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {

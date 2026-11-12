@@ -1,19 +1,19 @@
-/* ธีมทางการแบบราชการไทย (กรมท่า-ทอง) ที่ยังทันสมัย: พื้นขาว ฟอนต์ TH Sarabun New เงาบาง ๆ เคลื่อนไหวนุ่มนวล */
-/* TH Sarabun New ฟอนต์แห่งชาติของ SIPA (ใช้และแจกจ่ายได้ฟรี) ฝังในเว็บ ทุกเครื่องเห็นเหมือนกัน */
-@font-face { font-family: 'TH Sarabun New'; src: url('/fonts/THSarabunNew.woff') format('woff'); font-weight: 400; font-display: swap; }
-@font-face { font-family: 'TH Sarabun New'; src: url('/fonts/THSarabunNew-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
+/* ธีมทางการแบบราชการไทย (กรมท่า-ทอง) ที่ยังทันสมัย: พื้นขาว ฟอนต์ TH SarabunPSK 16pt เงาบาง ๆ เคลื่อนไหวนุ่มนวล */
+/* TH SarabunPSK ฟอนต์แห่งชาติของ SIPA (ใช้ ฝัง และแจกจ่ายได้ฟรี — ดู public/fonts/LICENSE-SIPA.txt) ฝังในเว็บ ทุกเครื่องเห็นเหมือนกัน */
+@font-face { font-family: 'TH SarabunPSK'; src: url('/fonts/THSarabunPSK.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'TH SarabunPSK'; src: url('/fonts/THSarabunPSK-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
 :root {
   --navy: #1b2a5e; --navy2: #24387a; --gold: #c9a227; --gold2: #f3e7bf;
   --bg: #f4f6fa; --card: #ffffff; --card-b: #dfe3ec; --line: #c7cdd9;
   --text: #1d2433; --muted: #5d6779; --pri: #24387a; --ok: #17803d; --warn: #a86b00; --bad: #c0392b;
   --radius: 10px; --shadow: 0 1px 2px rgba(20,30,60,.06), 0 4px 14px rgba(20,30,60,.06);
-  font-family: 'TH Sarabun New', 'TH SarabunPSK', sans-serif;
+  font-family: 'TH SarabunPSK', sans-serif;
 }
-html { font-size: 19px; } /* TH Sarabun ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายฐานขึ้นเล็กน้อย */
+html { font-size: 16pt; } /* ขนาดมาตรฐานเอกสารราชการ: TH SarabunPSK 16pt */
 button, input, select, textarea { font-family: inherit; }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
-body { background: var(--bg); color: var(--text); font-size: 1rem; line-height: 1.35; overflow-x: hidden; }
+body { background: var(--bg); color: var(--text); font-size: 1rem; line-height: 1.15; overflow-x: hidden; }
 a { color: var(--pri); }
 h1, h2, h3 { font-weight: 600; margin: 0 0 .6em; color: var(--navy); }
 .muted { color: var(--muted); }
@@ -33,13 +33,13 @@ h1, h2, h3 { font-weight: 600; margin: 0 0 .6em; color: var(--navy); }
 .btn.ghost:hover { background: #f1f3f8; border-color: var(--navy); }
 .btn.danger { background: var(--bad); border-color: var(--bad); }
 .btn.ok { background: var(--ok); border-color: var(--ok); }
-.btn.sm { padding: 5px 12px; font-size: .88rem; }
+.btn.sm { padding: 5px 12px; font-size: 1rem; }
 .btn[disabled] { opacity: .6; pointer-events: none; }
 .spin { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: rot .7s linear infinite; }
 @keyframes rot { to { transform: rotate(360deg); } }
 
 /* ---------- ฟอร์ม ---------- */
-label { display: block; font-size: .9rem; color: var(--muted); margin: 12px 0 5px; font-weight: 500; }
+label { display: block; font-size: 1rem; color: var(--muted); margin: 12px 0 5px; font-weight: 500; }
 input, select, textarea { width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--text); font: inherit; transition: border .15s, box-shadow .15s; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(36,56,122,.15); }
 input[readonly] { background: #f3f5f9; }
@@ -52,8 +52,8 @@ input[readonly] { background: #f3f5f9; }
 .gov-bar .in { max-width: 1280px; margin: 0 auto; padding: 12px clamp(16px, 3vw, 32px); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand h1 { font-size: clamp(1.05rem, 2.4vw, 1.35rem); margin: 0; color: inherit; }
-.brand .sub { font-size: .85rem; opacity: .85; }
-.logo { width: 46px; height: 46px; border-radius: 50%; background: #fff; border: 2px solid var(--gold); display: grid; place-items: center; font-weight: 700; color: var(--navy); font-size: .95rem; object-fit: contain; flex: 0 0 auto; }
+.brand .sub { font-size: 1rem; opacity: .85; }
+.logo { width: 46px; height: 46px; border-radius: 50%; background: #fff; border: 2px solid var(--gold); display: grid; place-items: center; font-weight: 700; color: var(--navy); font-size: 1rem; object-fit: contain; flex: 0 0 auto; }
 .gov-bar .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
 .gov-bar .btn.ghost:hover { background: rgba(255,255,255,.12); border-color: var(--gold); }
 
@@ -72,13 +72,13 @@ input[readonly] { background: #f3f5f9; }
 .side { position: sticky; top: 0; height: 100vh; padding: 18px 12px; background: var(--navy); color: #dfe4f3; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; border-right: 4px solid var(--gold); }
 .side .brand { margin: 0 6px 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.15); color: #fff; }
 .side .brand h1 { font-size: 1rem; line-height: 1.2; }
-.side .brand .sub { font-size: .8rem; line-height: 1.2; opacity: .85; }
+.side .brand .sub { font-size: 1rem; line-height: 1.2; opacity: .85; }
 .side .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
 .side .btn.ghost:hover { background: rgba(255,255,255,.1); }
 .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 6px; color: #dfe4f3; text-decoration: none; transition: background .15s; border-left: 3px solid transparent; }
 .nav a:hover { background: rgba(255,255,255,.08); }
 .nav a.active { background: rgba(255,255,255,.14); color: #fff; border-left-color: var(--gold); font-weight: 600; }
-.nav .sec { font-size: .75rem; letter-spacing: .05em; color: #aab3cf; margin: 14px 12px 4px; }
+.nav .sec { font-size: 1rem; letter-spacing: .05em; color: #aab3cf; margin: 14px 12px 4px; }
 .main { padding: 22px clamp(16px, 3vw, 32px); min-width: 0; }
 .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--card-b); }
 .top h2 { margin: 0; font-size: 1.4rem; }
@@ -100,17 +100,17 @@ input[readonly] { background: #f3f5f9; }
 .stat .n { font-size: 2rem; font-weight: 700; color: var(--navy); }
 .stat .ico { position: absolute; right: 14px; top: 10px; font-size: 2rem; opacity: .18; }
 .bars { display: flex; align-items: end; gap: 10px; height: 160px; padding-top: 10px; }
-.bars div { flex: 1; text-align: center; font-size: .8rem; color: var(--muted); }
+.bars div { flex: 1; text-align: center; font-size: 1rem; color: var(--muted); }
 .bars i { display: block; margin: 0 auto 6px; width: 60%; border-radius: 4px 4px 0 0; background: var(--navy); height: 0; transition: height .8s ease-out; }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 
 /* ---------- ตารางข้อมูล ---------- */
 .table-wrap { overflow-x: auto; }
-table.list { width: 100%; border-collapse: collapse; font-size: .95rem; }
+table.list { width: 100%; border-collapse: collapse; font-size: 1rem; }
 table.list th { text-align: left; font-weight: 600; color: var(--navy); background: #eef1f7; padding: 9px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; }
 table.list td { padding: 9px 10px; border-bottom: 1px solid var(--card-b); }
 table.list tbody tr:hover { background: #f6f8fc; }
-.badge { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: .8rem; background: #eef1f7; color: var(--navy); border: 1px solid var(--card-b); }
+.badge { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 1rem; background: #eef1f7; color: var(--navy); border: 1px solid var(--card-b); }
 .badge.ok { background: #e6f4ea; color: var(--ok); border-color: #b7dfc3; }
 .badge.warn { background: #fdf3dd; color: var(--warn); border-color: #f0d9a0; }
 .badge.bad { background: #fbe9e7; color: var(--bad); border-color: #f2c1bb; }
@@ -123,15 +123,15 @@ table.list tbody tr:hover { background: #f6f8fc; }
 /* ---------- ตารางเรียน (แบบฟอร์มราชการ) ---------- */
 .tt { width: 100%; border-collapse: collapse; min-width: 860px; table-layout: fixed; background: #fff; }
 .tt th, .tt td { border: 1px solid #8a93a6; }
-.tt th { font-weight: 500; font-size: .82rem; padding: 6px 4px; text-align: center; color: var(--text); background: #f3f5f9; }
+.tt th { font-weight: 500; font-size: 1rem; padding: 6px 4px; text-align: center; color: var(--text); background: #f3f5f9; }
 .tt th.hd-first, .tt th.day { width: 92px; }
-.tt th.day { font-weight: 600; font-size: .9rem; background: #fff; }
+.tt th.day { font-weight: 600; font-size: 1rem; background: #fff; }
 .tt td { height: 70px; vertical-align: middle; padding: 2px; transition: background .15s; }
 .tt td.drop { background: #e8ecf8; outline: 2px dashed var(--navy); outline-offset: -3px; }
 .tt td.band, .tt th.band { width: 46px; text-align: center; background: #fafbfd; color: var(--navy); font-weight: 600; }
 .tt td.band span { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
 .tt td.lunch { background: #fafbfd; }
-.slot { height: 100%; padding: 5px 6px; border-radius: 4px; font-size: .78rem; line-height: 1.3; cursor: pointer; position: relative; text-align: center; display: flex; flex-direction: column; justify-content: center;
+.slot { height: 100%; padding: 5px 6px; border-radius: 4px; font-size: 1rem; line-height: 1.3; cursor: pointer; position: relative; text-align: center; display: flex; flex-direction: column; justify-content: center;
   background: hsla(var(--h), 55%, 96%, 1); border-left: 3px solid hsla(var(--h), 50%, 42%, 1); transition: box-shadow .15s, background .15s; }
 .slot:hover { box-shadow: 0 2px 8px rgba(20,30,60,.15); background: hsla(var(--h), 55%, 93%, 1); }
 .slot b { font-weight: 600; display: block; color: var(--navy); }
@@ -152,16 +152,16 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .form-head .emblem { width: 76px; height: 76px; object-fit: contain; }
 .form-head .college { text-align: center; font-weight: 700; color: var(--navy); font-size: 1.15rem; }
 .form-head .form-title { text-align: center; font-weight: 700; font-size: 1rem; }
-.form-head dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 12px 0 0; font-size: .92rem; }
+.form-head dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 12px 0 0; font-size: 1rem; }
 .form-head dt { font-weight: 700; }
 .form-head dd { margin: 0; }
-.subj { width: 100%; border-collapse: collapse; font-size: .8rem; table-layout: fixed; }
+.subj { width: 100%; border-collapse: collapse; font-size: 1rem; table-layout: fixed; }
 .subj th, .subj td { border: 1px solid #8a93a6; padding: 3px 5px; height: 22px; }
 .subj th { background: #f3f5f9; font-weight: 600; text-align: center; }
 .subj td.c { text-align: center; }
 .subj .code { width: 14%; } .subj .num { width: 3.5%; }
 .subj td.c { white-space: nowrap; }
-.signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; text-align: center; font-size: .88rem; }
+.signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; text-align: center; font-size: 1rem; }
 .signs .ln { margin-bottom: 4px; }
 .signs > div { min-width: 0; overflow-wrap: anywhere; }
 @media screen and (max-width: 860px) { .form-head { grid-template-columns: 1fr; } .form-head .fh-left { border-right: 0; border-bottom: 1px solid #8a93a6; } .signs { grid-template-columns: 1fr; } }
@@ -170,7 +170,7 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .agenda h4 { margin: 16px 0 8px; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--gold); padding-bottom: 4px; }
 .agenda .slot { height: auto; margin-bottom: 8px; display: flex; flex-direction: row; gap: 12px; align-items: center; text-align: left; padding: 10px 12px; border: 1px solid var(--card-b); border-left: 4px solid hsla(var(--h), 50%, 42%, 1); }
 .agenda .slot .tm { font-weight: 700; min-width: 58px; text-align: center; line-height: 1.25; color: var(--navy); }
-.agenda .lunch-row { text-align: center; padding: 7px; margin-bottom: 8px; border-radius: 6px; border: 1px dashed var(--line); color: var(--muted); font-size: .9rem; background: #fafbfd; }
+.agenda .lunch-row { text-align: center; padding: 7px; margin-bottom: 8px; border-radius: 6px; border: 1px dashed var(--line); color: var(--muted); font-size: 1rem; background: #fafbfd; }
 
 /* ---------- Toast & Modal ---------- */
 #toasts { position: fixed; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 10px; z-index: 200; }
@@ -188,18 +188,20 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .main.public { max-width: 1280px; margin: 0 auto; }
 .preview-bar { position: sticky; top: 0; z-index: 60; display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 8px 16px; background: var(--gold2); border-bottom: 1px solid var(--gold); color: #5a4300; }
 .viewas { display: flex; align-items: center; gap: 8px; }
-.viewas select { width: auto; padding: 6px 10px; font-size: .88rem; }
+.viewas select { width: auto; padding: 6px 10px; font-size: 1rem; }
 
 /* ---------- พิมพ์ / Save as PDF: A4 แนวนอน 1 หน้า ขาว-ดำ ---------- */
 .print-only { display: none; }
 @media print {
-  /* พื้นที่พิมพ์ A4 แนวนอน 277 x 194 mm — งบความสูง: หัวฟอร์ม ~46 + หัวตาราง ~12 + วัน 100 + ลงชื่อ ~20 = ~178 mm */
+  /* พื้นที่พิมพ์ A4 แนวนอน 277 x 194 mm, ตัวอักษร 16pt (1 บรรทัด ~5.7mm)
+     งบความสูง: หัวฟอร์ม ~42 + หัวตาราง ~18 + วัน 100 + ลงชื่อ ~23 = ~183 mm */
   @page { size: A4 landscape; margin: 8mm; }
   body.print-form-mode .main > :not(#print-sheet) { display: none !important; }
   body.print-form-mode #print-sheet { display: block; }
   .print-form { width: 277mm; }
   *, *::before, *::after { animation: none !important; transition: none !important; box-shadow: none !important; }
-  html, body { background: #fff !important; color: #000; font-size: 12pt; line-height: 1.15; }
+  html, body { background: #fff !important; color: #000; font-size: 16pt; line-height: 1; }
+  .print-form * { font-size: 16pt !important; line-height: 1 !important; }
   .gov-bar, .side, .no-print, #toasts, .modal, .preview-bar, .viewas { display: none !important; }
   .app { display: block; } .main { padding: 0 !important; max-width: none; }
   .card { border: 0; padding: 0; margin: 0 !important; background: none; }
@@ -207,30 +209,27 @@ table.list tbody tr:hover { background: #f6f8fc; }
   .muted { color: #000 !important; }
   .table-wrap, .form-head .table-wrap { overflow: visible !important; }
   .form-head, .form-head .fh-left, .subj th, .subj td, .tt th, .tt td { border-color: #000 !important; }
-  /* หัวฟอร์ม */
-  .form-head { grid-template-columns: 74mm 1fr; }
-  .form-head .fh-left { padding: 1.5mm 2.5mm; }
-  .form-head .fh-left { display: grid; grid-template-columns: 14mm 1fr; column-gap: 2mm; align-items: center; }
+  /* หัวฟอร์ม: ตราข้างชื่อวิทยาลัย */
+  .form-head { grid-template-columns: 80mm 1fr; }
+  .form-head .fh-left { padding: 1mm 2mm; display: grid; grid-template-columns: 13mm 1fr; column-gap: 2mm; align-items: center; }
   .form-head .emblem-wrap { margin: 0; grid-row: span 2; }
-  .form-head .emblem { width: 14mm; height: 14mm; }
-  .form-head .college, .form-head .form-title { text-align: left; }
-  .form-head dl { grid-column: 1 / -1; }
-  .form-head .college { font-size: 13pt; white-space: nowrap; }
-  .form-head .form-title { font-size: 12pt; }
-  .form-head dl { font-size: 12pt; margin-top: 1.5mm; gap: 0 2mm; }
-  .subj { font-size: 11pt; line-height: 1.1; }
-  .subj th, .subj td { height: 4.2mm; padding: 0 1mm; background: #fff !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  /* ตารางคาบ: วันทั้งหมดรวมสูง 100mm เสมอ (5 วัน = 20mm/วัน, 7 วัน = 14.3mm/วัน) */
+  .form-head .emblem { width: 13mm; height: 13mm; }
+  .form-head .college, .form-head .form-title { text-align: left; white-space: nowrap; }
+  .form-head dl { grid-column: 1 / -1; margin-top: 1mm; gap: .3mm 2mm; }
+  .subj th, .subj td { height: 6mm; padding: 0 1mm; background: #fff !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .subj .code { width: 14%; } .subj .num { width: 3.4%; }
+  .subj td.c { padding: 0 !important; text-overflow: clip !important; } /* รหัสวิชาและตัวเลขต้องแสดงครบเสมอ */
+  /* ตารางคาบ: วันทั้งหมดรวมสูง 100mm เสมอ */
   .tt { min-width: 0; }
   .tt tr { break-inside: avoid; }
-  .tt th { font-size: 11pt; padding: .5mm 1mm; background: #fff !important; height: 6mm; }
-  .tt th.hd-first, .tt th.day { width: 26mm; white-space: nowrap; }
-  .tt th.day { font-size: 12pt; }
+  .tt th { padding: .4mm .5mm; background: #fff !important; font-weight: 400; }
+  .tt th.hd-first, .tt th.day { width: 30mm; white-space: nowrap; font-weight: 700; }
   .tt td { height: calc(100mm / var(--days, 5)); background: #fff !important; padding: 0; overflow: hidden; }
-  .tt td.band, .tt th.band { width: 10mm; background: #fff !important; font-size: 11pt; line-height: 1.05; padding: .3mm 0; }
-  .slot { height: 100%; border: 0 !important; border-radius: 0; background: transparent !important; color: #000; font-size: 11pt; line-height: 1.1; padding: .3mm .6mm; outline: 0 !important; }
-  .slot b { font-size: 12pt; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tt td.band, .tt th.band { width: 12mm; background: #fff !important; padding: .3mm 0; }
+  .slot { height: 100%; border: 0 !important; border-radius: 0; background: transparent !important; color: #000; padding: .3mm .6mm; outline: 0 !important; }
+  .slot b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .slot .code { display: none; } /* รหัสวิชาอยู่ในตารางรายวิชาด้านบนแล้ว */
-  .signs { margin-top: 2mm; font-size: 12pt; line-height: 1.15; }
+  .slot .meta div { display: inline; } .slot .meta div + div::before { content: ' · '; } /* ครู · ห้อง บรรทัดเดียว */
+  .signs { margin-top: 2mm; gap: 2mm; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
