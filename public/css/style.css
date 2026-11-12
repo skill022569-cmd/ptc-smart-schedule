@@ -110,7 +110,7 @@ table.list { width: 100%; border-collapse: collapse; font-size: 1rem; }
 table.list th { text-align: left; font-weight: 600; color: var(--navy); background: #eef1f7; padding: 9px 10px; border-bottom: 2px solid var(--line); white-space: nowrap; }
 table.list td { padding: 9px 10px; border-bottom: 1px solid var(--card-b); }
 table.list tbody tr:hover { background: #f6f8fc; }
-.badge { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 1rem; background: #eef1f7; color: var(--navy); border: 1px solid var(--card-b); }
+.badge { display: inline-block; white-space: nowrap; padding: 1px 10px; border-radius: 99px; font-size: 1rem; background: #eef1f7; color: var(--navy); border: 1px solid var(--card-b); }
 .badge.ok { background: #e6f4ea; color: var(--ok); border-color: #b7dfc3; }
 .badge.warn { background: #fdf3dd; color: var(--warn); border-color: #f0d9a0; }
 .badge.bad { background: #fbe9e7; color: var(--bad); border-color: #f2c1bb; }

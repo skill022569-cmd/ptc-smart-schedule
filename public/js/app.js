@@ -232,9 +232,29 @@ async function move(id, day, period_no, record = true) {
   const from = { day: e.day, period_no: e.period_no };
   Object.assign(e, { day, period_no }); draw(); // อัปเดตทันที แล้วค่อยบันทึก
   try { await api(`/entries/${id}`, { method: 'PUT', body: { day, period_no } }); if (record) S.undo.push({ t: 'move', id, from }); }
-  catch (err) { Object.assign(e, from); draw(); toast(err.message, 'bad'); }
-  const c = findConflicts(S.entries, ctx()).get(id);
-  if (c) toast('⚠ ' + c.join(', '), 'bad');
+  catch (err) { Object.assign(e, from); draw(); return toast(err.message, 'bad'); } // บันทึกไม่สำเร็จ = ไม่ได้ย้าย
+  clashModal(e, record);
+}
+
+// กล่องแจ้งเตือนเมื่อย้าย/วางคาบแล้วชน: บอกว่าซ้อนกับคาบไหน วิชา กลุ่ม/แผนก ครู ห้อง
+function clashModal(e, canUndo = true) {
+  const problems = findConflicts(S.entries, ctx()).get(e.id);
+  if (!problems) return;
+  const same = (k, x) => e[k] && x[k] === e[k];
+  const clashes = S.entries.filter(x => x.id !== e.id && x.day === e.day && x.period_no === e.period_no &&
+    (same('teacher_id', x) || same('room_id', x) || same('group_id', x)));
+  const why = x => [same('teacher_id', x) && 'ครูซ้อน', same('room_id', x) && 'ห้องซ้อน', same('group_id', x) && 'กลุ่มเรียนซ้อน'].filter(Boolean).join(', ');
+  const p = L.periods.find(x => x.day === e.day && x.period_no === e.period_no);
+  const when = `วัน${DAYS[e.day]} คาบ ${e.period_no}${p ? ` (${p.start_time.slice(0, 5)}–${p.end_time.slice(0, 5)} น.)` : ''}`;
+  const row = x => { const g = L.group[x.group_id], s = L.subject[x.subject_id];
+    return `<tr><td><b>${esc(s?.code)}</b> ${esc(s?.name)}</td><td>${esc(g?.code)}<br><span class="muted">${esc(g?.department)}</span></td><td>${esc(L.teacher[x.teacher_id]?.full_name)}</td><td>${esc(L.room[x.room_id]?.code || '-')}</td><td><span class="badge bad">${why(x) || '—'}</span></td></tr>`; };
+  const m = modal(`<h3>⚠ คาบเรียนซ้อนกัน</h3>
+    <p>คาบที่ย้ายไป <b>${when}</b><br>${esc(L.subject[e.subject_id]?.name)} · กลุ่ม ${esc(L.group[e.group_id]?.code)} (${esc(L.group[e.group_id]?.department)}) · ${esc(L.teacher[e.teacher_id]?.full_name)}</p>
+    ${clashes.length ? `<p style="margin-bottom:6px"><b>ซ้อนกับ:</b></p><div class="table-wrap"><table class="list"><thead><tr><th>วิชา</th><th>กลุ่ม / แผนก</th><th>ครู</th><th>ห้อง</th><th>สาเหตุ</th></tr></thead><tbody>${clashes.map(row).join('')}</tbody></table></div>` : ''}
+    <p class="muted">ปัญหาทั้งหมด: ${esc(problems.join(', '))}</p>
+    <div class="row" style="margin-top:14px">${canUndo ? '<button class="btn ghost" id="cl-undo">↶ ย้อนกลับที่เดิม</button>' : ''}<button class="btn" data-close>รับทราบ (คงไว้ก่อน)</button></div>`);
+  $('.card', m).style.width = 'min(780px, 100%)'; // ตารางรายละเอียดต้องกว้างพอ
+  $('#cl-undo', m)?.addEventListener('click', () => { m.remove(); undo(); });
 }
 
 async function add(offeringId, day, period_no) {
@@ -242,6 +262,7 @@ async function add(offeringId, day, period_no) {
   const room = L.rooms.find(r => !S.entries.some(e => e.room_id === r.id && e.day === day && e.period_no === period_no) && (L.subject[o.subject_id]?.type === 'practice') === (r.room_type !== 'lecture'));
   const e = await api('/entries', { method: 'POST', body: { version_id: S.version.id, day, period_no, subject_id: o.subject_id, teacher_id: o.teacher_id, group_id: o.group_id, room_id: room?.id } });
   S.entries.push(e); S.undo.push({ t: 'add', id: e.id }); draw();
+  clashModal(e);
 }
 
 async function removeEntry(e, record = true) {
