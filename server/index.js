@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { db, q, log } from './db.js';
 import {
-  auth, setSession, signTemp, verifyTemp, tempPayload, COOKIE, hashPassword, verifyPassword, encrypt, decrypt, maskEmail, collegeEmail,
+  auth, setSession, signTemp, verifyTemp, tempPayload, COOKIE, hashPassword, verifyPassword, encrypt, decrypt, maskEmail, validEmail,
   registerFail, isLocked, issueOtp, checkOtp, LOCK_MIN,
 } from './security.js';
 import { generateSchedule } from './scheduler.js';
@@ -200,8 +200,8 @@ app.get('/api/admin/accounts', admin, async (req, res) => {
 app.post('/api/admin/accounts', admin, async (req, res) => {
   const patch = accountPatch({ role: 'dept', ...req.body });
   if (!req.body.username || !patch.full_name || !patch.password_hash) throw bad('กรุณากรอกชื่อผู้ใช้ ชื่อ-สกุล และรหัสผ่าน');
-  if (!req.body.email) throw bad('กรุณากรอกอีเมลของวิทยาลัย (@pticec.ac.th) ของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
-  patch.email_enc = encrypt(collegeEmail(req.body.email));
+  if (!req.body.email) throw bad('กรุณากรอกอีเมลของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
+  patch.email_enc = encrypt(validEmail(req.body.email));
   if (patch.role === 'dept' && !patch.department) throw bad('บัญชีฝ่ายวิชาการต้องระบุแผนก');
   const username = String(req.body.username).trim();
   if ((await q(db.from('users').select('id').eq('username', username))).length) throw bad(`ชื่อผู้ใช้ "${username}" มีอยู่แล้ว (ถ้าเป็นบัญชีที่ยังไม่ยืนยัน ให้รีเฟรชหน้าแล้วกด "ยืนยัน OTP" ที่แถวนั้น หรือลบแล้วสร้างใหม่)`);
@@ -220,7 +220,7 @@ app.put('/api/admin/accounts/:id', admin, async (req, res) => {
   // เปลี่ยนอีเมล: ยังไม่บันทึกจนกว่าจะยืนยัน OTP ที่อีเมลใหม่ (กันพิมพ์ผิดแล้วรับ OTP ไม่ได้)
   let pending = null;
   if (email) {
-    const e = collegeEmail(email);
+    const e = validEmail(email);
     if (e !== decrypt(u.email_enc)) { await issueOtp(u, 'ยืนยันอีเมลใหม่', e); pending = { token: signTemp(u.id, 'email', { email_enc: encrypt(e) }), email: maskEmail(e) }; }
   }
   await log(req.user.sub, 'account_update', { username: u.username }, req.ip);

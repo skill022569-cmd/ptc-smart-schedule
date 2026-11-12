@@ -106,11 +106,10 @@ export async function checkOtp(userId, otp) {
   return u;
 }
 
-// ---------- อีเมลวิทยาลัย (@pticec.ac.th) ----------
-export const COLLEGE_DOMAIN = 'pticec.ac.th';
-export function collegeEmail(v) {
+// ---------- อีเมล (รับ OTP) ----------
+export function validEmail(v) {
   const e = String(v || '').trim().toLowerCase();
-  if (!/^[^@\s]+@pticec\.ac\.th$/.test(e)) throw Object.assign(new Error(`ใช้ได้เฉพาะอีเมลของวิทยาลัย (@${COLLEGE_DOMAIN}) เท่านั้น`), { status: 400 });
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) throw Object.assign(new Error('รูปแบบอีเมลไม่ถูกต้อง'), { status: 400 });
   return e;
 }
 

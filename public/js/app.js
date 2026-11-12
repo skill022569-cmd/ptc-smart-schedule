@@ -103,7 +103,7 @@ async function profilePage() {
     <div class="card reveal"><h3>📇 ข้อมูลบัญชี</h3>
       <p class="muted">${esc(me.username)} · ${esc(me.full_name)}</p>
       <p>อีเมลรับ OTP: <b>${esc(me.email || 'ยังไม่ระบุ')}</b></p>
-      <p class="muted" style="font-size:.9rem">ต้องการเปลี่ยนอีเมล ติดต่อผู้ดูแลระบบ (ใช้ได้เฉพาะ @pticec.ac.th และต้องยืนยัน OTP ที่อีเมลใหม่)</p></div>
+      <p class="muted" style="font-size:.9rem">ต้องการเปลี่ยนอีเมล ติดต่อผู้ดูแลระบบ (ต้องยืนยัน OTP ที่อีเมลใหม่)</p></div>
     <form class="card reveal" id="f-pw" style="animation-delay:.08s"><h3>🔑 เปลี่ยนรหัสผ่าน</h3>
       <label>รหัสผ่านเดิม</label><input name="old" type="password" required autocomplete="current-password">
       <label>รหัสผ่านใหม่ (อย่างน้อย 8 ตัว)</label><input name="password" type="password" minlength="8" required autocomplete="new-password">
@@ -467,7 +467,7 @@ function importStudents(done) {
 }
 
 // ======================= Admin: คำร้อง / สำรองข้อมูล / Logs =======================
-// ยืนยันอีเมล: ระบบส่ง OTP ไปที่อีเมลวิทยาลัยของเจ้าของบัญชี แล้วผู้ดูแลระบบกรอกรหัสที่เจ้าของอีเมลแจ้ง
+// ยืนยันอีเมล: ระบบส่ง OTP ไปที่อีเมลของเจ้าของบัญชี แล้วผู้ดูแลระบบกรอกรหัสที่เจ้าของอีเมลแจ้ง
 // pending = กำลังเปลี่ยนเป็นอีเมลใหม่ (บันทึกเมื่อยืนยันสำเร็จ)
 function otpModal(u, pending = null) {
   const to = pending?.email || u.email;
@@ -499,7 +499,7 @@ async function accountsPage() {
       <label>บทบาท</label><select name="role" ${u?.id === me.id ? 'disabled' : ''}><option value="dept" ${u?.role !== 'admin' ? 'selected' : ''}>ฝ่ายวิชาการแผนก</option><option value="admin" ${u?.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option></select>
       <label>แผนก (สำหรับฝ่ายวิชาการ)</label><input name="department" list="dl-dept" value="${esc(u?.department || '')}" placeholder="เช่น ช่างยนต์">
       <datalist id="dl-dept">${departments().map(d => `<option value="${esc(d)}">`).join('')}</datalist>
-      <label>อีเมลของวิทยาลัย (@pticec.ac.th) ${u?.email ? `— ปัจจุบัน ${esc(u.email)} (เว้นว่าง = ไม่เปลี่ยน, เปลี่ยนแล้วต้องยืนยัน OTP ที่อีเมลใหม่)` : '— ระบบจะส่ง OTP ไปยืนยัน'}</label><input name="email" type="email" pattern=".+@pticec\\.ac\\.th" title="ใช้ได้เฉพาะอีเมล @pticec.ac.th" placeholder="ชื่อ@pticec.ac.th" ${u ? '' : 'required'} autocomplete="off">
+      <label>อีเมล (รับ OTP) ${u?.email ? `— ปัจจุบัน ${esc(u.email)} (เว้นว่าง = ไม่เปลี่ยน, เปลี่ยนแล้วต้องยืนยัน OTP ที่อีเมลใหม่)` : '— ระบบจะส่ง OTP ไปยืนยัน'}</label><input name="email" type="email" placeholder="name@example.com" ${u ? '' : 'required'} autocomplete="off">
       <label>${u ? 'ตั้งรหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 8 ตัว)'}</label><input name="password" type="password" minlength="8" ${u ? '' : 'required'} autocomplete="new-password">
       <div class="row" style="margin-top:18px"><button type="button" class="btn ghost" data-close>ยกเลิก</button><button class="btn">💾 บันทึก</button></div></form>`);
     $('form', m).onsubmit = e => {
