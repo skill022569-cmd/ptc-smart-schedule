@@ -197,7 +197,7 @@ async function loadEntries() {
   draw();
 }
 
-const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject, periods: L.periods });
+const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject, periods: L.periods, weeklyMax: L.weekly_max });
 const myGroups = () => L.groups.filter(g => !myDept() || g.department === myDept());
 
 function draw() {
@@ -310,7 +310,7 @@ const MASTER = {
   student_groups: { fields: [['code', 'รหัสกลุ่ม'], ['department', 'แผนกวิชา'], ['level', 'ระดับ', { 'ปวช.': 'ปวช.', 'ปวส.': 'ปวส.' }], ['year', 'ชั้นปี', 'number'], ['size', 'จำนวนนักเรียน', 'number'], ['program', 'รูปแบบ', { 'ปกติ': 'ปกติ', 'ทวิภาคี': 'ทวิภาคี' }], ['advisor', 'ครูที่ปรึกษา']] },
   periods: { adminOnly: true, fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time']] },
   offerings: { fields: [['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['subject_id', 'รายวิชา', () => Object.fromEntries(L.subjects.map(s => [s.id, `${s.code} ${s.name}`]))], ['teacher_id', 'ครูผู้สอน', () => Object.fromEntries(L.teachers.map(t => [t.id, t.full_name]))]] },
-  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์ (ไม่เกิน 12)', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
+  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
   students: { people: 'student_code', fields: [['student_code', 'รหัสนักเรียน'], ['full_name', 'ชื่อ-สกุล'], ['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['special_needs', 'เงื่อนไขพิเศษ']] },
 };
 const optsOf = t => typeof t === 'function' ? t() : t;
@@ -339,7 +339,23 @@ async function masterPage(name) {
   $('#q').oninput = paint;
   if (!ro) $('#add').onclick = () => form(cfg, null, base, reload);
   if (!ro && name === 'students') $('#imp').onclick = () => importStudents(reload);
+  if (name === 'periods') weeklyMaxCard(reload);
   paint();
+}
+
+// ตั้งค่าคาบสูงสุดต่อสัปดาห์ (ใช้กับทั้งครูแต่ละคนและกลุ่มเรียนแต่ละกลุ่ม) — แก้ได้เฉพาะแอดมิน
+function weeklyMaxCard(reload) {
+  const admin = role() === 'admin';
+  page().insertAdjacentHTML('afterbegin', `<form class="card reveal" id="f-wk" style="margin-bottom:16px">
+    <h3 style="margin-bottom:4px">⏱ คาบเรียน / คาบสอนสูงสุดต่อสัปดาห์</h3>
+    <p class="muted" style="margin-top:0">ใช้กับ <b>ครูแต่ละคน</b> และ <b>กลุ่มเรียนแต่ละกลุ่ม</b> — AI จัดไม่เกินค่านี้ ตารางที่เกินจะขึ้นสีแดง และเพิ่มแผนการสอนเกินค่านี้ไม่ได้</p>
+    <div class="row" style="align-items:center"><div style="flex:0 1 200px"><input name="weekly_max" type="number" min="1" max="60" value="${L.weekly_max}" ${admin ? '' : 'readonly'} aria-label="คาบสูงสุดต่อสัปดาห์"></div>
+    <span style="flex:0 0 auto">คาบ/สัปดาห์</span>${admin ? '<button class="btn">💾 บันทึก</button>' : '<span class="badge">แก้ไขได้เฉพาะผู้ดูแลระบบ</span>'}</div></form>`);
+  $('#f-wk').onsubmit = e => {
+    e.preventDefault();
+    if (!admin) return;
+    busy(e.submitter, async () => { const r = await api('/admin/settings', { method: 'PUT', body: { weekly_max: +e.target.weekly_max.value } }); toast(`ตั้งค่าเป็น ${r.weekly_max} คาบ/สัปดาห์แล้ว`, 'ok'); await reload(); });
+  };
 }
 
 function form(cfg, row, base, done) {
@@ -447,7 +463,7 @@ async function backupPage() {
   $('#csv').onclick = () => download(`/api/admin/backup/${$('#tbl').value}.csv`);
 }
 
-const LOG_NAMES = { account_verified: 'ยืนยันเบอร์บัญชี', account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
+const LOG_NAMES = { settings_update: 'แก้ไขการตั้งค่า', account_verified: 'ยืนยันเบอร์บัญชี', account_create: 'สร้างบัญชี', account_update: 'แก้ไขบัญชี',  login_ok: 'เข้าสู่ระบบ', login_failed: 'รหัสผ่านผิด', account_locked: 'ล็อกบัญชี', otp_failed: 'OTP ผิด', sms_sent: 'ส่ง SMS', sms_failed: 'ส่ง SMS ไม่สำเร็จ', sms_dev: 'SMS (ทดสอบ)', pdpa_consent: 'ยอมรับ PDPA', pdpa_export: 'PDPA: ขอสำเนาข้อมูล', pdpa_delete_request: 'PDPA: ขอลบข้อมูล', backup: 'สำรองข้อมูล', export: 'ส่งออกตาราง', publish: 'ประกาศตาราง', ai_generate: 'AI จัดตาราง', snapshot: 'Snapshot', data_delete: 'ลบข้อมูล', password_reset: 'รีเซ็ตรหัสผ่าน', password_reset_requested: 'ขอรีเซ็ตรหัสผ่าน', password_change: 'เปลี่ยนรหัสผ่าน', profile_update: 'แก้ไขข้อมูลส่วนตัว', students_import: 'นำเข้านักเรียน', timeblock_request: 'คำร้องบล็อกเวลา' };
 async function logsPage(action = '') {
   const list = await api('/admin/logs' + (action ? `?action=${encodeURIComponent(action)}` : ''));
   const cls = a => /failed|locked/.test(a) ? 'bad' : /pdpa/.test(a) ? 'warn' : /ok|backup|publish/.test(a) ? 'ok' : 'pri';

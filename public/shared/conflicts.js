@@ -5,8 +5,8 @@
 export const DAYS = ['', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
 
 // จำนวนคาบสูงสุดต่อสัปดาห์ ทั้งครูแต่ละคน และกลุ่มเรียนแต่ละกลุ่ม
-export const WEEKLY_MAX = 12;
-export const teacherMax = t => Math.min(t?.max_hours || WEEKLY_MAX, WEEKLY_MAX);
+export const WEEKLY_MAX = 12; // ค่าเริ่มต้น — แอดมินเปลี่ยนได้ที่หน้า เวลา-คาบเรียน (ส่งเข้ามาเป็น ctx.weeklyMax)
+export const teacherMax = (t, cap = WEEKLY_MAX) => Math.min(t?.max_hours || cap, cap);
 
 // พักเที่ยงทุกวัน: ห้ามลงคาบที่เวลาทับช่วงนี้ และห้ามเรียนต่อเนื่องคร่อมช่วงนี้
 export const LUNCH = { start: '12:00', end: '13:00' };
@@ -38,6 +38,7 @@ export function findConflicts(entries, ctx = {}) {
   const slot = new Map();
   const hours = new Map();
   const ghours = new Map();
+  const cap = ctx.weeklyMax || WEEKLY_MAX;
   const lunch = new Set((ctx.periods || []).filter(isLunch).map(p => `${p.day}|${p.period_no}`));
 
   for (const e of entries) {
@@ -59,9 +60,9 @@ export function findConflicts(entries, ctx = {}) {
     ghours.set(e.group_id, (ghours.get(e.group_id) || 0) + 1);
   }
   for (const e of entries) {
-    const max = teacherMax(ctx.teachers?.[e.teacher_id]);
+    const max = teacherMax(ctx.teachers?.[e.teacher_id], cap);
     if (hours.get(e.teacher_id) > max) add(e, `ครูสอนเกิน ${max} คาบ/สัปดาห์`);
-    if (ghours.get(e.group_id) > WEEKLY_MAX) add(e, `กลุ่มเรียนเกิน ${WEEKLY_MAX} คาบ/สัปดาห์`);
+    if (ghours.get(e.group_id) > cap) add(e, `กลุ่มเรียนเกิน ${cap} คาบ/สัปดาห์`);
   }
   return out;
 }

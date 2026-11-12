@@ -153,6 +153,19 @@ async function assertGroup(req, groupId) {
   if (ids && !ids.includes(groupId)) throw bad('ไม่มีสิทธิ์จัดการกลุ่มเรียนของแผนกอื่น', 403);
 }
 
+// คาบสูงสุดต่อสัปดาห์ (ครู/กลุ่มเรียน) จากตาราง settings — ยังไม่ได้รัน migration 005 ก็ใช้ค่าเริ่มต้น 12
+async function weeklyMax() {
+  const { data } = await db.from('settings').select('value').eq('key', 'weekly_max').maybeSingle();
+  return +data?.value || WEEKLY_MAX;
+}
+app.put('/api/admin/settings', admin, async (req, res) => {
+  const v = Number(req.body.weekly_max);
+  if (!Number.isInteger(v) || v < 1 || v > 60) throw bad('คาบสูงสุดต่อสัปดาห์ต้องเป็นจำนวนเต็ม 1–60');
+  await q(db.from('settings').upsert({ key: 'weekly_max', value: v }, { onConflict: 'key' }));
+  await log(req.user.sub, 'settings_update', { weekly_max: v }, req.ip);
+  res.json({ weekly_max: v });
+});
+
 app.get('/api/lookup', staff, async (req, res) => {
   const [subjects, rooms, groups, periods, teachers, offerings] = await Promise.all([
     q(db.from('subjects').select('*').order('code')),
@@ -162,7 +175,7 @@ app.get('/api/lookup', staff, async (req, res) => {
     q(db.from('teachers').select('id,employee_code,department,max_hours,unavailable,user:users(full_name)')),
     q(db.from('offerings').select('*')),
   ]);
-  res.json({ subjects, rooms, groups, periods, offerings, teachers: teachers.map(({ user, ...t }) => ({ ...t, full_name: user?.full_name })) });
+  res.json({ weekly_max: await weeklyMax(), subjects, rooms, groups, periods, offerings, teachers: teachers.map(({ user, ...t }) => ({ ...t, full_name: user?.full_name })) });
 });
 
 const publishedVersion = async () => (await q(db.from('timetable_versions').select('*').eq('status', 'published').limit(1)))[0];
@@ -280,7 +293,8 @@ async function assertGroupLoad(body, id) {
   const [offs, subs] = await Promise.all([q(db.from('offerings').select('id,subject_id').eq('group_id', groupId)), q(db.from('subjects').select('id,periods_per_week'))]);
   const ppw = Object.fromEntries(subs.map(s => [s.id, s.periods_per_week]));
   const total = offs.filter(o => o.id !== id).reduce((a, o) => a + (ppw[o.subject_id] || 0), 0) + (ppw[subjectId] || 0);
-  if (total > WEEKLY_MAX) throw bad(`กลุ่มเรียนนี้จะมี ${total} คาบ/สัปดาห์ เกินกำหนด ${WEEKLY_MAX} คาบ`);
+  const cap = await weeklyMax();
+  if (total > cap) throw bad(`กลุ่มเรียนนี้จะมี ${total} คาบ/สัปดาห์ เกินกำหนด ${cap} คาบ`);
 }
 
 app.post('/api/data/:table', staff, async (req, res) => {
@@ -311,7 +325,7 @@ const PEOPLE = {
 const people = req => { const p = PEOPLE[req.params.kind]; if (!p) throw bad('ไม่รู้จักประเภท', 404); return p; };
 
 async function guardPerson(req, kind, body, id) {
-  if (kind === 'teachers' && body && +body.max_hours > WEEKLY_MAX) throw bad(`คาบสอนสูงสุดต้องไม่เกิน ${WEEKLY_MAX} คาบ/สัปดาห์`);
+  if (kind === 'teachers' && body?.max_hours !== undefined) { const cap = await weeklyMax(); if (+body.max_hours > cap) throw bad(`คาบสอนสูงสุดต้องไม่เกิน ${cap} คาบ/สัปดาห์ (ตั้งค่าได้ที่หน้า เวลา-คาบเรียน)`); }
   const d = deptOf(req);
   if (d === null) return;
   if (kind === 'teachers') {
@@ -386,7 +400,7 @@ async function loadCtx() {
     q(db.from('student_groups').select('*')), q(db.from('subjects').select('*')), q(db.from('periods').select('*')),
   ]);
   const byId = a => Object.fromEntries(a.map(x => [x.id, x]));
-  return { teachers: byId(teachers), rooms: byId(rooms), roomList: rooms, groups: byId(groups), subjects: byId(subjects), periods };
+  return { teachers: byId(teachers), rooms: byId(rooms), roomList: rooms, groups: byId(groups), subjects: byId(subjects), periods, weeklyMax: await weeklyMax() };
 }
 
 async function insertEntries(versionId, entries) {
@@ -422,7 +436,7 @@ app.post('/api/versions/generate', staff, async (req, res) => {
   }
   if (!offerings.length || !periods.length || !ctx.roomList.length) throw bad('ต้องมีข้อมูล แผนการสอน, คาบเรียน และห้องเรียน ก่อนสั่ง AI จัดตาราง');
   const t0 = Date.now();
-  const { entries, unplaced } = generateSchedule({ offerings, periods, rooms: ctx.roomList, subjects: ctx.subjects, groups: ctx.groups, teachers: ctx.teachers, fixed });
+  const { entries, unplaced } = generateSchedule({ offerings, periods, rooms: ctx.roomList, subjects: ctx.subjects, groups: ctx.groups, teachers: ctx.teachers, fixed, weeklyMax: ctx.weeklyMax });
   const v = await newVersion(req, req.body.name || `AI ${d ? `แผนก${d} ` : ''}${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}`);
   await insertEntries(v.id, [...fixed, ...entries]);
   await log(req.user.sub, 'ai_generate', { version: v.id, dept: d, entries: entries.length, unplaced: unplaced.length, ms: Date.now() - t0, viewAs: req.user.viewAs }, req.ip);

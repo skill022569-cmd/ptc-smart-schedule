@@ -70,3 +70,13 @@ test('ครูและกลุ่มเรียนไม่เกิน 12 �
   const e13 = Array.from({ length: 13 }, (_, i) => ({ id: i, day: 1 + (i % 5), period_no: 1 + Math.floor(i / 5), teacher_id: 't' + (1 + (i % 3)), room_id: null, group_id: 'g1', subject_id: 's1' }));
   assert.ok([...findConflicts(e13, { teachers: { t1: {}, t2: {}, t3: {} } }).values()].flat().includes('กลุ่มเรียนเกิน 12 คาบ/สัปดาห์'));
 });
+
+test('แอดมินเปลี่ยนคาบสูงสุดต่อสัปดาห์ได้ (weeklyMax)', () => {
+  const t = byId([{ id: 't1', max_hours: 30 }, { id: 't2', max_hours: 30 }, { id: 't3', max_hours: 30 }]);
+  const one = offerings.filter(o => o.group_id === 'g1').map(o => ({ ...o, teacher_id: 't1' })); // t1 สอน 12 คาบ
+  assert.equal(generateSchedule({ offerings: one, subjects, groups, teachers: t, rooms, periods, weeklyMax: 8 }).entries.length <= 8, true);
+  assert.equal(generateSchedule({ offerings: one, subjects, groups, teachers: t, rooms, periods, weeklyMax: 20 }).unplaced.length, 0);
+  const e10 = Array.from({ length: 10 }, (_, i) => ({ id: i, day: 1 + (i % 5), period_no: 1 + Math.floor(i / 5), teacher_id: 't1', group_id: 'g1', subject_id: 's1' }));
+  assert.equal(findConflicts(e10, { teachers: t, weeklyMax: 12 }).size, 0);
+  assert.ok([...findConflicts(e10, { teachers: t, weeklyMax: 9 }).values()].flat().includes('กลุ่มเรียนเกิน 9 คาบ/สัปดาห์'));
+});

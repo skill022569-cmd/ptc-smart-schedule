@@ -122,6 +122,10 @@ create table if not exists time_block_requests (
   created_at timestamptz not null default now()
 );
 
+-- ค่าตั้งระบบที่แอดมินแก้ได้ (เช่น weekly_max = คาบสูงสุดต่อสัปดาห์ของครูและกลุ่มเรียน)
+create table if not exists settings (key text primary key, value jsonb not null);
+insert into settings (key, value) values ('weekly_max', '12') on conflict (key) do nothing;
+
 create table if not exists logs (
   id bigint generated always as identity primary key,
   user_id uuid references users(id) on delete set null,
@@ -134,7 +138,7 @@ create index if not exists logs_created_idx on logs(created_at desc);
 
 do $$ declare t text; begin
   foreach t in array array['users','student_groups','teachers','students','subjects','classrooms','periods',
-                           'offerings','timetable_versions','timetable','time_block_requests','logs'] loop
+                           'offerings','timetable_versions','timetable','time_block_requests','logs','settings'] loop
     execute format('alter table %I enable row level security', t);
   end loop;
 end $$;

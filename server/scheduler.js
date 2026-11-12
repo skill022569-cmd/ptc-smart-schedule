@@ -20,6 +20,7 @@ function attempt(input, rnd) {
   const used = new Set();
   const hours = {};
   const ghours = {}; // คาบต่อสัปดาห์ของแต่ละกลุ่มเรียน
+  const cap = input.weeklyMax || WEEKLY_MAX;
   const dayLoad = {};
   const entries = [];
   const unplaced = [];
@@ -39,7 +40,7 @@ function attempt(input, rnd) {
   for (const b of blocks) {
     const subject = subjects[b.subject_id];
     const group = groups[b.group_id];
-    const max = teacherMax(teachers[b.teacher_id]);
+    const max = teacherMax(teachers[b.teacher_id], cap);
     const cands = [];
     for (const day in slotsByDay) {
       const d = +day;
@@ -56,7 +57,7 @@ function attempt(input, rnd) {
 
     let placed = false;
     for (const { d, run } of cands) {
-      if ((hours[b.teacher_id] || 0) + b.len > max || (ghours[b.group_id] || 0) + b.len > WEEKLY_MAX) break;
+      if ((hours[b.teacher_id] || 0) + b.len > max || (ghours[b.group_id] || 0) + b.len > cap) break;
       const ok = run.every(p => !used.has(`t|${b.teacher_id}|${d}|${p}`) && !used.has(`g|${b.group_id}|${d}|${p}`) &&
         !teacherBlocked(ctx, b.teacher_id, d, p));
       if (!ok) continue;
