@@ -214,7 +214,7 @@ function draw() {
     pal.innerHTML = need.length ? `<div class="muted" style="margin-bottom:6px">🧩 คาบที่ยังไม่ได้จัด — ลากไปวางในตาราง</div><div class="palette">${need.map(o => `<div class="slot" draggable="true" data-new="${o.id}" style="--h:200"><b>${esc(L.subject[o.subject_id]?.name)}</b><div class="muted">${esc(L.teacher[o.teacher_id]?.full_name)} · เหลือ ${o.left} คาบ</div></div>`).join('')}</div>` : '';
     $$('[data-new]', pal).forEach(s => s.ondragstart = ev => ev.dataTransfer.setData('text/plain', 'new:' + s.dataset.new));
   } else pal.innerHTML = editable ? '' : '<span class="badge ok">ตารางนี้ประกาศใช้แล้ว — กด Snapshot เพื่อสร้างฉบับร่างสำหรับแก้ไข</span>';
-  renderGrid($('#grid'), { entries: S.entries, L, view: S.view, editable, conflicts, onMove: move, onAdd: add, onClick: e => editable ? editEntry(e, conflicts.get(e.id)) : classInfo(e) });
+  renderGrid($('#grid'), { entries: S.entries, L, view: S.view, editable, conflicts, onMove: move, onAdd: add, onResize: resizeTo, onClick: e => editable ? editEntry(e, conflicts.get(e.id)) : classInfo(e) });
 }
 
 async function runAi() {
@@ -334,6 +334,18 @@ async function stretch(e, len) {
   }
   draw();
   if (len > block.length) clashModal(S.entries.find(x => x.day === e.day && x.period_no === prev.period_no && x.subject_id === e.subject_id && x.group_id === e.group_id));
+}
+
+// ลากขอบคาบไปถึงคาบ toPeriod: ความยาวใหม่ = จากคาบแรกของบล็อกถึง toPeriod (ไม่คร่อมพักเที่ยง)
+async function resizeTo(id, toPeriod) {
+  const e = S.entries.find(x => x.id === id);
+  if (!e) return;
+  const block = blockOf(e), start = block[0].period_no;
+  const ps = L.periods.filter(p => p.day === e.day).sort((a, b) => a.period_no - b.period_no);
+  let i = ps.findIndex(p => p.period_no === start), len = 1;
+  while (i + 1 < ps.length && ps[i + 1].period_no <= toPeriod && contiguous(ps[i], ps[i + 1]) && !isLunch(ps[i + 1])) { i++; len++; }
+  if (toPeriod > ps[i].period_no) toast(`ยืดได้ถึง ${len} ชั่วโมง — ติดพักเที่ยงหรือหมดคาบแล้ว`, 'bad');
+  if (len !== block.length) await stretch(e, len);
 }
 
 function editEntry(e, problems) {

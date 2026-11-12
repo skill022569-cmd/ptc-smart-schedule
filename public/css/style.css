@@ -136,6 +136,12 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .slot:hover { box-shadow: 0 2px 8px rgba(20,30,60,.15); background: hsla(var(--h), 55%, 93%, 1); }
 .slot b { font-weight: 600; display: block; color: var(--navy); }
 .slot[draggable=true] { cursor: grab; }
+/* แถบจับขอบขวา: ลากเพื่อยืด/หดคาบ */
+.slot .grip { position: absolute; top: 0; right: 0; bottom: 0; width: 9px; cursor: ew-resize; touch-action: none; border-radius: 0 4px 4px 0; }
+.slot .grip::after { content: ''; position: absolute; top: 30%; bottom: 30%; right: 3px; width: 3px; border-radius: 2px; background: hsla(var(--h), 50%, 42%, .45); }
+.slot:hover .grip::after, .slot.resizing .grip::after { background: var(--navy); }
+.slot.resizing { outline: 2px solid var(--navy); }
+.tt td.resize-preview { background: #e8ecf8; outline: 2px dashed var(--navy); outline-offset: -3px; }
 .slot.conflict { background: #fdecea; border-left-color: var(--bad); outline: 2px solid var(--bad); outline-offset: -2px; animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 50% { background: #f9d6d2; } }
 .palette { display: flex; flex-wrap: wrap; gap: 8px; max-height: 220px; overflow-y: auto; }

@@ -6,7 +6,7 @@ const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 36
 
 // แสดงตารางรายสัปดาห์ (แถว = วัน, คอลัมน์ = คาบ)
 // view: { type: 'group'|'teacher'|'room', id }, L = ข้อมูล lookup ที่ index ด้วย id แล้ว
-export function renderGrid(el, { entries, L, view, editable = false, conflicts = new Map(), onMove, onAdd, onClick, fullGrid = false }) {
+export function renderGrid(el, { entries, L, view, editable = false, conflicts = new Map(), onMove, onAdd, onClick, onResize, fullGrid = false }) {
   const days = [...new Set(L.periods.map(p => p.day))].sort();
   const nums = [...new Set(L.periods.map(p => p.period_no))].sort((a, b) => a - b);
   const time = n => L.periods.find(p => p.period_no === n);
@@ -50,7 +50,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
       room: ['กลุ่ม ' + L.group[e.group_id]?.code, L.teacher[e.teacher_id]?.full_name],
     }[view.type];
     return `<div class="slot ${bad ? 'conflict' : ''}" style="--h:${hue(s.code)}" data-id="${e.id}" ${editable ? 'draggable="true"' : ''}
-      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted code">${esc(s.code)}</div><div class="meta">${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div></div>`;
+      title="${esc(bad ? '⚠ ' + bad.join(', ') : s.name)}"><b>${esc(s.name)}</b><div class="muted code">${esc(s.code)}</div><div class="meta">${lines.map(x => `<div class="muted">${esc(x)}</div>`).join('')}</div>${editable ? '<span class="grip" title="กดค้างแล้วลากเพื่อยืด/หดคาบ" aria-label="ยืดหรือหดคาบ"></span>' : ''}</div>`;
   };
 
   if (!editable && !fullGrid && matchMedia('(max-width: 700px)').matches) {
@@ -84,6 +84,27 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
   el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
   if (!editable) return;
   el.querySelectorAll('.slot').forEach(s => s.ondragstart = ev => ev.dataTransfer.setData('text/plain', 'move:' + s.dataset.id));
+  // แถบจับขอบขวาของคาบ: กดค้างแล้วลากในแถววันเดียวกัน เพื่อยืด/หดคาบ
+  el.querySelectorAll('.slot .grip').forEach(g => {
+    const slotEl = g.closest('.slot'), row = g.closest('tr'), from = +g.closest('td').dataset.p;
+    g.onclick = ev => ev.stopPropagation(); // ไม่เปิดหน้าต่างแก้ไขคาบ
+    g.onpointerdown = ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      slotEl.draggable = false; slotEl.classList.add('resizing');
+      let target = from;
+      const mark = on => row.querySelectorAll('td[data-day]').forEach(td => td.classList.toggle('resize-preview', on && +td.dataset.p > from && +td.dataset.p <= target));
+      const move = e2 => {
+        const td = document.elementFromPoint(e2.clientX, e2.clientY)?.closest('td[data-day]');
+        if (td && td.closest('tr') === row) { target = +td.dataset.p; mark(true); }
+      };
+      const up = () => {
+        document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up);
+        mark(false); slotEl.draggable = true; slotEl.classList.remove('resizing');
+        if (target !== from) onResize?.(slotEl.dataset.id, target); // คลิกเฉย ๆ ไม่เปลี่ยนอะไร
+      };
+      document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
+    };
+  });
   el.querySelectorAll('td[data-day]').forEach(td => {
     td.ondragover = ev => { ev.preventDefault(); td.classList.add('drop'); };
     td.ondragleave = () => td.classList.remove('drop');
