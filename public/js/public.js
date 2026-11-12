@@ -1,7 +1,7 @@
 // หน้าแรกสาธารณะ: ดูตารางเรียนที่ประกาศแล้ว แยกตามแผนก/กลุ่มเรียน (ไม่ต้องล็อกอิน)
 import { esc, $, $$, modal } from './ui.js';
 import { indexLookup } from './grid.js';
-import { renderForm, semester } from './form.js';
+import { renderForm, semester, fitForPrint, unfitPrint } from './form.js';
 import { DAYS } from '/shared/conflicts.js';
 import { showGuide } from './guide.js';
 $('#guide-btn').onclick = () => showGuide('public');
@@ -44,6 +44,6 @@ function info(e) {
 
 // พิมพ์จากมือถือ: สลับเป็นตารางเต็มก่อนพิมพ์ แล้วกลับเป็นแบบรายวัน
 let printing = false;
-addEventListener('beforeprint', () => { printing = true; draw(); });
-addEventListener('afterprint', () => { printing = false; draw(); });
+addEventListener('beforeprint', () => { printing = true; draw(); fitForPrint($('#sheet')); });
+addEventListener('afterprint', () => { printing = false; unfitPrint($('#sheet')); draw(); });
 draw();

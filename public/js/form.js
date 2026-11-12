@@ -59,3 +59,24 @@ export function renderForm(el, { L, entries, view, onClick, fullGrid = false }) 
     <div class="signs">${SIGNERS.map(r => `<div><div class="ln">ลงชื่อ.............................................</div><div>(.............................................)</div><div>${r}</div></div>`).join('')}</div>`;
   renderGrid(el.querySelector('.form-grid'), { entries, L, view, onClick, fullGrid });
 }
+
+// เตรียมฟอร์มก่อนพิมพ์: ใส่รูปแบบพิมพ์ (class p) แล้ววัดความสูงจริงที่ความกว้างกระดาษ
+// ถ้าเกิน 1 หน้า A4 แนวนอน ลดขนาดลงเท่าที่จำเป็น และขยายความกว้างชดเชยให้ยังเต็มหน้ากระดาษ
+const PAGE_W = 277, PAGE_H = 194; // mm
+export function fitForPrint(el) {
+  el.classList.add('p');
+  el.style.zoom = el.style.width = '';
+  const display = el.style.display;
+  el.style.display = 'block'; // ฟอร์มของหน้าเจ้าหน้าที่ซ่อนอยู่บนจอ ต้องแสดงชั่วคราวจึงวัดได้
+  const h = el.getBoundingClientRect().height * 25.4 / 96;
+  if (h > PAGE_H) {
+    const z = PAGE_H / h * 0.98;
+    el.style.zoom = z.toFixed(3);
+    el.style.width = `${(PAGE_W / z).toFixed(1)}mm`;
+  }
+  el.style.display = display;
+}
+export function unfitPrint(el) {
+  el.classList.remove('p');
+  el.style.zoom = el.style.width = '';
+}

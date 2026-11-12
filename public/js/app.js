@@ -2,7 +2,7 @@ import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from '
 import { renderGrid, indexLookup } from './grid.js';
 import { findConflicts, DAYS } from '/shared/conflicts.js';
 import { showGuide } from './guide.js';
-import { renderForm } from './form.js';
+import { renderForm, fitForPrint, unfitPrint } from './form.js';
 
 const ROLE = { admin: 'ผู้ดูแลระบบ', dept: 'ฝ่ายวิชาการแผนก' };
 const NAV = {
@@ -444,8 +444,8 @@ const PAGES = { dashboard, schedule: schedulePage, accounts: accountsPage, backu
 addEventListener('beforeprint', () => {
   const on = !!($('#vid') && S.version && S.view.id);
   document.body.classList.toggle('print-form-mode', on);
-  if (on) renderForm($('#print-sheet'), { L, entries: S.entries, view: S.view, fullGrid: true });
+  if (on) { renderForm($('#print-sheet'), { L, entries: S.entries, view: S.view, fullGrid: true }); fitForPrint($('#print-sheet')); }
 });
-addEventListener('afterprint', () => { document.body.classList.remove('print-form-mode'); $('#print-sheet').innerHTML = ''; });
+addEventListener('afterprint', () => { document.body.classList.remove('print-form-mode'); unfitPrint($('#print-sheet')); $('#print-sheet').innerHTML = ''; });
 
 boot().catch(() => {});
