@@ -49,16 +49,4 @@ export function countUp(el) {
   requestAnimationFrame(step);
 }
 
-// เอฟเฟกต์ ripple ทุกปุ่ม + การ์ดเอียงตามเมาส์
-document.addEventListener('pointerdown', e => {
-  const b = e.target.closest('.btn'); if (!b) return;
-  const r = b.getBoundingClientRect(), s = document.createElement('span'), d = Math.max(r.width, r.height);
-  s.className = 'ripple'; Object.assign(s.style, { width: d + 'px', height: d + 'px', left: e.clientX - r.left - d / 2 + 'px', top: e.clientY - r.top - d / 2 + 'px' });
-  b.append(s); setTimeout(() => s.remove(), 600);
-});
-export function tilt(el) {
-  el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); el.style.transform = `perspective(700px) rotateY(${((e.clientX - r.left) / r.width - .5) * 12}deg) rotateX(${-((e.clientY - r.top) / r.height - .5) * 12}deg) translateY(-4px)`; });
-  el.addEventListener('pointerleave', () => { el.style.transform = ''; });
-}
-
 export function download(url) { const a = document.createElement('a'); a.href = url; a.click(); }

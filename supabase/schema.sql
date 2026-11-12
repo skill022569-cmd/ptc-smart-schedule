@@ -32,7 +32,8 @@ create table if not exists student_groups (
   level text not null check (level in ('ปวช.','ปวส.')),
   year int not null check (year between 1 and 3),
   size int not null default 30,
-  program text not null default 'ปกติ'        -- ปกติ / ทวิภาคี
+  program text not null default 'ปกติ',       -- ปกติ / ทวิภาคี
+  advisor text                                -- ครูที่ปรึกษา
 );
 
 create table if not exists teachers (

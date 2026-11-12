@@ -28,7 +28,7 @@ const LOGIN_ROLES = ['admin', 'dept']; // ครู/นักเรียนเ�
 app.get('/api/public/schedule', async (req, res) => {
   const [v, groups, subjects, teachers, rooms, periods] = await Promise.all([
     publishedVersion(),
-    q(db.from('student_groups').select('id,code,department,level,year,program').order('code')),
+    q(db.from('student_groups').select('*').order('code')), // * = ไม่พังถ้ายังไม่ได้รัน migration 004 (advisor)
     q(db.from('subjects').select('id,code,name,type,credits')),
     q(db.from('teachers').select('id, user:users(full_name)')),
     q(db.from('classrooms').select('id,code,building')),
@@ -245,7 +245,7 @@ app.delete('/api/admin/accounts/:id', admin, async (req, res) => {
 const CRUD = {
   subjects: ['code', 'name', 'credits', 'periods_per_week', 'type'],
   classrooms: ['code', 'building', 'room_type', 'capacity'],
-  student_groups: ['code', 'department', 'level', 'year', 'size', 'program'],
+  student_groups: ['code', 'department', 'level', 'year', 'size', 'program', 'advisor'],
   periods: ['day', 'period_no', 'start_time', 'end_time'],
   offerings: ['group_id', 'subject_id', 'teacher_id'],
 };

@@ -3,29 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ตารางเรียน | PTC Smart Schedule</title>
+  <title>ตารางเรียน | วิทยาลัยการอาชีพโพนทอง</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="aurora"><span></span><span></span><span></span></div><div class="grid-bg"></div>
   <div id="preview-bar" class="preview-bar hidden no-print">👁 กำลังดูในมุมมอง <b>บุคคลทั่วไป</b> <a class="btn sm" href="/app.html">← กลับหน้าผู้ดูแลระบบ</a></div>
+  <header class="gov-bar no-print">
+    <div class="in">
+      <div class="brand"><img class="logo" src="/logo.png" alt="ตราวิทยาลัย" onerror="this.outerHTML='<div class=logo>วก.</div>'">
+        <div><h1>วิทยาลัยการอาชีพโพนทอง</h1><div class="sub">ระบบตารางเรียน-ตารางสอน · <span id="ver"></span></div></div></div>
+      <div class="row" style="flex:0 1 auto;justify-content:flex-end"><button class="btn ghost" id="guide-btn">📖 คู่มือการใช้งานเว็บเบื้องต้น</button><a class="btn ghost" href="/login.html" id="login-btn">🔐 เข้าสู่ระบบ</a></div>
+    </div>
+  </header>
   <main class="main public">
-    <header class="top">
-      <div class="brand reveal" style="margin:0"><div class="logo">📅</div><div><h1>ตารางเรียน วิทยาลัยการอาชีพโพนทอง</h1><div class="muted" id="ver"></div></div></div>
-      <div class="row no-print" style="flex:0 1 auto;justify-content:flex-end"><button class="btn ghost" id="guide-btn">📖 คู่มือการใช้งานเว็บเบื้องต้น</button><a class="btn ghost" href="/login.html" id="login-btn">🔐 เข้าสู่ระบบ</a></div>
-    </header>
-    <section class="card reveal" style="animation-delay:.1s">
-      <div class="muted no-print" style="margin-bottom:8px">เลือกแผนกวิชา</div>
-      <div class="tabs no-print" id="depts"></div>
-      <div class="row no-print" style="align-items:center;margin-bottom:12px">
+    <section class="card reveal no-print" style="margin-bottom:14px">
+      <div class="row" style="align-items:end">
+        <div style="flex:3 1 320px"><label>แผนกวิชา</label><div class="tabs" id="depts" style="margin:0"></div></div>
         <div style="flex:2 1 220px"><label for="grp">กลุ่มเรียน</label><select id="grp"></select></div>
-        <button class="btn ghost sm no-print" onclick="print()">🖨 พิมพ์ / PDF</button>
+        <button class="btn" onclick="print()">🖨 พิมพ์ / PDF</button>
       </div>
-      <div id="info" style="margin-bottom:10px"></div>
+    </section>
+    <section class="card reveal form-sheet" style="animation-delay:.05s">
+      <div id="form-head"></div>
       <div id="grid"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div></div>
-      <p class="muted no-print" style="font-size:.8rem">แตะที่คาบเรียนเพื่อดูรายละเอียด</p>
+      <div id="signs"></div>
+      <p class="muted no-print" style="font-size:.85rem;margin-bottom:0">แตะที่คาบเรียนเพื่อดูรายละเอียด</p>
     </section>
   </main>
   <script type="module" src="/js/public.js"></script>

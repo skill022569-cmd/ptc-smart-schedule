@@ -1,6 +1,7 @@
 import { esc } from './ui.js';
 import { DAYS, LUNCH, isLunch, contiguous, lunchBetween } from '/shared/conflicts.js';
 
+const MORNING = { start: '07:40', end: '08:00', label: 'กิจกรรมหน้าเสาธง' };
 const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
 
 // แสดงตารางรายสัปดาห์ (แถว = วัน, คอลัมน์ = คาบ)
@@ -16,7 +17,6 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
     cols.push({ n, lunch: isLunch(time(n)) });
   });
   const hasLunch = cols.some(c => c.gap || c.lunch);
-  const LUNCH_TXT = `พักเที่ยง ${LUNCH.start}–${LUNCH.end}`;
   const key = { group: 'group_id', teacher: 'teacher_id', room: 'room_id' }[view.type];
   const mine = entries.filter(e => !view.id || e[key] === view.id);
   // คาบติดกันที่เป็นวิชา/ครู/ห้อง/กลุ่มเดียวกัน รวมเป็นช่องเดียว (เฉพาะโหมดดู — โหมดแก้ไขต้องลากได้ทีละคาบ) ไม่รวมข้ามพักเที่ยง
@@ -57,8 +57,8 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
     el.innerHTML = `<div class="agenda">${days.map(d => {
       const cells = cellsOf(d).filter(c => c.list?.length);
       const at = hasLunch ? cells.findIndex(c => (time(c.n)?.start_time || '') >= LUNCH.end) : -2;
-      const lunchRow = `<div class="lunch-row">🍱 ${LUNCH_TXT}</div>`;
-      return `<h4>${DAYS[d]}</h4>` + (cells.map((c, k) => (k === at ? lunchRow : '') + c.list.map(e => {
+      const lunchRow = `<div class="lunch-row">พักกลางวัน ${LUNCH.start}–${LUNCH.end} น.</div>`;
+      return `<h4>วัน${DAYS[d]}</h4>` + (cells.map((c, k) => (k === at ? lunchRow : '') + c.list.map(e => {
         const a = time(c.n), b = time(c.last);
         const tm = a && b ? `${esc(a.start_time.slice(0, 5))}<br>${esc(b.end_time.slice(0, 5))}` : `คาบ ${c.n}`;
         return slot(e).replace('<b>', `<div class="tm">${tm}</div><div><b>`).replace(/<\/div>$/, '</div></div>');
@@ -67,13 +67,18 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
     el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
     return;
   }
-  el.innerHTML = `<div class="table-wrap"><table class="tt"><thead><tr><th></th>${cols.map(c => {
-    if (c.gap) return '<th class="lunch">พัก<br>เที่ยง</th>';
-    const t = time(c.n);
-    return `<th${c.lunch ? ' class="lunch"' : ''}>${c.lunch ? 'พักเที่ยง' : `คาบ ${c.n}`}<br>${t ? esc(t.start_time.slice(0, 5) + '-' + t.end_time.slice(0, 5)) : ''}</th>`;
-  }).join('')}</tr></thead><tbody>${days.map((d, di) => `<tr><th class="day">${DAYS[d]}</th>${cellsOf(d).map(c => c.gap
-    ? (di ? '' : `<td class="lunch" rowspan="${days.length}"><span>${LUNCH_TXT}</span></td>`)
-    : `<td data-day="${d}" data-p="${c.n}"${c.lunch ? ' class="lunch"' : ''}${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
+  // แบบฟอร์มราชการ: แถว "เวลา" + แถว "วัน/คาบ" และช่องแนวตั้ง กิจกรรมหน้าเสาธง / พักกลางวัน
+  const range = t => (t ? esc(`${t.start_time.slice(0, 5)} - ${t.end_time.slice(0, 5)}`) : '');
+  const first = time(nums[0]);
+  const morning = first && first.start_time.slice(0, 5) >= MORNING.end;
+  const band = txt => `<td class="band" rowspan="${days.length + 1}"><span>${txt}</span></td>`;
+  el.innerHTML = `<div class="table-wrap"><table class="tt"><tbody>
+    <tr><th class="hd-first">เวลา</th>${morning ? `<th class="band">${MORNING.start} - ${MORNING.end}</th>` : ''}${cols.map(c =>
+      c.gap ? `<th class="band">${LUNCH.start} - ${LUNCH.end}</th>` : `<th>${range(time(c.n))}</th>`).join('')}</tr>
+    <tr><th class="hd-first">วัน/คาบ</th>${morning ? band(MORNING.label) : ''}${cols.map(c =>
+      c.gap ? band('พักกลางวัน') : `<th>${c.lunch ? 'พัก' : c.n}</th>`).join('')}</tr>
+    ${days.map(d => `<tr><th class="day">วัน${DAYS[d]}</th>${cellsOf(d).map(c => c.gap ? ''
+      : `<td data-day="${d}" data-p="${c.n}"${c.lunch ? ' class="lunch"' : ''}${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
   </tbody></table></div>`;
 
   el.querySelectorAll('.slot').forEach(s => s.onclick = () => onClick?.(entries.find(e => e.id === s.dataset.id)));
