@@ -203,8 +203,11 @@ app.post('/api/admin/accounts', admin, async (req, res) => {
   if (!req.body.email) throw bad('กรุณากรอกอีเมลของวิทยาลัย (@pticec.ac.th) ของเจ้าของบัญชี (ใช้ยืนยัน OTP)');
   patch.email_enc = encrypt(collegeEmail(req.body.email));
   if (patch.role === 'dept' && !patch.department) throw bad('บัญชีฝ่ายวิชาการต้องระบุแผนก');
-  const u = await q(db.from('users').insert({ ...patch, username: String(req.body.username).trim() }).select().single());
-  await issueOtp(u, 'ยืนยันการสมัครบัญชี');
+  const username = String(req.body.username).trim();
+  if ((await q(db.from('users').select('id').eq('username', username))).length) throw bad(`ชื่อผู้ใช้ "${username}" มีอยู่แล้ว (ถ้าเป็นบัญชีที่ยังไม่ยืนยัน ให้รีเฟรชหน้าแล้วกด "ยืนยัน OTP" ที่แถวนั้น หรือลบแล้วสร้างใหม่)`);
+  const u = await q(db.from('users').insert({ ...patch, username }).select().single());
+  try { await issueOtp(u, 'ยืนยันการสมัครบัญชี'); }
+  catch (e) { await db.from('users').delete().eq('id', u.id); throw e; } // ส่งอีเมลไม่ได้ -> ไม่ทิ้งบัญชีค้างไว้
   await log(req.user.sub, 'account_create', { username: u.username, role: u.role, department: u.department }, req.ip);
   res.json(accountRow(u));
 });
