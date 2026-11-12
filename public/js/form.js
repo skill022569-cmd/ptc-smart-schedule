@@ -13,7 +13,10 @@ function infoOf(L, view, mine) {
   const sem = ['ภาคเรียนที่', semester()];
   if (view.type === 'teacher') {
     const t = L.teacher[view.id] || {};
-    return ['ตารางสอน', [sem, ['ชื่อครูผู้สอน', t.full_name], ['แผนก', t.department || '—'], ['จำนวนคาบสอน', `${mine.length} คาบ/สัปดาห์`]]];
+    const ot = new Set(L.periods.filter(p => p.overtime).map(p => `${p.day}|${p.period_no}`));
+    const out = mine.filter(e => ot.has(`${e.day}|${e.period_no}`)).length;
+    return ['ตารางสอน', [sem, ['ชื่อครูผู้สอน', t.full_name], ['แผนกวิชา', t.department || '—'], ['หน้าที่พิเศษ', t.special_duty || '—'],
+      ['คาบสอน', `ในเวลา ${mine.length - out} · นอกเวลา ${out} · รวม ${mine.length} คาบ/สัปดาห์`]]];
   }
   if (view.type === 'room') {
     const r = L.room[view.id] || {};
@@ -21,7 +24,7 @@ function infoOf(L, view, mine) {
   }
   const g = L.group[view.id] || {};
   return ['ตารางเรียน', [sem, ['ครูที่ปรึกษา', g.advisor || '—'], ['รหัสกลุ่มเรียน', g.code],
-    ['ชื่อกลุ่มเรียน', `${g.level || ''} ${g.department || ''} ปี ${g.year || ''}${g.program && g.program !== 'ปกติ' ? ` (${g.program})` : ''}`]]];
+    ['ชื่อกลุ่มเรียน', `${g.level || ''} ปี ${g.year || ''}${g.program && g.program !== 'ปกติ' ? ` (${g.program})` : ''}`], ['แผนกวิชา', g.department || '—']]];
 }
 
 // ตารางรายวิชา (ท.=ทฤษฎี ป.=ปฏิบัติ น.=หน่วยกิต ช.=ชั่วโมง/สัปดาห์)
@@ -50,7 +53,7 @@ export function renderForm(el, { L, entries, view, onClick, fullGrid = false }) 
   el.innerHTML = `<div class="form-head">
       <div class="fh-left">
         <div class="emblem-wrap"><img class="emblem" src="/logo.png" alt="ตราวิทยาลัย" onerror="this.style.display='none'"></div>
-        <div class="college">วิทยาลัยการอาชีพโพนทอง</div><div class="form-title">${title}</div>
+        <div class="college">${title} วิทยาลัยการอาชีพโพนทอง</div>
         <dl>${info.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v ?? '—')}</dd>`).join('')}</dl>
       </div>
       ${subjectTable(L, mine)}

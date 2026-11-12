@@ -41,6 +41,7 @@ create table if not exists teachers (
   user_id uuid unique references users(id) on delete cascade,
   employee_code text unique not null,
   department text,
+  special_duty text,                          -- หน้าที่พิเศษ
   max_hours int not null default 12,          -- คาบสูงสุด/สัปดาห์ (ไม่เกิน 12)
   unavailable jsonb not null default '[]'     -- [{ "day":1, "period":3 }, ...]
 );
@@ -77,6 +78,7 @@ create table if not exists periods (
   period_no int not null,
   start_time time not null,
   end_time time not null,
+  overtime boolean not null default false,    -- true = คาบนอกเวลา
   unique (day, period_no)
 );
 

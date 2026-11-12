@@ -202,7 +202,7 @@ table.list tbody tr:hover { background: #f6f8fc; }
 .print-form.p .table-wrap { overflow: visible !important; }
 .print-form.p .form-head { grid-template-columns: 80mm 1fr; }
 .print-form.p .form-head .fh-left { padding: 1mm 2mm; display: grid; grid-template-columns: 13mm 1fr; column-gap: 2mm; align-items: center; }
-.print-form.p .form-head .emblem-wrap { margin: 0; grid-row: span 2; }
+.print-form.p .form-head .emblem-wrap { margin: 0; }
 .print-form.p .form-head .emblem { width: 13mm; height: 13mm; }
 .print-form.p .form-head .college, .print-form.p .form-head .form-title { text-align: left; white-space: nowrap; }
 .print-form.p .form-head dl { grid-column: 1 / -1; margin-top: 1mm; gap: .3mm 2mm; }

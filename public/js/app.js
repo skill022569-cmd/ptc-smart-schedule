@@ -1,6 +1,6 @@
 import { api, esc, $, $$, toast, modal, busy, countUp, download, viewAs } from './ui.js';
 import { renderGrid, indexLookup } from './grid.js';
-import { findConflicts, DAYS } from '/shared/conflicts.js';
+import { findConflicts, DAYS, contiguous, isLunch } from '/shared/conflicts.js';
 import { showGuide } from './guide.js';
 import { renderForm, fitForPrint, unfitPrint } from './form.js';
 
@@ -310,12 +310,45 @@ async function undo() {
   toast('↶ ย้อนกลับแล้ว');
 }
 
+// บล็อกคาบต่อเนื่องที่ e อยู่ (วิชา/ครู/กลุ่ม/ห้องเดียวกัน วันเดียวกัน คาบติดกัน)
+function blockOf(e) {
+  const same = x => x.day === e.day && ['subject_id', 'teacher_id', 'group_id', 'room_id'].every(k => x[k] === e[k]);
+  const at = n => S.entries.find(x => same(x) && x.period_no === n);
+  let start = e.period_no; while (at(start - 1) && contiguous(L.periods.find(p => p.day === e.day && p.period_no === start - 1), L.periods.find(p => p.day === e.day && p.period_no === start))) start--;
+  const list = []; for (let n = start; at(n); n++) { if (list.length && !contiguous(L.periods.find(p => p.day === e.day && p.period_no === n - 1), L.periods.find(p => p.day === e.day && p.period_no === n))) break; list.push(at(n)); }
+  return list;
+}
+
+// ยืด/หดคาบให้สอนต่อเนื่อง len ชั่วโมง นับจากคาบแรกของบล็อก (ไม่คร่อมพักเที่ยง)
+async function stretch(e, len) {
+  const block = blockOf(e), last = block[block.length - 1];
+  for (const x of block.slice(len).reverse()) await removeEntry(x);
+  let prev = L.periods.find(p => p.day === e.day && p.period_no === last.period_no);
+  for (let i = block.length; i < len; i++) {
+    const next = L.periods.find(p => p.day === e.day && p.period_no === prev.period_no + 1);
+    if (!next || !contiguous(prev, next) || isLunch(next)) return toast(`ยืดได้ ${i} ชั่วโมง — คาบถัดไปเป็นพักเที่ยงหรือไม่มีคาบแล้ว`, 'bad');
+    const { id, version_id, ...rest } = last;
+    const n = await api('/entries', { method: 'POST', body: { ...rest, version_id: S.version.id, period_no: next.period_no } });
+    S.entries.push(n); S.undo.push({ t: 'add', id: n.id });
+    prev = next;
+  }
+  draw();
+  if (len > block.length) clashModal(S.entries.find(x => x.day === e.day && x.period_no === prev.period_no && x.subject_id === e.subject_id && x.group_id === e.group_id));
+}
+
 function editEntry(e, problems) {
+  const cur = blockOf(e).length;
   const m = modal(`<h3>${esc(L.subject[e.subject_id]?.name)}</h3><p class="muted">${DAYS[e.day]} คาบ ${e.period_no} · ${esc(L.group[e.group_id]?.code)} · ${esc(L.teacher[e.teacher_id]?.full_name)}</p>
     ${problems ? `<p class="badge bad">⚠ ${esc(problems.join(', '))}</p>` : ''}
     <label>ห้องเรียน</label><select id="rm">${L.rooms.map(r => `<option value="${r.id}" ${r.id === e.room_id ? 'selected' : ''}>${esc(r.code)} · ${esc(r.building || '')} · ${r.room_type} · ${r.capacity} ที่นั่ง${S.entries.some(x => x.id !== e.id && x.room_id === r.id && x.day === e.day && x.period_no === e.period_no) ? ' (ไม่ว่าง)' : ''}</option>`).join('')}</select>
+    <label>สอนต่อเนื่อง (ยืดคาบ)</label><select id="len">${[1, 2, 3, 4].map(n => `<option value="${n}" ${n === cur ? 'selected' : ''}>${n} ชั่วโมงติดต่อกัน${n === cur ? ' (ปัจจุบัน)' : ''}</option>`).join('')}</select>
     <div class="row" style="margin-top:16px"><button class="btn danger" id="del">ลบคาบนี้</button><button class="btn ghost" data-close>ปิด</button><button class="btn" id="save">บันทึก</button></div>`);
-  $('#save', m).onclick = async () => { const room_id = $('#rm', m).value; await api(`/entries/${e.id}`, { method: 'PUT', body: { room_id } }); S.undo.push({ t: 'room', e, from: e.room_id }); e.room_id = room_id; m.remove(); draw(); };
+  $('#save', m).onclick = e2 => busy(e2.currentTarget, async () => {
+    const room_id = $('#rm', m).value, len = +$('#len', m).value;
+    if (room_id !== e.room_id) { await api(`/entries/${e.id}`, { method: 'PUT', body: { room_id } }); S.undo.push({ t: 'room', e, from: e.room_id }); e.room_id = room_id; }
+    m.remove();
+    if (len !== cur) await stretch(e, len); else draw();
+  });
   $('#del', m).onclick = async () => { await removeEntry(e); m.remove(); };
 }
 
@@ -336,14 +369,14 @@ const DAY_OPTS = Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map(d => [d, DAYS[d]])
 const MASTER = {
   subjects: { adminOnly: true, fields: [['code', 'รหัสวิชา'], ['name', 'ชื่อวิชา'], ['credits', 'หน่วยกิต', 'number'], ['periods_per_week', 'คาบ/สัปดาห์', 'number'], ['type', 'ประเภท', { theory: 'ทฤษฎี', practice: 'ปฏิบัติ' }]] },
   classrooms: { adminOnly: true, fields: [['code', 'ชื่อ/รหัสห้อง'], ['building', 'อาคาร'], ['room_type', 'ประเภท', { lecture: 'ห้องเรียนทั่วไป', lab: 'ห้อง Lab', workshop: 'โรงฝึกงาน' }], ['capacity', 'ความจุ', 'number']] },
-  student_groups: { fields: [['code', 'รหัสกลุ่ม'], ['department', 'แผนกวิชา'], ['level', 'ระดับ', { 'ปวช.': 'ปวช.', 'ปวส.': 'ปวส.' }], ['year', 'ชั้นปี', 'number'], ['size', 'จำนวนนักเรียน', 'number'], ['program', 'รูปแบบ', { 'ปกติ': 'ปกติ', 'ทวิภาคี': 'ทวิภาคี' }], ['advisor', 'ครูที่ปรึกษา']] },
-  periods: { adminOnly: true, fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time']] },
+  student_groups: { fields: [['code', 'รหัสกลุ่ม'], ['department', 'แผนกวิชา'], ['level', 'ระดับ', { 'ปวช.': 'ปวช.', 'ปวส.': 'ปวส.' }], ['year', 'ชั้นปี', 'number'], ['size', 'จำนวนนักเรียน', 'number'], ['program', 'รูปแบบ', { 'ปกติ': 'ปกติ', 'ทวิภาคี': 'ทวิภาคี' }], ['advisor', 'ครูที่ปรึกษา (เลือกจากรายชื่อ หลายคนคั่นด้วย ,)', 'teachers']] },
+  periods: { adminOnly: true, fields: [['day', 'วัน', DAY_OPTS], ['period_no', 'คาบที่', 'number'], ['start_time', 'เริ่ม', 'time'], ['end_time', 'สิ้นสุด', 'time'], ['overtime', 'ในเวลา / นอกเวลา', { false: 'ในเวลา', true: 'นอกเวลา' }]] },
   offerings: { fields: [['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['subject_id', 'รายวิชา', () => Object.fromEntries(L.subjects.map(s => [s.id, `${s.code} ${s.name}`]))], ['teacher_id', 'ครูผู้สอน', () => Object.fromEntries(L.teachers.map(t => [t.id, t.full_name]))]] },
-  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนก/กลุ่มวิชา'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
+  teachers: { people: 'employee_code', fields: [['employee_code', 'รหัสพนักงาน'], ['full_name', 'ชื่อ-สกุล'], ['department', 'แผนกวิชา/กลุ่มวิชา'], ['special_duty', 'หน้าที่พิเศษ'], ['max_hours', 'คาบสอนสูงสุด/สัปดาห์', 'number'], ['unavailable', 'เวลาไม่สะดวกสอน', 'slots']] },
   students: { people: 'student_code', fields: [['student_code', 'รหัสนักเรียน'], ['full_name', 'ชื่อ-สกุล'], ['group_id', 'กลุ่มเรียน', () => Object.fromEntries(myGroups().map(g => [g.id, g.code]))], ['special_needs', 'เงื่อนไขพิเศษ']] },
 };
 const optsOf = t => typeof t === 'function' ? t() : t;
-const show = (f, v) => f[2] === 'slots' ? `${(v || []).length} ช่วง` : f[2] && typeof f[2] !== 'string' ? optsOf(f[2])[v] ?? v : v;
+const show = (f, v) => f[2] === 'slots' ? `${(v || []).length} ช่วง` : f[2] && typeof f[2] !== 'string' ? optsOf(f[2])[v] ?? (f[2].false ? f[2].false : v) : v; // overtime ว่าง = ในเวลา
 
 async function masterPage(name) {
   const cfg = MASTER[name];
@@ -394,6 +427,7 @@ function form(cfg, row, base, done) {
     if (t === 'slots') return `<label>${label} (ติ๊กช่องที่ไม่สะดวก)</label><div class="table-wrap"><table class="list"><tr><th></th>${nums.map(n => `<th>${n}</th>`).join('')}</tr>
       ${days.map(d => `<tr><td>${DAYS[d]}</td>${nums.map(n => `<td><input type="checkbox" style="width:auto" data-slot="${d}-${n}" ${(v || []).some(u => u.day === d && u.period === n) ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}</table></div>`;
     if (t && typeof t !== 'string') return `<label>${label}</label><select name="${k}">${Object.entries(optsOf(t)).map(([o, n]) => `<option value="${esc(o)}" ${String(v) === o ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>`;
+    if (t === 'teachers') return `<label>${label}</label><input name="${k}" list="dl-teachers" value="${esc(v)}" autocomplete="off"><datalist id="dl-teachers">${L.teachers.map(x => `<option value="${esc(x.full_name)}">`).join('')}</datalist>`;
     const lockDept = k === 'department' && myDept();
     const ro = (row && k === cfg.people) || lockDept ? 'readonly' : '';
     const val = lockDept ? myDept() : v;

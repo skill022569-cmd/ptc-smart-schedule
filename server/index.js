@@ -172,7 +172,7 @@ app.get('/api/lookup', staff, async (req, res) => {
     q(db.from('classrooms').select('*').order('code')),
     q(db.from('student_groups').select('*').order('code')),
     q(db.from('periods').select('*').order('day').order('period_no')),
-    q(db.from('teachers').select('id,employee_code,department,max_hours,unavailable,user:users(full_name)')),
+    q(db.from('teachers').select('*, user:users(full_name)')), // * = ไม่พังถ้ายังไม่ได้รัน migration 006
     q(db.from('offerings').select('*')),
   ]);
   res.json({ weekly_max: await weeklyMax(), subjects, rooms, groups, periods, offerings, teachers: teachers.map(({ user, ...t }) => ({ ...t, full_name: user?.full_name })) });
@@ -259,7 +259,7 @@ const CRUD = {
   subjects: ['code', 'name', 'credits', 'periods_per_week', 'type'],
   classrooms: ['code', 'building', 'room_type', 'capacity'],
   student_groups: ['code', 'department', 'level', 'year', 'size', 'program', 'advisor'],
-  periods: ['day', 'period_no', 'start_time', 'end_time'],
+  periods: ['day', 'period_no', 'start_time', 'end_time', 'overtime'],
   offerings: ['group_id', 'subject_id', 'teacher_id'],
 };
 const pick = (body, cols) => Object.fromEntries(cols.filter(c => body[c] !== undefined && body[c] !== '').map(c => [c, body[c]]));
@@ -319,7 +319,7 @@ app.delete('/api/data/:table/:id', staff, async (req, res) => {
 
 // ครู/นักเรียน: เก็บชื่อไว้ในตาราง users (ไม่มีสิทธิ์เข้าระบบ)
 const PEOPLE = {
-  teachers: { code: 'employee_code', role: 'teacher', cols: ['employee_code', 'department', 'max_hours', 'unavailable'] },
+  teachers: { code: 'employee_code', role: 'teacher', cols: ['employee_code', 'department', 'special_duty', 'max_hours', 'unavailable'] },
   students: { code: 'student_code', role: 'student', cols: ['student_code', 'group_id', 'special_needs'] },
 };
 const people = req => { const p = PEOPLE[req.params.kind]; if (!p) throw bad('ไม่รู้จักประเภท', 404); return p; };

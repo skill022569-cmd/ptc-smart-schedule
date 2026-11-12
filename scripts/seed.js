@@ -19,9 +19,10 @@ await user(ADMIN_USERNAME, 'ฝ่ายวิชาการ วก.โพน�
 console.log(`✔ ผู้ดูแลระบบ: ${ADMIN_USERNAME}`);
 if (process.argv.includes('--admin-only')) process.exit(0);
 
-// คาบเรียน จันทร์-ศุกร์ 8 คาบ (พักกลางวัน 12:00-13:00)
-const times = [['08:00', '09:00'], ['09:00', '10:00'], ['10:00', '11:00'], ['11:00', '12:00'], ['13:00', '14:00'], ['14:00', '15:00'], ['15:00', '16:00'], ['16:00', '17:00']];
-await up('periods', [1, 2, 3, 4, 5].flatMap(day => times.map(([s, e], i) => ({ day, period_no: i + 1, start_time: s, end_time: e }))), 'day,period_no');
+// คาบเรียน จันทร์-ศุกร์ 11 คาบ: คาบ 1-8 ในเวลา, คาบ 9-11 นอกเวลา ถึง 20:00 น. (พักกลางวัน 12:00-13:00)
+const times = [['08:00', '09:00'], ['09:00', '10:00'], ['10:00', '11:00'], ['11:00', '12:00'], ['13:00', '14:00'], ['14:00', '15:00'], ['15:00', '16:00'], ['16:00', '17:00'],
+  ['17:00', '18:00'], ['18:00', '19:00'], ['19:00', '20:00']]; // คาบ 9-11 = นอกเวลา (ถึง 20:00 น.)
+await up('periods', [1, 2, 3, 4, 5].flatMap(day => times.map(([s, e], i) => ({ day, period_no: i + 1, start_time: s, end_time: e, overtime: i >= 8 }))), 'day,period_no');
 
 const groups = await up('student_groups', [
   { code: 'ชย.1/1', department: 'ช่างยนต์', level: 'ปวช.', year: 1, size: 30, program: 'ปกติ' },

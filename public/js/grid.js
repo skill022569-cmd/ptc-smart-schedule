@@ -76,7 +76,7 @@ export function renderGrid(el, { entries, L, view, editable = false, conflicts =
     <tr><th class="hd-first">เวลา</th>${morning ? `<th class="band">${MORNING.start}<br>${MORNING.end}</th>` : ''}${cols.map(c =>
       c.gap ? `<th class="band">${LUNCH.start}<br>${LUNCH.end}</th>` : `<th>${range(time(c.n))}</th>`).join('')}</tr>
     <tr><th class="hd-first">วัน/คาบ</th>${morning ? band(MORNING.label) : ''}${cols.map(c =>
-      c.gap ? band('พักกลางวัน') : `<th>${c.lunch ? 'พัก' : c.n}</th>`).join('')}</tr>
+      c.gap ? band('พักกลางวัน') : `<th>${c.lunch ? 'พัก' : c.n}${time(c.n)?.overtime ? '<br><small>(นอกเวลา)</small>' : ''}</th>`).join('')}</tr>
     ${days.map(d => `<tr><th class="day">วัน${DAYS[d]}</th>${cellsOf(d).map(c => c.gap ? ''
       : `<td data-day="${d}" data-p="${c.n}"${c.lunch ? ' class="lunch"' : ''}${c.span > 1 ? ` colspan="${c.span}"` : ''}>${c.list.map(slot).join('')}</td>`).join('')}</tr>`).join('')}
   </tbody></table></div>`;
