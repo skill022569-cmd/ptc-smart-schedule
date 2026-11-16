@@ -164,6 +164,7 @@ async function schedulePage() {
       <div class="row" style="align-items:center"><div class="tabs" id="vtabs" style="margin:0;flex:0 0 auto">
         ${[['group', '👥 กลุ่มเรียน'], ['teacher', '👩‍🏫 ครู'], ['room', '🏫 ห้อง']].map(([k, t]) => `<button data-v="${k}" class="${S.view.type === k ? 'active' : ''}">${t}</button>`).join('')}</div>
         <select id="vid"></select><div id="cstat" style="flex:0 0 auto"></div></div>
+      <div id="ginfo" class="no-print" style="margin-top:12px"></div>
       <div id="palette-box" class="no-print" style="margin:14px 0"></div>
       <div id="grid"></div></div>`;
   $('#ver').onchange = e => { S.version = versions.find(v => v.id === e.target.value); S.undo = []; loadEntries(); };
@@ -193,8 +194,17 @@ async function loadEntries() {
 const ctx = () => ({ teachers: L.teacher, rooms: L.room, groups: L.group, subjects: L.subject, periods: L.periods, weeklyMax: L.weekly_max });
 const myGroups = () => L.groups.filter(g => !myDept() || g.department === myDept());
 
+// ครูที่ปรึกษา: แสดงบนจอด้วย (ตอนพิมพ์อยู่ในหัวฟอร์มอยู่แล้ว)
+function advisorInfo() {
+  const hint = ' <a href="#student_groups" class="muted">(ยังไม่ได้กำหนด — ตั้งได้ที่เมนูกลุ่มเรียน)</a>';
+  if (S.view.type === 'group') { const g = L.group[S.view.id]; return g ? `👩‍🏫 ครูที่ปรึกษา: <b>${esc(g.advisor || '')}</b>${g.advisor ? '' : hint}` : ''; }
+  if (S.view.type === 'teacher') { const t = L.teacher[S.view.id]; const gs = t?.full_name ? L.groups.filter(g => (g.advisor || '').includes(t.full_name)).map(g => g.code) : []; return gs.length ? `👩‍🏫 ครูที่ปรึกษากลุ่ม: <b>${esc(gs.join(', '))}</b>` : ''; }
+  return '';
+}
+
 function draw() {
   if (!$('#grid')) return;
+  $('#ginfo').innerHTML = advisorInfo();
   if (!S.version) { $('#grid').innerHTML = '<p class="muted">ยังไม่มีตาราง — กดปุ่ม "🤖 AI จัดตารางอัตโนมัติ" เพื่อเริ่ม</p>'; $('#palette-box').innerHTML = ''; return; }
   const editable = S.version.status !== 'published';
   const conflicts = findConflicts(S.entries, ctx());
