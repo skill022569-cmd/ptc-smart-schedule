@@ -50,6 +50,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
             </p>}
       </section>
 
+      {u.role === "TEACHER" && <Link className="btn" href="/teacher/edit">✏️ แก้ไขตารางสอนของฉัน</Link>}
       {admin && (
         <div className="flex flex-wrap gap-2">
           <Link className="btn" href="/admin">จัดตารางอัตโนมัติ {conflicts > 0 && `(${conflicts} รายการต้องแก้)`}</Link>

@@ -26,10 +26,16 @@ const sessionAt = (ctx: Ctx, st: State, eid: number, day: number, period: number
 
 /** action: split | swap | manual (วางคาบที่ค้าง) | move | remove | setSplit */
 export async function POST(req: Request) {
-  const u = await apiUser(["ADMIN"]);
+  const u = await apiUser(["ADMIN", "TEACHER"]);
   if (u instanceof NextResponse) return u;
   const { action, enrollmentId, day, start, fromDay, fromPeriod, value } = await req.json().catch(() => ({}));
   const eid = Number(enrollmentId), d = Number(day), p = Number(start);
+  if (u.role === "TEACHER") {
+    // split/swap อาจย้ายวิชาของครูคนอื่น จึงให้เฉพาะแอดมิน
+    if (!["manual", "move", "remove", "setSplit"].includes(action)) return NextResponse.json({ error: "ไม่มีสิทธิ์" }, { status: 403 });
+    const own = await prisma.enrollment.findFirst({ where: { id: eid, teacherId: u.id }, select: { id: true } });
+    if (!own) return NextResponse.json({ error: "แก้ไขได้เฉพาะวิชาที่ท่านสอน" }, { status: 403 });
+  }
 
   if (action === "setSplit") {
     await prisma.enrollment.update({ where: { id: eid }, data: { allowSplit: !!value } });

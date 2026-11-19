@@ -11,7 +11,8 @@ const DAYS = ["", "จันทร์", "อังคาร", "พุธ", "พ�
 const post = (body: unknown) => fetch("/api/resolve", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
   .then(async (r) => ({ ok: r.ok, ...(await r.json().catch(() => ({ error: `HTTP ${r.status}` }))) }));
 
-export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; groups: { id: number; label: string }[] }) {
+/** mine = โหมดครู: แสดง/แก้เฉพาะวิชาที่ตัวเองสอน (ไม่มีเลือกกลุ่ม ไม่มีผู้ช่วย AI) */
+export default function ManualScheduler({ slots, groups = [], mine = false }: { slots: SlotRow[]; groups?: { id: number; label: string }[]; mine?: boolean }) {
   const [gid, setGid] = useState(groups[0]?.id ?? 0);
   const [data, setData] = useState<{ cells: Cell[]; enrollments: Enr[] } | null>(null);
   const [sel, setSel] = useState<number | null>(null); // วิชาที่กำลังจะวาง
@@ -23,9 +24,9 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
   const [aiBusy, setAiBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const r = await fetch(`/api/manual?groupId=${gid}`);
+    const r = await fetch(mine ? "/api/manual?mine=1" : `/api/manual?groupId=${gid}`);
     setData(r.ok ? await r.json() : { cells: [], enrollments: [] });
-  }, [gid]);
+  }, [gid, mine]);
   useEffect(() => { setSel(null); setPicked(null); setMoving(null); setChat([]); load(); }, [load]);
 
   async function ask(q: string) {
@@ -71,14 +72,14 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <label className="text-sm">กลุ่มเรียน
-          <select className="input ml-2" value={gid} onChange={(e) => setGid(Number(e.target.value))}>{groups.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}</select>
+        <label className="text-sm">{mine ? "" : "กลุ่มเรียน"}
+          {!mine && <select className="input ml-2" value={gid} onChange={(e) => setGid(Number(e.target.value))}>{groups.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}</select>}
         </label>
         {msg && <span className="text-sm" aria-live="polite">{msg}</span>}
       </div>
       <div className="grid gap-3 lg:grid-cols-[20rem_1fr]">
         <section className="card space-y-2">
-          <h2 className="font-semibold">รายวิชาของกลุ่ม</h2>
+          <h2 className="font-semibold">{mine ? "วิชาที่ฉันสอน" : "รายวิชาของกลุ่ม"}</h2>
           <p className="text-xs text-stone-500">คลิกวิชาที่ยังจัดไม่ครบ แล้วคลิกช่อง<span className="bg-emerald-200 px-1">สีเขียว</span>ในตารางเพื่อวาง</p>
           {!data && <p className="text-sm text-stone-500">กำลังโหลด...</p>}
           <ul className="space-y-1">
@@ -114,8 +115,8 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
               <button className="underline" onClick={() => setPicked(null)}>ปิด</button>
             </div>
           )}
-          <ScheduleGrid slots={slots} cells={data?.cells ?? []} highlight={highlight} onCellClick={click} show={["teacher", "room"]} />
-          <div className="space-y-2 rounded-lg border border-gold-500/50 bg-gold-300/10 p-3">
+          <ScheduleGrid slots={slots} cells={data?.cells ?? []} highlight={highlight} onCellClick={click} show={mine ? ["group", "room"] : ["teacher", "room"]} />
+          {!mine && <div className="space-y-2 rounded-lg border border-gold-500/50 bg-gold-300/10 p-3">
             <h3 className="font-semibold text-brand-800">🤖 ผู้ช่วย AI จัดตาราง</h3>
             <p className="text-xs text-stone-500">AI เห็นตารางของกลุ่มนี้ ช่องว่าง และเวลาที่ครูติด — คำแนะนำเป็นปุ่มให้กดยืนยันเอง ระบบตรวจการชนซ้ำทุกครั้ง</p>
             <div className="max-h-80 space-y-2 overflow-y-auto text-sm" aria-live="polite">
@@ -136,7 +137,7 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
               <input name="q" aria-label="ถามผู้ช่วย AI" className="input flex-1" placeholder="เช่น วิชา 20001 ควรวางวันไหนดี" maxLength={2000} />
               <button className="btn" disabled={aiBusy}>ถาม</button>
             </form>
-          </div>
+          </div>}
         </section>
       </div>
     </div>

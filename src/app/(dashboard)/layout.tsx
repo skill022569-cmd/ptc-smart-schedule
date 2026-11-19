@@ -9,6 +9,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const u = await requireUser();
   const nav = [
     ["/", "ภาพรวม"], ...(u.role === "ADMIN" ? [["/admin", "จัดตารางอัตโนมัติ"], ["/admin/manual", "จัดตารางเอง"], ["/admin/view-as", "มุมมองผู้ใช้"]] : []),
+    ...(u.role === "TEACHER" ? [["/teacher/edit", "แก้ไขตารางสอนของฉัน"]] : []),
     ["/schedule", "ตารางเรียน/สอน"], ["/directory", "ทำเนียบบุคลากร"], ["/support", "แจ้งปัญหา"], ["/pdpa", "PDPA"],
   ];
   return (

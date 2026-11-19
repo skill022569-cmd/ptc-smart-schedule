@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `เชื่อมต่อฐานข้อมูลไม่ได้ (${code}): ${detail}` }, { status: 503 });
   }
   if (!user || !verifyPassword(password, user.passwordHash)) return NextResponse.json({ error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, { status: 401 });
+  if (user.role === "STUDENT") return NextResponse.json({ error: "ระบบนี้สำหรับบุคลากร — นักเรียนดูตารางได้ที่ปุ่ม \"ดูตารางเรียน-ตารางสอน (สาธารณะ)\" ด้านล่าง" }, { status: 403 });
   await setSession(user.id);
   return NextResponse.json({ ok: true });
 }

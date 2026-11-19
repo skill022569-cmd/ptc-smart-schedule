@@ -38,11 +38,14 @@ export default function LoginPage() {
           <p className="text-sm text-stone-600">ระบบจัดตารางเรียน-ตารางสอน (PTC Smart Schedule)</p>
         </div>
         <hr className="border-gold-500" />
-        <p className="text-sm text-stone-500">เข้าสู่ระบบด้วยรหัสบุคลากร / รหัสนักเรียน</p>
+        <p className="text-sm text-stone-500">สำหรับบุคลากร: ผู้ดูแลระบบ และครู (แก้ไขตารางสอนของตนเอง)</p>
         <label className="block text-sm">ชื่อผู้ใช้<input name="username" required autoComplete="username" className="input mt-1 w-full" /></label>
         <label className="block text-sm">รหัสผ่าน<input name="password" type="password" required autoComplete="current-password" className="input mt-1 w-full" /></label>
         {err && <p role="alert" className="text-sm text-red-600">{err}</p>}
         <button className="btn w-full justify-center" disabled={busy}>{busy ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ"}</button>
+        <div className="flex items-center gap-2 text-xs text-stone-400"><hr className="flex-1" />หรือ<hr className="flex-1" /></div>
+        <a href="/public" className="btn-outline w-full justify-center border-gold-500 py-2 font-semibold text-brand-800">👁 ดูตารางเรียน-ตารางสอน (สาธารณะ)</a>
+        <p className="text-center text-xs text-stone-500">นักเรียน ผู้ปกครอง และบุคคลทั่วไป ดูได้โดยไม่ต้องเข้าสู่ระบบ</p>
       </form>
     </main>
   );
