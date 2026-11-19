@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
-const EXAMPLES = ["พรุ่งนี้เช้ามีเรียนห้องไหน", "ครูสมศรีว่างวันไหนบ้าง", "ขั้นตอนการแจ้งขอเปลี่ยนห้องเรียนทำอย่างไร"];
+const EXAMPLES = ["พรุ่งนี้เช้ามีเรียนห้องไหน", "ครูสมศรีว่างวันไหนบ้าง", "ใครคือรองผู้อำนวยการฝ่ายวิชาการ", "ห้อง COMPUTER-01 วันพุธว่างคาบไหน", "ขั้นตอนการแจ้งขอเปลี่ยนห้องเรียนทำอย่างไร"];
 
 export default function AiChatWidget() {
   const [open, setOpen] = useState(false);
@@ -29,8 +29,12 @@ export default function AiChatWidget() {
       {open && (
         <div className="mb-2 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col rounded-lg border bg-white shadow-xl">
           <div className="flex items-center justify-between rounded-t-lg bg-brand-700 px-3 py-2 text-white">
-            <span className="font-semibold">ผู้ช่วย AI ตารางเรียน</span>
-            <button aria-label="ปิด" onClick={() => setOpen(false)}>✕</button>
+            <span className="font-semibold">ผู้ช่วย AI วิทยาลัย</span>
+            <span className="flex items-center gap-3">
+              <button className="rounded border border-white/60 px-2 py-0.5 text-xs hover:bg-white/10 disabled:opacity-50" disabled={busy || !msgs.length}
+                onClick={() => setMsgs([])}>＋ เริ่มแชทใหม่</button>
+              <button aria-label="ปิด" onClick={() => setOpen(false)}>✕</button>
+            </span>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto p-3 text-sm" aria-live="polite">
             {!msgs.length && <div className="space-y-1 text-slate-500">ลองถาม:{EXAMPLES.map((e) => <button key={e} className="block text-left text-brand-700 underline" onClick={() => send(e)}>{e}</button>)}</div>}

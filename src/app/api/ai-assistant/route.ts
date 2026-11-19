@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { apiUser } from "@/lib/auth";
-import { COLLEGE, SEMESTER, prisma } from "@/lib/db";
-import { scheduleFor, timeslots, type Cell } from "@/lib/schedule-query";
+import { viewingUser } from "@/lib/auth";
+import { buildCollegeContext } from "@/lib/ai-context";
+import { COLLEGE, SEMESTER } from "@/lib/db";
+import { scheduleFor, type Cell } from "@/lib/schedule-query";
 import { dayName } from "@/engine/validator";
 
 const client = new Anthropic();
 
 // ส่วนคงที่ของ system prompt (ไม่เปลี่ยนต่อ request → cache ได้)
 const SYSTEM = `คุณคือผู้ช่วยตอบคำถามเรื่องตารางเรียน-ตารางสอนของ${COLLEGE} ตอบเป็นภาษาไทย สุภาพ กระชับ
-ตอบจากข้อมูลตารางที่ให้ไว้ในข้อความของผู้ใช้เท่านั้น ถ้าข้อมูลไม่พอให้บอกตรงๆ และแนะนำให้แจ้งที่เมนู "แจ้งปัญหา"
-ห้ามเปิดเผยเบอร์โทร อีเมล หรือรหัสนักเรียนของผู้อื่น
+ตอบจากข้อมูลของวิทยาลัยที่ให้ไว้เท่านั้น (ตารางทั้งหมด บุคลากร ผู้บริหาร รายวิชา ห้อง กลุ่มเรียน) ห้ามเดา ถ้าข้อมูลไม่พอให้บอกตรงๆ และแนะนำเมนู "แจ้งปัญหา"
+เมื่อถามว่าใครว่างเมื่อไร ให้ดูจากตารางทั้งหมด: คาบที่ไม่มีชื่อครูคนนั้น = ว่าง (ไม่นับพักกลางวัน)
+ระบบไม่มีเบอร์โทร อีเมล หรือรหัส/ชื่อนักเรียนรายคนของผู้อื่น ถ้าถามให้แจ้งว่าต้องติดต่อฝ่ายวิชาการ
 
 ระเบียบการใช้งานระบบ:
 - ขอเปลี่ยนห้อง/คาบเรียน: เมนู "แจ้งปัญหา" เลือกหมวด "ขอเปลี่ยนห้อง/คาบ" ระบุรหัสวิชา กลุ่มเรียน และเหตุผล ฝ่ายวิชาการจะตอบกลับในระบบ (สถานะ รอดำเนินการ → กำลังแก้ไข → เสร็จสิ้น)
@@ -22,37 +24,38 @@ const SYSTEM = `คุณคือผู้ช่วยตอบคำถาม�
 const fmt = (cells: Cell[]) => cells.sort((a, b) => a.day - b.day || a.period - b.period)
   .map((c) => `วัน${dayName(c.day)} คาบ ${c.period}: ${c.subject} | ${c.teacher} | ${c.group} | ห้อง ${c.room}`).join("\n") || "(ไม่มีคาบ)";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
-  const u = await apiUser();
-  if (u instanceof NextResponse) return u;
+  const u = await viewingUser(); // โหมดดูมุมมอง: ตอบในมุมมองของผู้ใช้ที่แอดมินกำลังดู (อ่านอย่างเดียว)
+  if (!u) return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "ยังไม่ได้ตั้งค่า ANTHROPIC_API_KEY" }, { status: 503 });
   const { messages } = await req.json().catch(() => ({}));
   if (!Array.isArray(messages) || !messages.length || messages.length > 20) return NextResponse.json({ error: "รูปแบบข้อความไม่ถูกต้อง" }, { status: 400 });
-  const history: Anthropic.MessageParam[] = messages
+  const history: Anthropic.Beta.BetaMessageParam[] = messages
     .filter((m) => (m?.role === "user" || m?.role === "assistant") && typeof m.content === "string")
     .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) }));
   const last = history[history.length - 1];
   if (last?.role !== "user") return NextResponse.json({ error: "ข้อความสุดท้ายต้องเป็นของผู้ใช้" }, { status: 400 });
 
-  // Context injection: ตารางของผู้ถาม + ตารางครูที่ถูกเอ่ยชื่อในคำถาม
-  const parts: string[] = [];
-  const slots = await timeslots();
-  parts.push("เวลาคาบ: " + [...new Map(slots.map((s) => [s.period, s])).values()].map((s) => `คาบ ${s.period} ${s.start}-${s.end}${s.lunch ? " (พักกลางวัน)" : ""}`).join(", "));
-  if (u.role === "TEACHER") parts.push(`ตารางสอนของ ${u.fullName}:\n${fmt(await scheduleFor(SEMESTER, "teacher", u.id))}`);
-  if (u.student) parts.push(`ตารางเรียนของ ${u.fullName}:\n${fmt(await scheduleFor(SEMESTER, "student", u.student.id))}`);
-  const teachers = await prisma.user.findMany({ where: { role: "TEACHER" }, select: { id: true, fullName: true } });
-  const q = last.content as string;
-  const mentioned = teachers.filter((t) => { const n = t.fullName.replace(/^ครู/, "").split(" ")[0]; return n.length > 1 && q.includes(n); }).slice(0, 3);
-  for (const t of mentioned) parts.push(`ตารางสอนของ ${t.fullName} (คาบที่ไม่อยู่ในรายการ = ว่าง):\n${fmt(await scheduleFor(SEMESTER, "teacher", t.id))}`);
-  const now = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok", weekday: "long", dateStyle: "full", timeStyle: "short" });
-  const context = `ข้อมูลประกอบ (ภาคเรียน ${SEMESTER}, ขณะนี้ ${now}, ผู้ถาม: ${u.fullName} บทบาท ${u.role}):\n${parts.join("\n\n")}`;
-  history[history.length - 1] = { role: "user", content: [{ type: "text", text: context }, { type: "text", text: q }] };
+  // ข้อมูลทั้งวิทยาลัย (เหมือนกันทุกคน → cache) + ข้อมูลเฉพาะผู้ถาม (ท้าย prompt)
+  const [college, own] = await Promise.all([
+    buildCollegeContext(),
+    u.role === "TEACHER" ? scheduleFor(SEMESTER, "teacher", u.id) : u.student ? scheduleFor(SEMESTER, "student", u.student.id) : Promise.resolve(null),
+  ]);
+  const now = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "full", timeStyle: "short" });
+  const role = u.role === "ADMIN" ? "ผู้ดูแลระบบ" : u.role === "TEACHER" ? "ครู" : "นักเรียน";
+  const me = `ผู้ถาม: ${u.fullName} (${role}) | ขณะนี้: ${now}` + (own ? `\nตารางของผู้ถาม:\n${fmt(own)}` : "");
+  history[history.length - 1] = { role: "user", content: [{ type: "text", text: me }, { type: "text", text: last.content as string }] };
 
   try {
     const res = await client.beta.messages.create({
       model: "claude-opus-5-5",
       max_tokens: 4096,
-      system: [{ type: "text", text: SYSTEM, cache_control: { type: "ephemeral" } }],
+      system: [
+        { type: "text", text: SYSTEM },
+        { type: "text", text: college, cache_control: { type: "ephemeral" } },
+      ],
       output_config: { effort: "low" },
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",

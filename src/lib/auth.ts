@@ -51,16 +51,22 @@ export type SessionUser = NonNullable<Awaited<ReturnType<typeof currentUser>>>;
  * ถ้าแอดมินเปิดโหมดดูมุมมองผู้ใช้ จะคืนผู้ใช้เป้าหมาย พร้อม previewBy = ชื่อแอดมิน
  */
 export async function requireUser(roles?: Role[]): Promise<SessionUser & { previewBy?: string }> {
+  const u = await viewingUser();
+  if (!u) redirect("/login");
+  if (roles && !roles.includes(u.role)) redirect("/");
+  return u;
+}
+
+/** ผู้ใช้ที่ "กำลังดู" (คนที่แอดมินเลือกดูมุมมอง หรือตัวเอง) — ใช้เพื่ออ่านข้อมูลเท่านั้น ห้ามใช้ตัดสินสิทธิ์เขียน */
+export async function viewingUser(): Promise<(SessionUser & { previewBy?: string }) | null> {
   const real = await currentUser();
-  if (!real) redirect("/login");
-  let u: SessionUser & { previewBy?: string } = real;
+  if (!real) return null;
   const viewId = real.role === "ADMIN" ? await readSigned(VIEW_AS) : null;
   if (viewId != null && viewId !== real.id) {
     const target = await prisma.user.findUnique({ where: { id: viewId }, include: { student: true } });
-    if (target) u = { ...target, previewBy: real.fullName };
+    if (target) return { ...target, previewBy: real.fullName };
   }
-  if (roles && !roles.includes(u.role)) redirect("/");
-  return u;
+  return real;
 }
 
 /** สำหรับ API: คืน user หรือ NextResponse ที่เป็น error */
