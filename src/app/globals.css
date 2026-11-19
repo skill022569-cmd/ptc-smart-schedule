@@ -21,7 +21,8 @@ h1 { @apply text-brand-800; }
 @media (prefers-reduced-motion: reduce) { .marquee { animation: none; } }
 
 /* เลื่อนหน้าแล้วการ์ดค่อยๆ ลอยขึ้น (คลาสถูกใส่โดย ScrollReveal) */
-.reveal { opacity: 0; transform: translateY(28px) scale(0.985); transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.35s ease-out, transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal-now { transition: none; }
 .reveal.reveal-in { opacity: 1; transform: none; }
 .card:hover { @apply shadow-md; }
 @media print { .reveal { opacity: 1 !important; transform: none !important; } }

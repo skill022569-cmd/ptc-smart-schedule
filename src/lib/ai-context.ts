@@ -5,7 +5,15 @@ import { dayName } from "@/engine/validator";
 
 const D = (d: number) => dayName(d).slice(0, 3);
 
+// shortcut: เก็บผลไว้ 60 วินาทีต่อ instance (ตารางที่เพิ่งแก้อาจเห็นช้าสุด 1 นาที); ถ้าต้องสดทันทีให้ล้างเมื่อบันทึกตาราง
+let memo: { at: number; text: string } | null = null;
 export async function buildCollegeContext(): Promise<string> {
+  if (memo && Date.now() - memo.at < 60_000) return memo.text;
+  memo = { at: Date.now(), text: await buildFresh() };
+  return memo.text;
+}
+
+async function buildFresh(): Promise<string> {
   const [slots, staff, groups, rooms, subjects, rows, counts] = await Promise.all([
     prisma.timeslot.findMany({ where: { dayOfWeek: 1 }, orderBy: { periodNo: "asc" } }),
     prisma.user.findMany({ where: { role: { in: ["ADMIN", "TEACHER"] } }, orderBy: [{ boardOrder: "asc" }, { department: "asc" }, { fullName: "asc" }],

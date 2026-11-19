@@ -13,7 +13,14 @@ export default function ScrollReveal() {
     }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
     const scan = () => {
       const fresh = main.querySelectorAll<HTMLElement>(".card:not(.reveal), [data-reveal]:not(.reveal)");
-      fresh.forEach((el, i) => { el.classList.add("reveal"); el.style.transitionDelay = `${Math.min(i, 6) * 60}ms`; io.observe(el); });
+      let i = 0;
+      for (const el of fresh) {
+        el.classList.add("reveal");
+        // ของที่อยู่ในจออยู่แล้วแสดงทันที ไม่ต้องรอภาพเคลื่อนไหว
+        if (el.getBoundingClientRect().top < innerHeight) { el.classList.add("reveal-in", "reveal-now"); continue; }
+        el.style.transitionDelay = `${Math.min(i++, 4) * 40}ms`;
+        io.observe(el);
+      }
     };
     scan();
     const mo = new MutationObserver(scan);

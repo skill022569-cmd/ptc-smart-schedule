@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 export { hashPassword, verifyPassword } from "./password";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import type { Role } from "@prisma/client";
@@ -40,10 +41,11 @@ async function writeSigned(name: string, id: number) {
 }
 
 /** ผู้ใช้ที่ล็อกอินจริง (API ใช้ตัวนี้เสมอ — โหมดดูมุมมองไม่ให้สิทธิ์เขียนแทนใคร) */
-export async function currentUser() {
+// cache(): layout กับหน้าเดียวกันเรียกซ้ำได้ แต่ query ฐานข้อมูลครั้งเดียวต่อ request
+export const currentUser = cache(async () => {
   const id = await readSigned(COOKIE);
   return id == null ? null : prisma.user.findUnique({ where: { id }, include: { student: true } });
-}
+});
 export type SessionUser = NonNullable<Awaited<ReturnType<typeof currentUser>>>;
 
 /**
@@ -58,7 +60,7 @@ export async function requireUser(roles?: Role[]): Promise<SessionUser & { previ
 }
 
 /** ผู้ใช้ที่ "กำลังดู" (คนที่แอดมินเลือกดูมุมมอง หรือตัวเอง) — ใช้เพื่ออ่านข้อมูลเท่านั้น ห้ามใช้ตัดสินสิทธิ์เขียน */
-export async function viewingUser(): Promise<(SessionUser & { previewBy?: string }) | null> {
+export const viewingUser = cache(async (): Promise<(SessionUser & { previewBy?: string }) | null> => {
   const real = await currentUser();
   if (!real) return null;
   const viewId = real.role === "ADMIN" ? await readSigned(VIEW_AS) : null;
@@ -67,7 +69,7 @@ export async function viewingUser(): Promise<(SessionUser & { previewBy?: string
     if (target) return { ...target, previewBy: real.fullName };
   }
   return real;
-}
+});
 
 /** สำหรับ API: คืน user หรือ NextResponse ที่เป็น error */
 export async function apiUser(roles?: Role[]): Promise<SessionUser | NextResponse> {

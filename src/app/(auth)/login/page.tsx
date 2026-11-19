@@ -32,7 +32,7 @@ export default function LoginPage() {
         ))}
       </div>
       <form onSubmit={submit} className="card relative z-10 w-full max-w-sm space-y-3 border-t-4 border-t-brand-800 bg-white/95 shadow-xl backdrop-blur">
-        <img src="/logo.png" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={96} height={96} className="mx-auto h-24 w-24" />
+        <img src="/logo.webp" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={96} height={96} className="mx-auto h-24 w-24" />
         <div className="text-center">
           <h1 className="text-lg font-bold">วิทยาลัยการอาชีพโพนทอง</h1>
           <p className="text-sm text-stone-600">ระบบจัดตารางเรียน-ตารางสอน (PTC Smart Schedule)</p>

@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 
 export const VIEWS = { teacher: "ครู", room: "ห้อง", group: "กลุ่มเรียน", student: "นักเรียน", subject: "รายวิชา" } as const;
@@ -16,9 +17,9 @@ export async function entityOptions(view: View): Promise<{ id: number; label: st
   }
 }
 
-async function rows(semester: string) {
+async function rows(semester: string, where: Prisma.ScheduleWhereInput = {}) {
   return prisma.schedule.findMany({
-    where: { semester, slotId: { not: null } },
+    where: { semester, slotId: { not: null }, ...where },
     include: { slot: true, room: true, enrollment: { include: { subject: true, teacher: true, group: true, student: true } } },
   });
 }
@@ -30,20 +31,22 @@ function toCell(r: Row): Cell {
     teacher: e.teacher.fullName, room: r.room?.code ?? "-", group: e.group?.name ?? e.student?.fullName ?? "-" };
 }
 
-async function matcher(view: View, id: number): Promise<(r: Row) => boolean> {
-  if (view === "student") {
-    const s = await prisma.student.findUnique({ where: { id } });
-    return (r) => !!s && (r.enrollment.groupId === s.groupId || r.enrollment.studentId === s.id);
+/** เงื่อนไขของแต่ละมุมมอง ให้ฐานข้อมูลกรองเอง (ไม่โหลดทั้งภาคเรียนมากรองในหน่วยความจำ) */
+async function whereFor(view: View, id: number): Promise<Prisma.ScheduleWhereInput> {
+  switch (view) {
+    case "teacher": return { enrollment: { teacherId: id } };
+    case "room": return { roomId: id };
+    case "group": return { enrollment: { groupId: id } };
+    case "subject": return { enrollment: { subjectId: id } };
+    case "student": {
+      const s = await prisma.student.findUnique({ where: { id }, select: { groupId: true } });
+      return s ? { enrollment: { OR: [{ groupId: s.groupId }, { studentId: id }] } } : { id: -1 };
+    }
   }
-  return (r) => view === "teacher" ? r.enrollment.teacherId === id
-    : view === "room" ? r.roomId === id
-    : view === "group" ? r.enrollment.groupId === id
-    : r.enrollment.subjectId === id;
 }
 
 export async function scheduleFor(semester: string, view: View, id: number): Promise<Cell[]> {
-  const m = await matcher(view, id);
-  return (await rows(semester)).filter(m).map(toCell);
+  return (await rows(semester, await whereFor(view, id))).map(toCell);
 }
 
 /** ทุก entity ของมุมมองนี้ (ใช้ export Excel แยก sheet) — query เดียวแล้วจัดกลุ่มในหน่วยความจำ */
