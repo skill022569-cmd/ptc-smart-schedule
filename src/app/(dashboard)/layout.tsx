@@ -3,11 +3,12 @@ import { requireUser } from "@/lib/auth";
 import { COLLEGE, SEMESTER } from "@/lib/db";
 import PdpaBanner from "@/components/PdpaBanner";
 import AiChatWidget from "@/components/AiChatWidget";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const u = await requireUser();
   const nav = [
-    ["/", "ภาพรวม"], ...(u.role === "ADMIN" ? [["/admin", "จัดตารางอัตโนมัติ"], ["/admin/manual", "จัดตารางเอง"]] : []),
+    ["/", "ภาพรวม"], ...(u.role === "ADMIN" ? [["/admin", "จัดตารางอัตโนมัติ"], ["/admin/manual", "จัดตารางเอง"], ["/admin/view-as", "มุมมองผู้ใช้"]] : []),
     ["/schedule", "ตารางเรียน/สอน"], ["/directory", "ทำเนียบบุคลากร"], ["/support", "แจ้งปัญหา"], ["/pdpa", "PDPA"],
   ];
   return (
@@ -22,8 +23,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <form action="/api/auth/logout" method="post" className="text-sm">{u.fullName} <button className="ml-2 underline hover:text-gold-300">ออกจากระบบ</button></form>
         </div>
       </header>
+      {u.previewBy && (
+        <div className="no-print sticky top-0 z-30 border-b border-yellow-300 bg-yellow-100 text-sm">
+          <form action="/api/view-as" method="post" className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-2">
+            <span>👁 กำลังดูในมุมมองของ <b>{u.fullName}</b> ({u.role === "STUDENT" ? "นักเรียน" : u.role === "TEACHER" ? "ครู" : "แอดมิน"}) — โดย {u.previewBy}</span>
+            <input type="hidden" name="exit" value="1" />
+            <button className="btn ml-auto">กลับเป็นแอดมิน</button>
+          </form>
+        </div>
+      )}
       <main className="mx-auto max-w-7xl p-4 pb-24">{children}</main>
-      {!u.pdpaConsentAt && <PdpaBanner />}
+      <ScrollReveal />
+      {!u.pdpaConsentAt && !u.previewBy && <PdpaBanner />}
       <AiChatWidget />
     </div>
   );

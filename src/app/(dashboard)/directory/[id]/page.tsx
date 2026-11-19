@@ -22,7 +22,12 @@ export default async function StaffProfile({ params }: { params: Promise<{ id: s
           <div><dt className="font-semibold">ประวัติ</dt><dd className="whitespace-pre-wrap">{p.bio || "ยังไม่มีข้อมูลประวัติ"}</dd></div>
           <div><dt className="font-semibold">ติดต่อ</dt><dd>โทร {full ? p.phone ?? "-" : maskPhone(p.phone)} · {full ? p.email ?? "-" : "อีเมลปกปิดตาม PDPA"}</dd></div>
         </dl>
-        {p.role === "TEACHER" && p.boardOrder == null && <Link className="btn-outline mt-4" href={`/schedule?view=teacher&id=${p.id}`}>ดูตารางสอน</Link>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {p.role === "TEACHER" && p.boardOrder == null && <Link className="btn-outline" href={`/schedule?view=teacher&id=${p.id}`}>ดูตารางสอน</Link>}
+          {u.role === "ADMIN" && !u.previewBy && p.role === "TEACHER" && p.boardOrder == null && (
+            <form action="/api/view-as" method="post"><input type="hidden" name="userId" value={p.id} /><button className="btn-outline">👁 ดูในมุมมองครูท่านนี้</button></form>
+          )}
+        </div>
       </section>
       {(u.role === "ADMIN" || u.id === p.id) && (
         <StaffEditForm admin={u.role === "ADMIN"}

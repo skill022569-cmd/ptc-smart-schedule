@@ -16,27 +16,49 @@ function secret() {
 }
 const sig = (v: string) => createHmac("sha256", secret()).update(v).digest("base64url");
 
-export async function setSession(userId: number) {
-  const v = `${userId}.${Date.now() + MAX_AGE * 1000}`;
-  (await cookies()).set(COOKIE, `${v}.${sig(v)}`, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: MAX_AGE, path: "/" });
-}
-export async function clearSession() { (await cookies()).delete(COOKIE); }
+export async function setSession(userId: number) { await writeSigned(COOKIE, userId); }
+export async function clearSession() { const c = await cookies(); c.delete(COOKIE); c.delete(VIEW_AS); }
 
-export async function currentUser() {
-  const raw = (await cookies()).get(COOKIE)?.value;
+/** แอดมินดูเว็บในมุมมองผู้ใช้อื่น (อ่านอย่างเดียวในระดับหน้าเว็บ) */
+const VIEW_AS = "ptc_view_as";
+export async function setViewAs(userId: number | null) {
+  if (userId == null) (await cookies()).delete(VIEW_AS); else await writeSigned(VIEW_AS, userId);
+}
+
+/** อ่านคุกกี้ที่ลงลายมือชื่อ "id.exp.sig" → id หรือ null */
+async function readSigned(name: string): Promise<number | null> {
+  const raw = (await cookies()).get(name)?.value;
   if (!raw) return null;
   const [id, exp, s] = raw.split(".");
   const v = `${id}.${exp}`;
   const good = s && Buffer.byteLength(s) === Buffer.byteLength(sig(v)) && timingSafeEqual(Buffer.from(s), Buffer.from(sig(v)));
-  if (!good || Number(exp) < Date.now()) return null;
-  return prisma.user.findUnique({ where: { id: Number(id) }, include: { student: true } });
+  return good && Number(exp) >= Date.now() ? Number(id) : null;
+}
+async function writeSigned(name: string, id: number) {
+  const v = `${id}.${Date.now() + MAX_AGE * 1000}`;
+  (await cookies()).set(name, `${v}.${sig(v)}`, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: MAX_AGE, path: "/" });
+}
+
+/** ผู้ใช้ที่ล็อกอินจริง (API ใช้ตัวนี้เสมอ — โหมดดูมุมมองไม่ให้สิทธิ์เขียนแทนใคร) */
+export async function currentUser() {
+  const id = await readSigned(COOKIE);
+  return id == null ? null : prisma.user.findUnique({ where: { id }, include: { student: true } });
 }
 export type SessionUser = NonNullable<Awaited<ReturnType<typeof currentUser>>>;
 
-/** สำหรับหน้าเว็บ: ไม่ล็อกอิน → /login, สิทธิ์ไม่พอ → หน้าแรก */
-export async function requireUser(roles?: Role[]) {
-  const u = await currentUser();
-  if (!u) redirect("/login");
+/**
+ * สำหรับหน้าเว็บ: ไม่ล็อกอิน → /login, สิทธิ์ไม่พอ → หน้าแรก
+ * ถ้าแอดมินเปิดโหมดดูมุมมองผู้ใช้ จะคืนผู้ใช้เป้าหมาย พร้อม previewBy = ชื่อแอดมิน
+ */
+export async function requireUser(roles?: Role[]): Promise<SessionUser & { previewBy?: string }> {
+  const real = await currentUser();
+  if (!real) redirect("/login");
+  let u: SessionUser & { previewBy?: string } = real;
+  const viewId = real.role === "ADMIN" ? await readSigned(VIEW_AS) : null;
+  if (viewId != null && viewId !== real.id) {
+    const target = await prisma.user.findUnique({ where: { id: viewId }, include: { student: true } });
+    if (target) u = { ...target, previewBy: real.fullName };
+  }
   if (roles && !roles.includes(u.role)) redirect("/");
   return u;
 }
