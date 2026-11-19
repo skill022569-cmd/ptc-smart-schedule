@@ -11,6 +11,7 @@ const post = (url: string, body: unknown) => fetch(url, { method: "POST", header
 export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
   const [conflicts, setConflicts] = useState<ConflictReport[] | null>(null);
   const [empty, setEmpty] = useState(false);
+  const [autoSplit, setAutoSplit] = useState(true);
   const [rooms, setRooms] = useState<{ id: number; code: string }[]>([]);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,9 +31,10 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
     catch { setMsg("❌ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้"); }
     finally { setBusy(false); }
   }
-  const run = (keepExisting: boolean) => act(keepExisting ? "กำลังจัดเฉพาะที่เหลือ (คงคาบเดิม)" : "กำลังจัดตารางใหม่ทั้งหมด (CSP + GA)", () => post("/api/generate", { timeLimitMs: 15000, keepExisting }), (r) => {
+  const run = (keepExisting: boolean) => act(keepExisting ? "กำลังจัดเฉพาะที่เหลือ (คงคาบเดิม)" : "กำลังจัดตารางใหม่ทั้งหมด (CSP + GA)", () => post("/api/generate", { timeLimitMs: 15000, keepExisting, autoSplit }), (r) => {
     const s = r.stats as { placed: number; sessions: number; ms: number; generations: number; penalty: number };
     return `✅ จัดแล้ว ${s.placed}/${s.sessions} ก้อน ใน ${(s.ms / 1000).toFixed(1)} วินาที (GA ${s.generations} รุ่น, soft penalty ${s.penalty}) จัดไม่สำเร็จ ${r.conflicts} รายการ`
+      + (r.split ? `\n✂️ ระบบแบ่งคาบให้อัตโนมัติ ${r.split} วิชา (ดู/ปรับได้ที่หน้าจัดตารางเอง)` : "")
       + ((r.warnings as string[]).length ? `\n⚠️ ${(r.warnings as string[]).join("\n⚠️ ")}` : "");
   });
   const resolve = (enrollmentId: number, action: string, extra = {}) =>
@@ -50,6 +52,12 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
           <button className="btn" disabled={busy} onClick={() => (empty || confirm("จัดใหม่ทั้งหมด? คาบที่จัดไว้ (รวมที่จัดเอง) จะถูกแทนที่")) && run(false)}>▶ จัดใหม่ทั้งหมด</button>
           <button className="btn-outline" disabled={busy || empty} onClick={() => run(true)}>➕ จัดเฉพาะที่เหลือ</button>
           <a className="btn-outline" href="/admin/manual">✋ จัดตารางเอง</a>
+        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={autoSplit} onChange={(e) => setAutoSplit(e.target.checked)} />
+          ให้ระบบแบ่งคาบเองเมื่อจำเป็น (เช่น วิชา 3 คาบรวดที่หาช่องต่อเนื่องไม่ได้ → แบ่ง 2+1) เพื่อให้จัดได้ครบทุกแผนก
+        </label>
+        <div className="flex flex-wrap gap-2">
           <button className="btn-outline" disabled={busy} onClick={() => act("กำลังสร้างจุดสำรอง", () => post("/api/backup", { action: "create", name: prompt("ชื่อจุดสำรอง") || undefined }), () => "✅ สร้างจุดสำรองแล้ว")}>💾 สร้างจุดสำรอง (Snapshot)</button>
         </div>
         {msg && <pre className="whitespace-pre-wrap rounded bg-slate-100 p-2 text-sm" aria-live="polite">{msg}</pre>}
@@ -92,6 +100,22 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
             )}
           </div>
         ))}
+      </section>
+
+      <section className="card space-y-2">
+        <h2 className="font-semibold">ข้อมูลตัวอย่าง (สำหรับทดลองระบบ)</h2>
+        <p className="text-sm text-stone-600">แทนที่ข้อมูลทั้งหมดด้วยข้อมูลจำลอง — <b className="text-red-700">ลบข้อมูลเดิมทุกอย่าง</b> (ครู นักเรียน ตาราง เรื่องแจ้ง จุดสำรอง ชื่อผู้บริหารที่แก้ไว้) และต้องเข้าสู่ระบบใหม่ด้วย admin / admin1234</p>
+        <div className="flex flex-wrap gap-2">
+          {([["stress", "🏫 ทั้งวิทยาลัย 8 แผนก · นักเรียน 2,000 คน"], ["demo", "ชุดเล็ก 2 แผนก · นักเรียน 160 คน"]] as const).map(([scale, label]) => (
+            <button key={scale} className="btn-outline" disabled={busy} onClick={() => {
+              if (prompt(`พิมพ์ "ยืนยัน" เพื่อลบข้อมูลเดิมทั้งหมดและโหลด: ${label}`) !== "ยืนยัน") return;
+              act("กำลังโหลดข้อมูลตัวอย่าง (อาจใช้เวลา 10-40 วินาที)", () => post("/api/admin/sample-data", { scale, confirm: "ยืนยัน" }), (r) => {
+                setTimeout(() => { location.href = "/login"; }, 2500);
+                return `✅ โหลดแล้ว ${r.departments} แผนก · ${r.groups} กลุ่ม · นักเรียน ${r.students} · ครู ${r.teachers} · วิชา ${r.subjects} · ห้อง ${r.rooms} — กำลังไปหน้าเข้าสู่ระบบ...`;
+              });
+            }}>{label}</button>
+          ))}
+        </div>
       </section>
 
       <section className="card space-y-2">

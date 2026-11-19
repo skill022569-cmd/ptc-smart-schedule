@@ -71,3 +71,13 @@ test("โหมดคงตารางเดิม: คาบที่จัด
     assert.ok(i >= 0, "คาบที่ล็อกต้องอยู่ตำแหน่งเดิม");
   }
 });
+
+test("autoSplit: ข้อมูลทั้งวิทยาลัย 8 แผนก จัดได้ครบ เหลือเฉพาะกรณีที่ครูไม่ว่างจริง", () => {
+  const input = toEngineInput(makeDataset("stress"));
+  const plain = runEngine(input, { timeLimitMs: 4000, seed: 3 });
+  const auto = runEngine(input, { timeLimitMs: 4000, seed: 3, autoSplit: true });
+  assert.equal(validate(auto.ctx, auto.state.place).size, 0);
+  assert.ok(auto.conflicts.length <= plain.conflicts.length);
+  assert.ok(auto.conflicts.length <= 2, `ยังเหลือ ${auto.conflicts.length} รายการ: ${auto.conflicts.map((c) => c.subjectCode).join(", ")}`);
+  console.log(`  plain=${plain.conflicts.length} auto=${auto.conflicts.length} split=${auto.splitIds.length}`);
+});

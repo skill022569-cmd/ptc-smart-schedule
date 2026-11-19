@@ -1,0 +1,52 @@
+// สร้างข้อมูลตัวอย่างลงฐานข้อมูล (ใช้ทั้งคำสั่ง npm run db:seed และปุ่มในหน้าแอดมิน) — ลบข้อมูลเดิมทั้งหมดก่อน
+import type { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../src/lib/password";
+import { LUNCH, MOCK_NOTE, SLOT_TIMES, makeDataset, teacherBio, teacherDuties } from "./data";
+
+export const DEMO_STUDENT_PASSWORD = "student1234";
+const BATCH = 500;
+
+async function insert<T>(rows: T[], fn: (chunk: T[]) => Promise<unknown>) {
+  for (let i = 0; i < rows.length; i += BATCH) await fn(rows.slice(i, i + BATCH));
+}
+
+export async function seedDatabase(prisma: PrismaClient, scale: "demo" | "stress", log: (m: string) => void = () => {}) {
+  const ds = makeDataset(scale);
+  log(`seed (${scale}): นักเรียน ${ds.students.length}, ครู ${ds.teachers.length}, วิชา ${ds.subjects.length}, ห้อง ${ds.rooms.length}`);
+
+  // ล้างข้อมูลเดิม (ลำดับตาม foreign key)
+  for (const m of ["schedule", "enrollment", "pdpaConsentLog", "issueReport", "systemBackup", "student", "teacherConstraint", "user", "studentGroup", "subject", "room", "timeslot"] as const)
+    await (prisma[m] as unknown as { deleteMany: () => Promise<unknown> }).deleteMany();
+
+  await prisma.timeslot.createMany({ data: [1, 2, 3, 4, 5].flatMap((day) => SLOT_TIMES.map(([startTime, endTime], i) =>
+    ({ dayOfWeek: day, periodNo: i + 1, startTime, endTime, isLunchBreak: i + 1 === LUNCH }))) });
+
+  // demo password: admin = "admin1234", บุคลากร = รหัสบุคลากร, นักเรียน = DEMO_STUDENT_PASSWORD (ต้องเปลี่ยนก่อนใช้งานจริง)
+  const pw = (s: string) => hashPassword(s);
+  // shortcut: นักเรียนตัวอย่างใช้ hash เดียวกัน (hash 2,000 ครั้งเกินเวลา 60 วิของ Vercel); ข้อมูลจริงต้อง hash รายคนตอนนำเข้า
+  const studentHash = pw(DEMO_STUDENT_PASSWORD);
+  await prisma.user.create({ data: { username: "admin", passwordHash: pw("admin1234"), fullName: ds.admins[0].name, role: "ADMIN", position: ds.admins[0].position, duties: "ดูแลระบบจัดตารางเรียน-ตารางสอน นำเข้าข้อมูล และตอบเรื่องแจ้งปัญหา", bio: `เจ้าหน้าที่งานพัฒนาหลักสูตรการเรียนการสอน ฝ่ายวิชาการ\n${MOCK_NOTE}`, department: "ฝ่ายบริหาร", phone: "0812345678", email: "academic@ptc.ac.th" } });
+  // ผู้บริหาร: ยังไม่มีรหัสผ่าน ("!" เข้าสู่ระบบไม่ได้) ให้แอดมินแก้ชื่อจริงในหน้าประวัติ
+  await prisma.user.createMany({ data: ds.executives.map((e, i) => ({ username: e.code, passwordHash: "!", fullName: e.name, role: "TEACHER" as const,
+    department: "ฝ่ายบริหาร", position: e.position, duties: e.duties, bio: e.bio, phone: e.phone, email: e.email, boardOrder: i + 1 })) });
+  await insert(ds.teachers, (c) => prisma.user.createMany({ data: c.map((t, i) => ({
+    username: t.code, passwordHash: pw(t.code), fullName: t.name, role: "TEACHER" as const, department: t.department, position: t.position, duties: teacherDuties(t.position, t.department), bio: teacherBio(t.department, i + 1),
+    phone: `08${String(10000000 + i * 7919).slice(0, 8)}`, email: `${t.code.toLowerCase()}@ptc.ac.th` })) }));
+  const users = new Map((await prisma.user.findMany()).map((u) => [u.username, u.id]));
+  await prisma.teacherConstraint.createMany({ data: ds.teachers.map((t) => ({ teacherId: users.get(t.code)!, maxHoursPerWeek: t.maxHours, unavailableSlots: t.unavailable, preferredTime: t.preferred })) });
+
+  await prisma.studentGroup.createMany({ data: ds.groups.map((g) => ({ code: g.code, name: g.name, level: g.level, department: g.department, isDualVocational: g.isDual, studyDays: g.studyDays })) });
+  const groups = new Map((await prisma.studentGroup.findMany()).map((g) => [g.code, g.id]));
+  await insert(ds.students, (c) => prisma.user.createMany({ data: c.map((s) => ({ username: s.code, passwordHash: studentHash, fullName: s.name, role: "STUDENT" as const })) }));
+  const users2 = new Map((await prisma.user.findMany({ where: { role: "STUDENT" } })).map((u) => [u.username, u.id]));
+  await insert(ds.students, (c) => prisma.student.createMany({ data: c.map((s) => ({ studentCode: s.code, fullName: s.name, groupId: groups.get(s.groupCode)!, isDualVocational: s.isDual, userId: users2.get(s.code) })) }));
+  const students = new Map((await prisma.student.findMany()).map((s) => [s.studentCode, s.id]));
+
+  await insert(ds.subjects, (c) => prisma.subject.createMany({ data: c.map((s) => ({ code: s.code, name: s.name, theoryHours: s.theory, practiceHours: s.practice, requiredRoomType: s.roomType })) }));
+  const subjects = new Map((await prisma.subject.findMany()).map((s) => [s.code, s.id]));
+  await prisma.room.createMany({ data: ds.rooms.map((r) => ({ code: r.code, name: r.name, capacity: r.capacity, roomType: r.type, building: r.building })) });
+  await insert(ds.enrollments, (c) => prisma.enrollment.createMany({ data: c.map((e) => ({
+    subjectId: subjects.get(e.subjectCode)!, teacherId: users.get(e.teacherCode)!,
+    groupId: e.groupCode ? groups.get(e.groupCode)! : null, studentId: e.studentCode ? students.get(e.studentCode)! : null })) }));
+  return { students: ds.students.length, teachers: ds.teachers.length, subjects: ds.subjects.length, rooms: ds.rooms.length, groups: ds.groups.length, departments: new Set(ds.groups.map((g) => g.department)).size };
+}

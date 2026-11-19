@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { apiUser } from "@/lib/auth";
-import { SEMESTER } from "@/lib/db";
+import { SEMESTER, prisma } from "@/lib/db";
 import { loadInput, loadRuns, saveState } from "@/lib/engine-io";
 import { runEngine } from "@/engine";
 
@@ -14,7 +14,9 @@ export async function POST(req: Request) {
   const timeLimitMs = Math.min(Math.max(Number(body.timeLimitMs) || 15000, 1000), 45000);
   // keepExisting = คงคาบที่จัดไว้แล้ว (รวมที่จัดเอง) แล้วจัดเฉพาะที่เหลือ
   const [input, keep] = await Promise.all([loadInput(), body.keepExisting ? loadRuns(SEMESTER) : []]);
-  const res = runEngine(input, { timeLimitMs, seed: Number(body.seed) || Date.now() % 100000 }, keep);
+  // autoSplit (ค่าเริ่มต้นเปิด): วิชาที่วางเป็นก้อนเดียวไม่ได้ ให้ระบบแบ่งคาบเองแล้วจำการอนุญาตไว้
+  const res = runEngine(input, { timeLimitMs, seed: Number(body.seed) || Date.now() % 100000, autoSplit: body.autoSplit !== false }, keep);
+  if (res.splitIds.length) await prisma.enrollment.updateMany({ where: { id: { in: res.splitIds } }, data: { allowSplit: true } });
   const conflicts = await saveState(SEMESTER, res.ctx, res.state);
-  return NextResponse.json({ stats: res.stats, warnings: res.warnings, conflicts: conflicts.length });
+  return NextResponse.json({ stats: res.stats, warnings: res.warnings, conflicts: conflicts.length, split: res.splitIds.length });
 }

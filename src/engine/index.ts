@@ -11,7 +11,18 @@ export { buildCtx, analyze, validate, precheck, softPenalty };
  * pipeline เต็ม: pre-check → CSP → GA → validate → วิเคราะห์รายการที่จัดไม่ได้
  * keep = คาบที่จัดไว้แล้วให้คงตำแหน่งเดิม (ระบบจัดเฉพาะที่เหลือ); คาบเดิมที่ผิดเงื่อนไขแล้วจะถูกปล่อยให้จัดใหม่
  */
-export function runEngine(input: EngineInput, opts: GaOptions = {}, keep: Run[] = []) {
+export function runEngine(input: EngineInput, opts: GaOptions & { autoSplit?: boolean } = {}, keep: Run[] = []): ReturnType<typeof runOnce> & { splitIds: number[] } {
+  const first = runOnce(input, opts, keep);
+  const ids = first.conflicts.map((c) => c.enrollmentId).filter((id) => !first.ctx.enrollments.get(id)!.allowSplit);
+  if (!opts.autoSplit || !ids.length) return { ...first, splitIds: [] };
+  // รอบสอง: คงทุกคาบที่จัดได้แล้ว และอนุญาตแบ่งคาบเฉพาะวิชาที่ยังวางเป็นก้อนเดียวไม่ได้
+  const set = new Set(ids);
+  const second = runOnce({ ...input, enrollments: input.enrollments.map((e) => (set.has(e.id) ? { ...e, allowSplit: true } : e)) },
+    { ...opts, timeLimitMs: Math.min(opts.timeLimitMs ?? 15000, 5000) }, toRuns(first.ctx, first.state.place));
+  return { ...second, splitIds: ids };
+}
+
+function runOnce(input: EngineInput, opts: GaOptions, keep: Run[]) {
   const { ctx, state } = buildCtx(input, keep, true);
   for (const i of validate(ctx, state.place).keys()) { state.remove(ctx, ctx.sessions[i]); ctx.locked.delete(i); }
   const warnings = precheck(ctx);
