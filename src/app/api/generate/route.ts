@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiUser } from "@/lib/auth";
 import { SEMESTER } from "@/lib/db";
-import { loadInput, saveState } from "@/lib/engine-io";
+import { loadInput, loadRuns, saveState } from "@/lib/engine-io";
 import { runEngine } from "@/engine";
 
 export const maxDuration = 60;
@@ -12,8 +12,9 @@ export async function POST(req: Request) {
   if (u instanceof NextResponse) return u;
   const body = await req.json().catch(() => ({}));
   const timeLimitMs = Math.min(Math.max(Number(body.timeLimitMs) || 15000, 1000), 45000);
-  const input = await loadInput();
-  const res = runEngine(input, { timeLimitMs, seed: Number(body.seed) || Date.now() % 100000 });
+  // keepExisting = คงคาบที่จัดไว้แล้ว (รวมที่จัดเอง) แล้วจัดเฉพาะที่เหลือ
+  const [input, keep] = await Promise.all([loadInput(), body.keepExisting ? loadRuns(SEMESTER) : []]);
+  const res = runEngine(input, { timeLimitMs, seed: Number(body.seed) || Date.now() % 100000 }, keep);
   const conflicts = await saveState(SEMESTER, res.ctx, res.state);
   return NextResponse.json({ stats: res.stats, warnings: res.warnings, conflicts: conflicts.length });
 }

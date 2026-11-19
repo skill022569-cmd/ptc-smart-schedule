@@ -10,6 +10,7 @@ const post = (url: string, body: unknown) => fetch(url, { method: "POST", header
 
 export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
   const [conflicts, setConflicts] = useState<ConflictReport[] | null>(null);
+  const [empty, setEmpty] = useState(false);
   const [rooms, setRooms] = useState<{ id: number; code: string }[]>([]);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,7 +20,7 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
 
   const refresh = useCallback(async () => {
     const [c, b] = await Promise.all([fetch("/api/resolve").then((r) => r.json()), fetch("/api/backup").then((r) => r.json())]);
-    setConflicts(c.conflicts ?? []); setRooms(c.rooms ?? []); setBackups(Array.isArray(b) ? b : []);
+    setConflicts(c.conflicts ?? []); setRooms(c.rooms ?? []); setEmpty(!!c.empty); setBackups(Array.isArray(b) ? b : []);
   }, []);
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -29,7 +30,7 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
     catch { setMsg("❌ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้"); }
     finally { setBusy(false); }
   }
-  const run = () => act("กำลังจัดตาราง (CSP + GA)", () => post("/api/generate", { timeLimitMs: 15000 }), (r) => {
+  const run = (keepExisting: boolean) => act(keepExisting ? "กำลังจัดเฉพาะที่เหลือ (คงคาบเดิม)" : "กำลังจัดตารางใหม่ทั้งหมด (CSP + GA)", () => post("/api/generate", { timeLimitMs: 15000, keepExisting }), (r) => {
     const s = r.stats as { placed: number; sessions: number; ms: number; generations: number; penalty: number };
     return `✅ จัดแล้ว ${s.placed}/${s.sessions} ก้อน ใน ${(s.ms / 1000).toFixed(1)} วินาที (GA ${s.generations} รุ่น, soft penalty ${s.penalty}) จัดไม่สำเร็จ ${r.conflicts} รายการ`
       + ((r.warnings as string[]).length ? `\n⚠️ ${(r.warnings as string[]).join("\n⚠️ ")}` : "");
@@ -41,9 +42,14 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
     <div className="space-y-4">
       <section className="card space-y-2">
         <h2 className="font-semibold">สั่งจัดตารางอัตโนมัติ</h2>
-        <p className="text-sm text-slate-600">ระบบจะตรวจข้อมูลก่อน (ภาระครูเกิน/ไม่มีห้อง) แล้วจัดด้วย CSP และปรับให้ดีขึ้นด้วย Genetic Algorithm — ตารางเดิมของภาคเรียนนี้จะถูกแทนที่ แนะนำให้สร้างจุดสำรองก่อน</p>
-        <div className="flex gap-2">
-          <button className="btn" disabled={busy} onClick={run}>▶ รันจัดตาราง</button>
+        <ul className="list-disc pl-5 text-sm text-stone-600">
+          <li><b>จัดใหม่ทั้งหมด</b> — ล้างตารางเดิมของภาคเรียนนี้แล้วจัดด้วย CSP + Genetic Algorithm (แนะนำให้สร้างจุดสำรองก่อน)</li>
+          <li><b>จัดเฉพาะที่เหลือ</b> — คงคาบที่จัดไว้แล้ว (รวมที่<a href="/admin/manual" className="text-brand-700 underline">จัดเอง</a>) และจัดเฉพาะวิชาที่ยังไม่ครบ</li>
+        </ul>
+        <div className="flex flex-wrap gap-2">
+          <button className="btn" disabled={busy} onClick={() => (empty || confirm("จัดใหม่ทั้งหมด? คาบที่จัดไว้ (รวมที่จัดเอง) จะถูกแทนที่")) && run(false)}>▶ จัดใหม่ทั้งหมด</button>
+          <button className="btn-outline" disabled={busy || empty} onClick={() => run(true)}>➕ จัดเฉพาะที่เหลือ</button>
+          <a className="btn-outline" href="/admin/manual">✋ จัดตารางเอง</a>
           <button className="btn-outline" disabled={busy} onClick={() => act("กำลังสร้างจุดสำรอง", () => post("/api/backup", { action: "create", name: prompt("ชื่อจุดสำรอง") || undefined }), () => "✅ สร้างจุดสำรองแล้ว")}>💾 สร้างจุดสำรอง (Snapshot)</button>
         </div>
         {msg && <pre className="whitespace-pre-wrap rounded bg-slate-100 p-2 text-sm" aria-live="polite">{msg}</pre>}
@@ -52,7 +58,8 @@ export default function AdminPanel({ slots }: { slots: SlotRow[] }) {
       <section className="space-y-3">
         <h2 className="font-semibold">รายการที่จัดตารางไม่สำเร็จ (Unscheduled Conflicts) {conflicts && `— ${conflicts.length} รายการ`}</h2>
         {conflicts === null && <p className="text-sm text-slate-500">กำลังโหลด...</p>}
-        {conflicts?.length === 0 && <p className="card text-sm text-emerald-700">✅ ไม่มีรายการที่จัดไม่สำเร็จ</p>}
+        {empty && <p className="card text-sm text-stone-600">ยังไม่ได้จัดตารางภาคเรียนนี้ — กด <b>▶ จัดใหม่ทั้งหมด</b> หรือไปที่ <a href="/admin/manual" className="text-brand-700 underline">จัดตารางเอง</a></p>}
+        {!empty && conflicts?.length === 0 && <p className="card text-sm text-emerald-700">✅ ไม่มีรายการที่จัดไม่สำเร็จ</p>}
         {conflicts?.map((c) => (
           <div key={c.enrollmentId} className="card border-l-4 border-l-red-500 bg-orange-50/40">
             <p className="font-semibold text-red-700">[{c.title}]</p>

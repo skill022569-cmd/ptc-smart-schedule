@@ -7,7 +7,7 @@ import AiChatWidget from "@/components/AiChatWidget";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const u = await requireUser();
   const nav = [
-    ["/", "ภาพรวม"], ...(u.role === "ADMIN" ? [["/admin", "จัดการ/รันตาราง"]] : []),
+    ["/", "ภาพรวม"], ...(u.role === "ADMIN" ? [["/admin", "จัดตารางอัตโนมัติ"], ["/admin/manual", "จัดตารางเอง"]] : []),
     ["/schedule", "ตารางเรียน/สอน"], ["/directory", "ทำเนียบบุคลากร"], ["/support", "แจ้งปัญหา"], ["/pdpa", "PDPA"],
   ];
   return (

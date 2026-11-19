@@ -96,6 +96,7 @@ function analyzeOne(ctx: Ctx, st: State, eid: number, idxs: number[]): ConflictR
     const both = grid.filter((g) => g.teacherFree && g.groupFree).length;
     reasons.push(tFree === 0 ? `${teacher} ไม่มีคาบว่างเหลือเลย`
       : both === 0 ? `ไม่มีคาบที่ ${teacher} และกลุ่ม ${e.label} ว่างตรงกัน`
+      : grid.some((g) => g.teacherFree && g.groupFree && g.roomFree) ? "ยังไม่ได้จัด (มีช่องว่างพอ) — กดจัดเฉพาะที่เหลือ หรือจัดเอง"
       : "คาบที่ครูและกลุ่มเรียนว่างตรงกัน ไม่มีห้องที่ตรงประเภทว่าง");
   }
 

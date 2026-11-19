@@ -34,12 +34,9 @@ export async function loadInput(): Promise<EngineInput> {
   };
 }
 
-/** โหลดตารางที่บันทึกไว้ → ctx/state (แถวต่อเนื่องห้องเดียวกันรวมเป็นก้อนเดียว) */
-export async function loadState(semester: string) {
-  const [input, rows] = await Promise.all([
-    loadInput(),
-    prisma.schedule.findMany({ where: { semester, slotId: { not: null } }, include: { slot: true } }),
-  ]);
+/** คาบที่บันทึกไว้ → ก้อน Run (แถวต่อเนื่องห้องเดียวกันรวมเป็นก้อนเดียว) */
+export async function loadRuns(semester: string): Promise<Run[]> {
+  const rows = await prisma.schedule.findMany({ where: { semester, slotId: { not: null } }, include: { slot: true } });
   const sorted = rows.filter((r) => r.slot && r.roomId != null)
     .sort((a, b) => a.enrollmentId - b.enrollmentId || a.slot!.dayOfWeek - b.slot!.dayOfWeek || a.slot!.periodNo - b.slot!.periodNo);
   const runs: Run[] = [];
@@ -49,6 +46,12 @@ export async function loadState(semester: string) {
     if (last && last.enrollmentId === r.enrollmentId && last.day === d && last.roomId === r.roomId && last.start + last.length === p) last.length++;
     else runs.push({ enrollmentId: r.enrollmentId, day: d, start: p, length: 1, roomId: r.roomId! });
   }
+  return runs;
+}
+
+/** โหลดตารางที่บันทึกไว้ → ctx/state */
+export async function loadState(semester: string) {
+  const [input, runs] = await Promise.all([loadInput(), loadRuns(semester)]);
   return buildCtx(input, runs);
 }
 

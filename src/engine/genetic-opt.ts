@@ -1,8 +1,8 @@
-import { type Ctx, type State, rng } from "./model";
+import { type Ctx, State, rng } from "./model";
 import { placeOrRepair, placeRandom, solve } from "./csp-solver";
 import { softPenalty } from "./validator";
 
-export interface GaOptions { population?: number; generations?: number; timeLimitMs?: number; seed?: number }
+export interface GaOptions { population?: number; generations?: number; timeLimitMs?: number; seed?: number; base?: State }
 
 export const fitness = (ctx: Ctx, st: State) =>
   st.place.reduce((n, p, i) => n + (p ? 0 : ctx.sessions[i].length), 0) * 1000 + softPenalty(ctx, st.place);
@@ -13,11 +13,11 @@ export const fitness = (ctx: Ctx, st: State) =>
  * ไม่ใช้ crossover เพราะการผสมตารางสองชุดมักทำให้ hard constraint แตก
  */
 export function optimize(ctx: Ctx, opts: GaOptions = {}) {
-  const { population = 10, generations = 300, timeLimitMs = 15000, seed = 42 } = opts;
+  const { population = 10, generations = 300, timeLimitMs = 15000, seed = 42, base } = opts;
   const rand = rng(seed);
   const t0 = Date.now();
   let pop = Array.from({ length: population }, () => {
-    const st = solve(ctx, rand);
+    const st = solve(ctx, rand, base);
     return { st, f: fitness(ctx, st) };
   });
   const n = ctx.sessions.length;
@@ -30,6 +30,7 @@ export function optimize(ctx: Ctx, opts: GaOptions = {}) {
       const k = 1 + Math.floor(rand() * 5);
       for (let m = 0; m < k; m++) {
         const i = Math.floor(rand() * n);
+        if (ctx.locked.has(i)) continue;
         const s = ctx.sessions[i];
         const old = c.place[i];
         if (!old) { placeOrRepair(ctx, c, i, rand); continue; }

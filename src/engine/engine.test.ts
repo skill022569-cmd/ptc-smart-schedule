@@ -57,3 +57,17 @@ test("ไม่วางทับพักเที่ยงและเวล�
   assert.deepEqual([rep.swap.place.start, rep.swap.moves[0].to.start >= 4], [1, true]);
   assert.ok(rep.grid.find((g) => g.period === 3)!.lunch);
 });
+
+test("โหมดคงตารางเดิม: คาบที่จัดเองไม่ถูกย้าย และคาบเดิมที่ผิดเงื่อนไขถูกจัดใหม่", () => {
+  const input = toEngineInput(makeDataset("demo"));
+  const first = runEngine(input, { timeLimitMs: 1000 });
+  const placed = first.ctx.sessions.flatMap((s, i) => { const p = first.state.place[i]; return p ? [{ enrollmentId: s.enrollmentId, length: s.length, ...p }] : []; });
+  const keep = placed.slice(0, 20);
+  const bad = { ...keep[0], roomId: keep[1].roomId, day: keep[1].day, start: keep[1].start }; // ชนกับ keep[1] โดยตั้งใจ
+  const res = runEngine(input, { timeLimitMs: 1000, seed: 7 }, [...keep.slice(1), bad]);
+  assert.equal(validate(res.ctx, res.state.place).size, 0);
+  for (const k of keep.slice(1)) {
+    const i = res.ctx.sessions.findIndex((s, j) => s.enrollmentId === k.enrollmentId && res.state.place[j]?.day === k.day && res.state.place[j]?.start === k.start);
+    assert.ok(i >= 0, "คาบที่ล็อกต้องอยู่ตำแหน่งเดิม");
+  }
+});

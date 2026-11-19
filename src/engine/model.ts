@@ -16,6 +16,7 @@ export interface Ctx {
   marks: Map<number, string[]>; // ทรัพยากรที่ enrollment ครอบครอง
   blocks: Map<number, string[]>; // ทรัพยากรที่ต้องว่าง
   sessions: Session[];
+  locked: Set<number>; // session ที่ห้ามขยับ (คาบที่จัดเองแล้วเลือก "คงไว้")
 }
 
 export const sk = (day: number, period: number) => `${day}-${period}`;
@@ -38,7 +39,7 @@ function keysOf(e: Enrollment) {
   return { marks: [T, `S${e.studentId}`, `GI${e.homeGroupId}`], blocks: [T, `S${e.studentId}`, `G${e.homeGroupId}`] };
 }
 
-export function buildCtx(input: EngineInput, fixed: Run[] = []): { ctx: Ctx; state: State } {
+export function buildCtx(input: EngineInput, fixed: Run[] = [], lock = false): { ctx: Ctx; state: State } {
   const teaching = new Map<number, Set<number>>();
   for (const s of input.slots) {
     if (!teaching.has(s.day)) teaching.set(s.day, new Set());
@@ -59,7 +60,7 @@ export function buildCtx(input: EngineInput, fixed: Run[] = []): { ctx: Ctx; sta
     rooms,
     roomCandidates: new Map(input.enrollments.map((e) => [e.id,
       sortedRooms.filter((r) => (e.roomType == null || r.type === e.roomType) && r.capacity >= e.size).map((r) => r.id)])),
-    marks: new Map(), blocks: new Map(), sessions: [],
+    marks: new Map(), blocks: new Map(), sessions: [], locked: new Set(),
   };
   for (const e of input.enrollments) { const k = keysOf(e); ctx.marks.set(e.id, k.marks); ctx.blocks.set(e.id, k.blocks); }
 
@@ -67,6 +68,7 @@ export function buildCtx(input: EngineInput, fixed: Run[] = []): { ctx: Ctx; sta
   const placedHours = new Map<number, number>();
   for (const r of fixed) {
     if (!ctx.enrollments.has(r.enrollmentId)) continue;
+    if (lock) ctx.locked.add(ctx.sessions.length);
     ctx.sessions.push({ idx: ctx.sessions.length, enrollmentId: r.enrollmentId, length: r.length });
     place.push({ day: r.day, start: r.start, roomId: r.roomId });
     placedHours.set(r.enrollmentId, (placedHours.get(r.enrollmentId) ?? 0) + r.length);

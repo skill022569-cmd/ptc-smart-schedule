@@ -48,7 +48,7 @@ async function main() {
   await insert(ds.enrollments, (c) => prisma.enrollment.createMany({ data: c.map((e) => ({
     subjectId: subjects.get(e.subjectCode)!, teacherId: users.get(e.teacherCode)!,
     groupId: e.groupCode ? groups.get(e.groupCode)! : null, studentId: e.studentCode ? students.get(e.studentCode)! : null })) }));
-  console.log("เสร็จ: เข้าสู่ระบบด้วย admin / admin1234 แล้วกด 'รันจัดตาราง' ที่หน้า /admin");
+  console.log("เสร็จ: เข้าสู่ระบบด้วย admin / admin1234 แล้วไปที่เมนู จัดตารางอัตโนมัติ หรือ จัดตารางเอง");
 }
 
 main().finally(() => prisma.$disconnect());

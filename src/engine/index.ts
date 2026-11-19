@@ -7,11 +7,15 @@ import type { EngineInput, Run } from "./types";
 export * from "./types";
 export { buildCtx, analyze, validate, precheck, softPenalty };
 
-/** pipeline เต็ม: pre-check → CSP → GA → validate → วิเคราะห์รายการที่จัดไม่ได้ */
-export function runEngine(input: EngineInput, opts: GaOptions = {}) {
-  const { ctx } = buildCtx(input);
+/**
+ * pipeline เต็ม: pre-check → CSP → GA → validate → วิเคราะห์รายการที่จัดไม่ได้
+ * keep = คาบที่จัดไว้แล้วให้คงตำแหน่งเดิม (ระบบจัดเฉพาะที่เหลือ); คาบเดิมที่ผิดเงื่อนไขแล้วจะถูกปล่อยให้จัดใหม่
+ */
+export function runEngine(input: EngineInput, opts: GaOptions = {}, keep: Run[] = []) {
+  const { ctx, state } = buildCtx(input, keep, true);
+  for (const i of validate(ctx, state.place).keys()) { state.remove(ctx, ctx.sessions[i]); ctx.locked.delete(i); }
   const warnings = precheck(ctx);
-  const res = optimize(ctx, opts);
+  const res = optimize(ctx, { ...opts, base: state });
   const violations = validate(ctx, res.state.place);
   if (violations.size) throw new Error(`engine bug: ${violations.size} hard violations`); // ไม่ควรเกิด: ทุก move ผ่าน canPlace
   return {

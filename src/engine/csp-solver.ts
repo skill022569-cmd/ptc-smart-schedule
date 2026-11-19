@@ -8,10 +8,10 @@ import { domainSize } from "./validator";
  * - วางไม่ได้ → ซ่อมด้วยการ "ย้ายผู้ขวาง 1 รายการ" (ejection) ก่อนยอมแพ้
  * shortcut: ไม่มี backtracking เต็มรูปแบบ เพราะข้อมูลวิทยาลัยใหญ่เกินจะค้นหมด; ถ้ายังเหลือรายการชนมาก ค่อยเพิ่ม ejection หลายชั้น
  */
-export function solve(ctx: Ctx, rand: () => number): State {
-  const st = new State(ctx.sessions.length);
+export function solve(ctx: Ctx, rand: () => number, base?: State): State {
+  const st = base ? base.clone() : new State(ctx.sessions.length);
   const dom = ctx.sessions.map((_, i) => domainSize(ctx, i) + rand()); // +rand = tie-break ให้ GA ได้ประชากรหลากหลาย
-  const order = ctx.sessions.map((s) => s.idx).sort((a, b) => dom[a] - dom[b] || ctx.sessions[b].length - ctx.sessions[a].length);
+  const order = ctx.sessions.map((s) => s.idx).filter((i) => !st.place[i]).sort((a, b) => dom[a] - dom[b] || ctx.sessions[b].length - ctx.sessions[a].length);
   for (const i of order) placeOrRepair(ctx, st, i, rand);
   return st;
 }
@@ -43,6 +43,7 @@ export function findSwap(ctx: Ctx, st: State, idx: number, rand: () => number, a
     const b = st.blockers(ctx, s, pos.day, pos.start);
     if (!b.fixable || b.sessions.size !== 1) continue;
     const bi = [...b.sessions][0];
+    if (ctx.locked.has(bi)) continue; // คาบที่จัดเองและล็อกไว้ ห้ามย้าย
     const from = st.place[bi]!;
     const trial = st.clone();
     trial.remove(ctx, ctx.sessions[bi]);
