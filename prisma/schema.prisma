@@ -36,6 +36,9 @@ model User {
   position      String?
   phone         String?
   email         String?
+  duties        String?   @db.Text // หน้าที่/ภาระงาน
+  bio           String?   @db.Text // ประวัติ (การศึกษา ประสบการณ์)
+  boardOrder    Int? // ลำดับในคณะผู้บริหาร (null = ไม่ใช่ผู้บริหาร)
   pdpaConsentAt DateTime?
   createdAt     DateTime  @default(now())
 

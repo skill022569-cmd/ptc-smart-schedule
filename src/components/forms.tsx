@@ -74,3 +74,30 @@ export function PdpaActions({ consented }: { consented: boolean }) {
     </div>
   );
 }
+
+export function StaffEditForm({ p, admin }: { admin: boolean; p: { id: number; fullName: string; position: string; department: string; duties: string; bio: string; boardOrder: number | null } }) {
+  const [msg, setMsg] = useState("");
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const r = await send("/api/staff", "PATCH", { id: p.id, ...Object.fromEntries(new FormData(e.currentTarget)) });
+    if (r.ok) location.reload(); else setMsg(`❌ ${r.error}`);
+  }
+  return (
+    <form onSubmit={submit} className="card space-y-2 text-sm">
+      <h2 className="font-semibold">แก้ไขข้อมูล</h2>
+      {admin && (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label>ชื่อ-สกุล<input name="fullName" required defaultValue={p.fullName} className="input mt-1 w-full" /></label>
+          <label>ตำแหน่ง<input name="position" defaultValue={p.position} className="input mt-1 w-full" /></label>
+          <label>แผนก/ฝ่าย<input name="department" defaultValue={p.department} className="input mt-1 w-full" /></label>
+          <label>ลำดับในคณะผู้บริหาร (เว้นว่าง = ไม่ใช่ผู้บริหาร, 1 = ผู้อำนวยการ)
+            <input name="boardOrder" type="number" min={1} max={99} defaultValue={p.boardOrder ?? ""} className="input mt-1 w-full" /></label>
+        </div>
+      )}
+      <label className="block">หน้าที่ / ภาระงาน<textarea name="duties" rows={3} maxLength={5000} defaultValue={p.duties} className="input mt-1 w-full" /></label>
+      <label className="block">ประวัติ (การศึกษา ประสบการณ์ ผลงาน)<textarea name="bio" rows={6} maxLength={10000} defaultValue={p.bio} className="input mt-1 w-full" /></label>
+      {msg && <p role="alert" className="text-red-600">{msg}</p>}
+      <button className="btn">บันทึก</button>
+    </form>
+  );
+}

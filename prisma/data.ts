@@ -25,8 +25,24 @@ const LEVELS = [
 const FIRST = ["สมชาย", "สมหญิง", "วิชัย", "มานะ", "ปิยะ", "อรุณ", "สุดา", "กมล", "จันทร์เพ็ญ", "ธนา", "นภา", "พรทิพย์", "ศักดิ์ชัย", "อำไพ", "บุญมี", "ประยุทธ", "รัตนา", "สุริยา", "อนงค์", "เกียรติ"];
 const LAST = ["ใจดี", "ศรีสุข", "บุญมา", "แก้วกาญจนา", "ทองดี", "พรหมมา", "สายสุข", "จันทร์แก้ว", "พิมพ์ทอง", "อินทร์แก้ว", "ศรีภูมิ", "โพธิ์ทอง"];
 
+// โครงสร้างผู้บริหารวิทยาลัยการอาชีพตามมาตรฐาน สอศ. — ชื่อจริงให้ผู้ดูแลระบบแก้ในหน้าประวัติ
+export const EXECUTIVES = [
+  { code: "EXEC-01", position: "ผู้อำนวยการวิทยาลัยการอาชีพโพนทอง", duties: "บริหารงานวิทยาลัยทั้งหมด กำหนดนโยบาย ทิศทาง และกำกับดูแลการดำเนินงานของทุกฝ่ายให้เป็นไปตามระเบียบของสำนักงานคณะกรรมการการอาชีวศึกษา" },
+  { code: "EXEC-02", position: "รองผู้อำนวยการฝ่ายบริหารทรัพยากร", duties: "กำกับงานบริหารทั่วไป งานบุคลากร งานการเงิน งานบัญชี งานพัสดุ งานอาคารสถานที่ งานทะเบียน และงานประชาสัมพันธ์" },
+  { code: "EXEC-03", position: "รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ", duties: "กำกับงานวางแผนและงบประมาณ งานศูนย์ข้อมูลสารสนเทศ งานความร่วมมือ งานวิจัยพัฒนานวัตกรรม และงานประกันคุณภาพการศึกษา" },
+  { code: "EXEC-04", position: "รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียนนักศึกษา", duties: "กำกับงานกิจกรรมนักเรียนนักศึกษา งานครูที่ปรึกษา งานปกครอง งานแนะแนวอาชีพและการจัดหางาน และงานสวัสดิการนักเรียนนักศึกษา" },
+  { code: "EXEC-05", position: "รองผู้อำนวยการฝ่ายวิชาการ", duties: "กำกับงานพัฒนาหลักสูตร การจัดการเรียนการสอน การจัดตารางเรียน-ตารางสอน งานวัดผลและประเมินผล งานวิทยบริการและห้องสมุด และงานทวิภาคี" },
+];
+
+/** หน้าที่ของครูจากตำแหน่ง/แผนก (ข้อมูลตัวอย่าง) */
+export const teacherDuties = (position: string, dept: string) =>
+  position === "หัวหน้าแผนกวิชา" ? `หัวหน้าแผนกวิชา${dept}: วางแผนการสอนของแผนก จัดครูผู้สอน ดูแลห้องปฏิบัติการ/โรงฝึกงาน และสอนวิชาชีพ`
+  : dept === "สามัญสัมพันธ์" ? "สอนวิชาสามัญและวิชาพื้นฐานให้นักเรียนทุกแผนก"
+  : `สอนวิชาชีพแผนกวิชา${dept} และเป็นครูที่ปรึกษานักเรียน`;
+
 export interface Dataset {
   admins: { code: string; name: string; position: string }[];
+  executives: { code: string; position: string; duties: string }[];
   teachers: { code: string; name: string; department: string; position: string; maxHours: number; unavailable: { day: number; period: number }[]; preferred: "MORNING" | "AFTERNOON" | "ANY" }[];
   groups: { code: string; name: string; level: string; department: string; isDual: boolean; studyDays: number[] }[];
   students: { code: string; name: string; groupCode: string; isDual: boolean }[];
@@ -50,6 +66,7 @@ export function makeDataset(scale: "demo" | "stress", seed = 1): Dataset {
   const perGroup = scale === "demo" ? 20 : 25;
   const ds: Dataset = {
     admins: [{ code: "admin", name: "ฝ่ายวิชาการ (ผู้ดูแลระบบ)", position: "รองผู้อำนวยการฝ่ายวิชาการ" }],
+    executives: EXECUTIVES,
     teachers: [], groups: [], students: [], subjects: [], rooms: [], enrollments: [],
   };
   const load = new Map<string, number>();

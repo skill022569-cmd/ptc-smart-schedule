@@ -1,7 +1,8 @@
--- PTC Smart Schedule: สร้างตาราง + ข้อมูลตัวอย่าง (demo)
--- วางทั้งไฟล์ใน TiDB Cloud SQL Editor แล้วกด Run
+-- PTC Smart Schedule: สร้างตาราง + ข้อมูลตัวอย่าง (demo) สำหรับติดตั้งใหม่
+-- วางทั้งไฟล์ใน TiDB Cloud SQL Editor → Ctrl+A → Run (ห้ามรันซ้ำหลังมีข้อมูลจริง)
 CREATE DATABASE IF NOT EXISTS ptc_schedule;
 USE ptc_schedule;
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- CreateTable
@@ -15,6 +16,9 @@ CREATE TABLE `users` (
     `position` VARCHAR(191) NULL,
     `phone` VARCHAR(191) NULL,
     `email` VARCHAR(191) NULL,
+    `duties` TEXT NULL,
+    `bio` TEXT NULL,
+    `boardOrder` INTEGER NULL,
     `pdpaConsentAt` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -207,534 +211,539 @@ ALTER TABLE `pdpa_consent_logs` ADD CONSTRAINT `pdpa_consent_logs_userId_fkey` F
 
 
 /*M!999999\- enable the sandbox mode */ 
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (1,5,5,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (2,6,6,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (3,7,7,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (4,8,8,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (5,9,7,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (6,10,5,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (7,2,2,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (8,3,3,1,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (9,11,6,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (10,12,8,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (11,13,5,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (12,14,7,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (13,15,6,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (14,16,8,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (15,3,4,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (16,4,2,2,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (17,17,5,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (18,18,7,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (19,19,8,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (20,20,6,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (21,21,5,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (22,22,8,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (23,4,3,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (24,1,4,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (25,23,7,4,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (26,24,6,4,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (27,25,8,4,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (28,26,5,4,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (29,29,9,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (30,30,10,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (31,31,11,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (32,32,12,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (33,33,11,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (34,34,9,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (35,2,2,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (36,3,3,5,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (37,35,10,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (38,36,12,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (39,37,9,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (40,38,11,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (41,39,10,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (42,40,12,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (43,3,4,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (44,4,2,6,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (45,41,9,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (46,42,11,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (47,43,12,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (48,44,10,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (49,45,9,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (50,46,12,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (51,4,3,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (52,1,4,7,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (53,47,11,8,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (54,48,10,8,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (55,49,12,8,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (56,50,9,8,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (57,53,13,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (58,54,14,3,NULL,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (59,3,2,NULL,61,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (60,1,3,NULL,62,0);
-INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (61,4,4,NULL,63,0);
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (1,'COMPUTER-01','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 1',40,'COMPUTER','อาคาร 2');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (2,'COMPUTER-02','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 2',40,'COMPUTER','อาคาร 3');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (3,'COMPUTER-03','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 3',40,'COMPUTER','อาคาร 4');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (4,'COMPUTER-04','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 4',40,'COMPUTER','อาคาร 1');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (5,'COMPUTER-05','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 5',40,'COMPUTER','อาคาร 2');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (6,'COMPUTER-06','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 6',40,'COMPUTER','อาคาร 3');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (7,'COMPUTER-07','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 7',40,'COMPUTER','อาคาร 4');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (8,'LECTURE-01','ห้องเรียน LECTURE 1',40,'LECTURE','อาคาร 2');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (9,'LECTURE-02','ห้องเรียน LECTURE 2',40,'LECTURE','อาคาร 3');
-INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (10,'LECTURE-03','ห้องเรียน LECTURE 3',40,'LECTURE','อาคาร 4');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (1,'G001','ปวช.1/1 คอมพิวเตอร์ธุรกิจ','ปวช.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (2,'G002','ปวช.1/2 คอมพิวเตอร์ธุรกิจ','ปวช.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (3,'G003','ปวส.1/1 คอมพิวเตอร์ธุรกิจ','ปวส.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (4,'G004','ปวส.1/2 คอมพิวเตอร์ธุรกิจ','ปวส.','คอมพิวเตอร์ธุรกิจ',1,'[1,2,3]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (5,'G005','ปวช.1/1 การบัญชี','ปวช.','การบัญชี',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (6,'G006','ปวช.1/2 การบัญชี','ปวช.','การบัญชี',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (7,'G007','ปวส.1/1 การบัญชี','ปวส.','การบัญชี',0,'[1,2,3,4,5]');
-INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (8,'G008','ปวส.1/2 การบัญชี','ปวส.','การบัญชี',1,'[1,2,3]');
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (1,'670101001','มานะ จันทร์แก้ว',1,0,15);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (2,'670101002','สุริยา แก้วกาญจนา',1,0,16);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (3,'670101003','สมชาย โพธิ์ทอง',1,0,17);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (4,'670101004','ปิยะ อินทร์แก้ว',1,0,18);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (5,'670101005','สมชาย ทองดี',1,0,19);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (6,'670101006','สมชาย ทองดี',1,0,20);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (7,'670101007','วิชัย อินทร์แก้ว',1,0,21);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (8,'670101008','จันทร์เพ็ญ ศรีสุข',1,0,22);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (9,'670101009','ศักดิ์ชัย อินทร์แก้ว',1,0,23);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (10,'670101010','อนงค์ ใจดี',1,0,24);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (11,'670101011','สมชาย โพธิ์ทอง',1,0,25);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (12,'670101012','รัตนา พรหมมา',1,0,26);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (13,'670101013','กมล พิมพ์ทอง',1,0,27);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (14,'670101014','เกียรติ พิมพ์ทอง',1,0,28);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (15,'670101015','ธนา ทองดี',1,0,29);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (16,'670101016','วิชัย ศรีภูมิ',1,0,30);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (17,'670101017','บุญมี จันทร์แก้ว',1,0,31);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (18,'670101018','พรทิพย์ สายสุข',1,0,32);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (19,'670101019','สมหญิง พรหมมา',1,0,33);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (20,'670101020','พรทิพย์ โพธิ์ทอง',1,0,34);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (21,'670102001','สุดา อินทร์แก้ว',2,0,35);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (22,'670102002','อรุณ ศรีภูมิ',2,0,36);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (23,'670102003','อนงค์ พรหมมา',2,0,37);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (24,'670102004','จันทร์เพ็ญ ทองดี',2,0,38);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (25,'670102005','สมชาย จันทร์แก้ว',2,0,39);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (26,'670102006','บุญมี พรหมมา',2,0,40);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (27,'670102007','ธนา ศรีภูมิ',2,0,41);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (28,'670102008','อรุณ ใจดี',2,0,42);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (29,'670102009','กมล จันทร์แก้ว',2,0,43);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (30,'670102010','สมหญิง แก้วกาญจนา',2,0,44);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (31,'670102011','ปิยะ บุญมา',2,0,45);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (32,'670102012','ประยุทธ สายสุข',2,0,46);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (33,'670102013','ศักดิ์ชัย สายสุข',2,0,47);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (34,'670102014','เกียรติ พรหมมา',2,0,48);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (35,'670102015','อรุณ โพธิ์ทอง',2,0,49);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (36,'670102016','บุญมี จันทร์แก้ว',2,0,50);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (37,'670102017','ธนา จันทร์แก้ว',2,0,51);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (38,'670102018','วิชัย โพธิ์ทอง',2,0,52);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (39,'670102019','รัตนา ใจดี',2,0,53);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (40,'670102020','มานะ สายสุข',2,0,54);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (41,'670111001','สมชาย สายสุข',3,0,55);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (42,'670111002','ธนา พรหมมา',3,0,56);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (43,'670111003','จันทร์เพ็ญ ใจดี',3,0,57);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (44,'670111004','อำไพ โพธิ์ทอง',3,0,58);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (45,'670111005','บุญมี สายสุข',3,0,59);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (46,'670111006','รัตนา ทองดี',3,0,60);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (47,'670111007','ศักดิ์ชัย โพธิ์ทอง',3,0,61);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (48,'670111008','อรุณ อินทร์แก้ว',3,0,62);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (49,'670111009','พรทิพย์ สายสุข',3,0,63);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (50,'670111010','วิชัย ใจดี',3,0,64);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (51,'670111011','พรทิพย์ ศรีภูมิ',3,0,65);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (52,'670111012','สมหญิง ใจดี',3,0,66);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (53,'670111013','เกียรติ บุญมา',3,0,67);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (54,'670111014','สุดา แก้วกาญจนา',3,0,68);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (55,'670111015','จันทร์เพ็ญ อินทร์แก้ว',3,0,69);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (56,'670111016','สุดา บุญมา',3,0,70);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (57,'670111017','วิชัย พิมพ์ทอง',3,0,71);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (58,'670111018','อำไพ สายสุข',3,0,72);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (59,'670111019','ธนา ทองดี',3,0,73);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (60,'670111020','สมชาย พิมพ์ทอง',3,0,74);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (61,'670112001','สมหญิง ศรีภูมิ',4,1,75);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (62,'670112002','ศักดิ์ชัย จันทร์แก้ว',4,1,76);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (63,'670112003','ธนา พิมพ์ทอง',4,1,77);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (64,'670112004','ปิยะ พิมพ์ทอง',4,1,78);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (65,'670112005','กมล ทองดี',4,1,79);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (66,'670112006','ศักดิ์ชัย อินทร์แก้ว',4,1,80);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (67,'670112007','ประยุทธ โพธิ์ทอง',4,1,81);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (68,'670112008','ประยุทธ แก้วกาญจนา',4,1,82);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (69,'670112009','รัตนา ศรีสุข',4,1,83);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (70,'670112010','ศักดิ์ชัย ใจดี',4,1,84);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (71,'670112011','สมหญิง บุญมา',4,1,85);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (72,'670112012','บุญมี แก้วกาญจนา',4,1,86);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (73,'670112013','อำไพ ศรีภูมิ',4,1,87);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (74,'670112014','จันทร์เพ็ญ อินทร์แก้ว',4,1,88);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (75,'670112015','จันทร์เพ็ญ จันทร์แก้ว',4,1,89);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (76,'670112016','สมหญิง จันทร์แก้ว',4,1,90);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (77,'670112017','สุดา พรหมมา',4,1,91);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (78,'670112018','วิชัย ใจดี',4,1,92);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (79,'670112019','วิชัย ศรีภูมิ',4,1,93);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (80,'670112020','กมล จันทร์แก้ว',4,1,94);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (81,'670201001','มานะ อินทร์แก้ว',5,0,95);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (82,'670201002','ศักดิ์ชัย สายสุข',5,0,96);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (83,'670201003','สุดา อินทร์แก้ว',5,0,97);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (84,'670201004','กมล สายสุข',5,0,98);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (85,'670201005','ปิยะ ทองดี',5,0,99);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (86,'670201006','พรทิพย์ พิมพ์ทอง',5,0,100);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (87,'670201007','กมล พิมพ์ทอง',5,0,101);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (88,'670201008','ศักดิ์ชัย จันทร์แก้ว',5,0,102);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (89,'670201009','ประยุทธ อินทร์แก้ว',5,0,103);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (90,'670201010','เกียรติ อินทร์แก้ว',5,0,104);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (91,'670201011','อนงค์ ทองดี',5,0,105);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (92,'670201012','พรทิพย์ แก้วกาญจนา',5,0,106);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (93,'670201013','มานะ พรหมมา',5,0,107);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (94,'670201014','กมล จันทร์แก้ว',5,0,108);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (95,'670201015','พรทิพย์ แก้วกาญจนา',5,0,109);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (96,'670201016','อนงค์ ศรีสุข',5,0,110);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (97,'670201017','ประยุทธ ศรีสุข',5,0,111);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (98,'670201018','รัตนา ทองดี',5,0,112);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (99,'670201019','วิชัย อินทร์แก้ว',5,0,113);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (100,'670201020','สุดา อินทร์แก้ว',5,0,114);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (101,'670202001','อำไพ ทองดี',6,0,115);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (102,'670202002','กมล ศรีภูมิ',6,0,116);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (103,'670202003','รัตนา ใจดี',6,0,117);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (104,'670202004','อำไพ พรหมมา',6,0,118);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (105,'670202005','สุริยา บุญมา',6,0,119);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (106,'670202006','สุดา พิมพ์ทอง',6,0,120);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (107,'670202007','เกียรติ จันทร์แก้ว',6,0,121);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (108,'670202008','รัตนา สายสุข',6,0,122);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (109,'670202009','รัตนา พรหมมา',6,0,123);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (110,'670202010','นภา ศรีสุข',6,0,124);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (111,'670202011','ประยุทธ อินทร์แก้ว',6,0,125);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (112,'670202012','สุริยา พรหมมา',6,0,126);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (113,'670202013','กมล พิมพ์ทอง',6,0,127);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (114,'670202014','วิชัย ใจดี',6,0,128);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (115,'670202015','บุญมี ศรีภูมิ',6,0,129);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (116,'670202016','ปิยะ พรหมมา',6,0,130);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (117,'670202017','อำไพ ศรีสุข',6,0,131);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (118,'670202018','อำไพ แก้วกาญจนา',6,0,132);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (119,'670202019','สุริยา โพธิ์ทอง',6,0,133);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (120,'670202020','ศักดิ์ชัย พรหมมา',6,0,134);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (121,'670211001','ประยุทธ ศรีภูมิ',7,0,135);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (122,'670211002','กมล บุญมา',7,0,136);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (123,'670211003','วิชัย สายสุข',7,0,137);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (124,'670211004','บุญมี พิมพ์ทอง',7,0,138);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (125,'670211005','กมล พรหมมา',7,0,139);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (126,'670211006','ศักดิ์ชัย ใจดี',7,0,140);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (127,'670211007','รัตนา ศรีภูมิ',7,0,141);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (128,'670211008','รัตนา ทองดี',7,0,142);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (129,'670211009','อนงค์ บุญมา',7,0,143);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (130,'670211010','อรุณ แก้วกาญจนา',7,0,144);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (131,'670211011','รัตนา ใจดี',7,0,145);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (132,'670211012','ปิยะ ศรีภูมิ',7,0,146);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (133,'670211013','รัตนา อินทร์แก้ว',7,0,147);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (134,'670211014','ศักดิ์ชัย สายสุข',7,0,148);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (135,'670211015','ประยุทธ สายสุข',7,0,149);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (136,'670211016','อรุณ จันทร์แก้ว',7,0,150);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (137,'670211017','สุดา อินทร์แก้ว',7,0,151);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (138,'670211018','มานะ อินทร์แก้ว',7,0,152);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (139,'670211019','พรทิพย์ ศรีสุข',7,0,153);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (140,'670211020','กมล พิมพ์ทอง',7,0,154);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (141,'670212001','นภา ศรีสุข',8,1,155);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (142,'670212002','จันทร์เพ็ญ อินทร์แก้ว',8,1,156);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (143,'670212003','พรทิพย์ โพธิ์ทอง',8,1,157);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (144,'670212004','เกียรติ จันทร์แก้ว',8,1,158);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (145,'670212005','พรทิพย์ บุญมา',8,1,159);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (146,'670212006','มานะ อินทร์แก้ว',8,1,160);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (147,'670212007','พรทิพย์ บุญมา',8,1,161);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (148,'670212008','สมหญิง ศรีภูมิ',8,1,162);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (149,'670212009','กมล โพธิ์ทอง',8,1,163);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (150,'670212010','เกียรติ ทองดี',8,1,164);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (151,'670212011','จันทร์เพ็ญ ทองดี',8,1,165);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (152,'670212012','นภา บุญมา',8,1,166);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (153,'670212013','ธนา จันทร์แก้ว',8,1,167);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (154,'670212014','สมชาย พิมพ์ทอง',8,1,168);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (155,'670212015','รัตนา ใจดี',8,1,169);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (156,'670212016','ธนา แก้วกาญจนา',8,1,170);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (157,'670212017','นภา จันทร์แก้ว',8,1,171);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (158,'670212018','อรุณ โพธิ์ทอง',8,1,172);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (159,'670212019','บุญมี จันทร์แก้ว',8,1,173);
-INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (160,'670212020','กมล สายสุข',8,1,174);
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (1,'2000-1001','ภาษาอังกฤษ 1',2,0,'LECTURE');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (2,'2000-1002','คณิตศาสตร์ 2',2,0,'LECTURE');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (3,'2000-1003','วิทยาศาสตร์ 3',2,0,'LECTURE');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (4,'2000-1004','สังคมศึกษา 4',2,0,'LECTURE');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (5,'20001-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 1',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (6,'20002-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 2',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (7,'20003-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 3',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (8,'20004-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 4',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (9,'20005-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 5',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (10,'20006-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 6',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (11,'20007-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 7',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (12,'20008-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 8',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (13,'20009-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 9',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (14,'20010-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 10',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (15,'20011-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 11',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (16,'20012-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 12',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (17,'30101-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 1',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (18,'30102-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 2',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (19,'30103-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 3',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (20,'30104-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 4',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (21,'30105-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 5',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (22,'30106-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 6',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (23,'30107-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 7',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (24,'30108-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 8',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (25,'30109-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 9',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (26,'30110-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 10',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (27,'30111-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 11',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (28,'30112-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 12',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (29,'21001-1004','การบัญชี ปวช.1 วิชาชีพ 1',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (30,'21002-1004','การบัญชี ปวช.1 วิชาชีพ 2',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (31,'21003-1004','การบัญชี ปวช.1 วิชาชีพ 3',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (32,'21004-1004','การบัญชี ปวช.1 วิชาชีพ 4',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (33,'21005-1004','การบัญชี ปวช.1 วิชาชีพ 5',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (34,'21006-1004','การบัญชี ปวช.1 วิชาชีพ 6',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (35,'21007-1004','การบัญชี ปวช.1 วิชาชีพ 7',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (36,'21008-1004','การบัญชี ปวช.1 วิชาชีพ 8',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (37,'21009-1004','การบัญชี ปวช.1 วิชาชีพ 9',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (38,'21010-1004','การบัญชี ปวช.1 วิชาชีพ 10',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (39,'21011-1004','การบัญชี ปวช.1 วิชาชีพ 11',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (40,'21012-1004','การบัญชี ปวช.1 วิชาชีพ 12',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (41,'31101-1006','การบัญชี ปวส.1 วิชาชีพ 1',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (42,'31102-1006','การบัญชี ปวส.1 วิชาชีพ 2',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (43,'31103-1006','การบัญชี ปวส.1 วิชาชีพ 3',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (44,'31104-1006','การบัญชี ปวส.1 วิชาชีพ 4',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (45,'31105-1006','การบัญชี ปวส.1 วิชาชีพ 5',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (46,'31106-1006','การบัญชี ปวส.1 วิชาชีพ 6',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (47,'31107-1006','การบัญชี ปวส.1 วิชาชีพ 7',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (48,'31108-1006','การบัญชี ปวส.1 วิชาชีพ 8',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (49,'31109-1006','การบัญชี ปวส.1 วิชาชีพ 9',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (50,'31110-1006','การบัญชี ปวส.1 วิชาชีพ 10',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (51,'31111-1006','การบัญชี ปวส.1 วิชาชีพ 11',1,2,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (52,'31112-1006','การบัญชี ปวส.1 วิชาชีพ 12',1,1,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (53,'30204-2101','การเขียนโปรแกรมเว็บ (ปฏิบัติ)',0,3,'COMPUTER');
-INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (54,'30204-2102','สัมมนาวิชาชีพ',1,0,'LECTURE');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (2,24,'[]','MORNING');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (3,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','MORNING');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (4,24,'[{\"day\":2,\"period\":9},{\"day\":5,\"period\":3},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (5,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','MORNING');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (6,24,'[{\"day\":2,\"period\":3},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (7,24,'[{\"day\":2,\"period\":6},{\"day\":3,\"period\":9},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','AFTERNOON');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (8,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (9,24,'[{\"day\":2,\"period\":4}]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (10,24,'[{\"day\":3,\"period\":4},{\"day\":4,\"period\":8}]','MORNING');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (11,24,'[]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (12,24,'[]','AFTERNOON');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (13,24,'[{\"day\":1,\"period\":1},{\"day\":1,\"period\":2},{\"day\":1,\"period\":7},{\"day\":1,\"period\":8},{\"day\":1,\"period\":9},{\"day\":1,\"period\":10},{\"day\":2,\"period\":1},{\"day\":2,\"period\":2},{\"day\":2,\"period\":3},{\"day\":2,\"period\":4},{\"day\":2,\"period\":6},{\"day\":2,\"period\":8},{\"day\":2,\"period\":9},{\"day\":2,\"period\":10},{\"day\":3,\"period\":1},{\"day\":3,\"period\":2},{\"day\":3,\"period\":3},{\"day\":3,\"period\":4},{\"day\":3,\"period\":6},{\"day\":3,\"period\":7},{\"day\":3,\"period\":8},{\"day\":3,\"period\":9},{\"day\":3,\"period\":10},{\"day\":4,\"period\":1},{\"day\":4,\"period\":2},{\"day\":4,\"period\":3},{\"day\":4,\"period\":4},{\"day\":4,\"period\":6},{\"day\":4,\"period\":7},{\"day\":4,\"period\":8},{\"day\":4,\"period\":9},{\"day\":4,\"period\":10},{\"day\":5,\"period\":1},{\"day\":5,\"period\":2},{\"day\":5,\"period\":3},{\"day\":5,\"period\":4},{\"day\":5,\"period\":6},{\"day\":5,\"period\":7},{\"day\":5,\"period\":8},{\"day\":5,\"period\":9},{\"day\":5,\"period\":10}]','ANY');
-INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (14,6,'[{\"day\":1,\"period\":1},{\"day\":1,\"period\":2},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":1,\"period\":7},{\"day\":1,\"period\":8},{\"day\":1,\"period\":9},{\"day\":1,\"period\":10},{\"day\":2,\"period\":1},{\"day\":2,\"period\":2},{\"day\":2,\"period\":3},{\"day\":2,\"period\":4},{\"day\":2,\"period\":6},{\"day\":2,\"period\":7},{\"day\":2,\"period\":8},{\"day\":2,\"period\":9},{\"day\":2,\"period\":10},{\"day\":3,\"period\":1},{\"day\":3,\"period\":2},{\"day\":3,\"period\":3},{\"day\":3,\"period\":4},{\"day\":3,\"period\":6},{\"day\":3,\"period\":7},{\"day\":3,\"period\":8},{\"day\":3,\"period\":9},{\"day\":3,\"period\":10},{\"day\":4,\"period\":1},{\"day\":4,\"period\":2},{\"day\":4,\"period\":3},{\"day\":4,\"period\":4},{\"day\":4,\"period\":6},{\"day\":4,\"period\":7},{\"day\":4,\"period\":8},{\"day\":4,\"period\":9},{\"day\":4,\"period\":10},{\"day\":5,\"period\":1},{\"day\":5,\"period\":2},{\"day\":5,\"period\":3},{\"day\":5,\"period\":4},{\"day\":5,\"period\":6},{\"day\":5,\"period\":7},{\"day\":5,\"period\":8},{\"day\":5,\"period\":9},{\"day\":5,\"period\":10}]','ANY');
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (1,1,1,'08:00','09:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (2,1,2,'09:00','10:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (3,1,3,'10:00','11:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (4,1,4,'11:00','12:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (5,1,5,'12:00','13:00',1);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (6,1,6,'13:00','14:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (7,1,7,'14:00','15:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (8,1,8,'15:00','16:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (9,1,9,'16:00','17:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (10,1,10,'17:00','18:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (11,2,1,'08:00','09:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (12,2,2,'09:00','10:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (13,2,3,'10:00','11:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (14,2,4,'11:00','12:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (15,2,5,'12:00','13:00',1);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (16,2,6,'13:00','14:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (17,2,7,'14:00','15:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (18,2,8,'15:00','16:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (19,2,9,'16:00','17:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (20,2,10,'17:00','18:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (21,3,1,'08:00','09:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (22,3,2,'09:00','10:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (23,3,3,'10:00','11:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (24,3,4,'11:00','12:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (25,3,5,'12:00','13:00',1);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (26,3,6,'13:00','14:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (27,3,7,'14:00','15:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (28,3,8,'15:00','16:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (29,3,9,'16:00','17:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (30,3,10,'17:00','18:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (31,4,1,'08:00','09:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (32,4,2,'09:00','10:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (33,4,3,'10:00','11:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (34,4,4,'11:00','12:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (35,4,5,'12:00','13:00',1);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (36,4,6,'13:00','14:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (37,4,7,'14:00','15:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (38,4,8,'15:00','16:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (39,4,9,'16:00','17:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (40,4,10,'17:00','18:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (41,5,1,'08:00','09:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (42,5,2,'09:00','10:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (43,5,3,'10:00','11:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (44,5,4,'11:00','12:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (45,5,5,'12:00','13:00',1);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (46,5,6,'13:00','14:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (47,5,7,'14:00','15:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (48,5,8,'15:00','16:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (49,5,9,'16:00','17:00',0);
-INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (50,5,10,'17:00','18:00',0);
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (1,'admin','35de122b3f49b865aa82fdcf35990ade:8876aa77003b9795b97d37273a02e348f9852b18bbd9d923d76ba857f516cd90','ฝ่ายวิชาการ (ผู้ดูแลระบบ)','ADMIN','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายวิชาการ','0812345678','academic@ptc.ac.th',NULL,'2026-11-19 06:24:55.827');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (2,'T0001','3702cf374cb66980cc016330b7ec81a8:239ed1f454f0546bb6a95bbce53d1c7e6683fa268ad84847b1e4b77d223d1a42','ครูกมล อินทร์แก้ว','TEACHER','สามัญสัมพันธ์','หัวหน้าแผนกวิชา','0810000000','t0001@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (3,'T0002','567cfad0a809e37d510b6835dc91ad51:7c860923067190242b106abeb8cb156d820f70f53d68f1626523a85fa3b2de70','ครูศักดิ์ชัย แก้วกาญจนา','TEACHER','สามัญสัมพันธ์','ครู','0810007919','t0002@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (4,'T0003','cb89f73eb8eb114f792845bb24ba93bc:74861d8128bd22921df8c8cd3ab999d8f93f4e3a5137daf0df7ae997bc11d5ef','ครูอำไพ สายสุข','TEACHER','สามัญสัมพันธ์','ครู','0810015838','t0003@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (5,'T0004','6398400278d8516f3341805fe71d57b5:092e5ef4789e91928c2dac4fc8733ec5465307201c4624cce7787ddff50c499a','ครูสุดา ศรีสุข','TEACHER','คอมพิวเตอร์ธุรกิจ','หัวหน้าแผนกวิชา','0810023757','t0004@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (6,'T0005','8471b06e73fb644b53665774801668a8:5e4259374cf825b5616f3d4408fd43bc06b52782decd82fe0eb5ae226a6d4193','ครูประยุทธ โพธิ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810031676','t0005@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (7,'T0006','b87ef269e15af88f9cb3532f0c6ed8a3:f3c60619c3c3f405fd52d2f246273d7bf6a5ca7a9f030880074022e252ad8a00','ครูสุริยา พิมพ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครูพิเศษสอน','0810039595','t0006@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (8,'T0007','abf109460a22582bb8bc1b6c4eed7efe:b37d20e9c90640a2e805f27d28524e3c6711c3e1bb43420af90ea839a79e148d','ครูกมล พิมพ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810047514','t0007@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (9,'T0008','703859925fa83a4cdc6aea71eb3833df:ebef3e3262fffe2773e3b214afdb8cd573730ea5372b9cc3471503a9304c7bda','ครูเกียรติ ศรีสุข','TEACHER','การบัญชี','หัวหน้าแผนกวิชา','0810055433','t0008@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (10,'T0009','93db1dcf61af97605891bca70ccda350:92c8ab13598f67563b45202e79d76d49009bb7048dfab28cd0b867dce2443490','ครูจันทร์เพ็ญ พิมพ์ทอง','TEACHER','การบัญชี','ครู','0810063352','t0009@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (11,'T0010','652029cf7c92e9618ff5bb4f59efcdd8:acd13e3a8afc46a4914110a691f6c0a47653f24398cf1d244fcf3a6601d925e2','ครูเกียรติ ทองดี','TEACHER','การบัญชี','ครู','0810071271','t0010@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (12,'T0011','460f91cd168003a3afde42ea2fc3b5f3:e870c642cc9ce6d41b6e10b05baddbe60b4586499b2689ed8037bab81d6ea7fd','ครูปิยะ ทองดี','TEACHER','การบัญชี','ครูพิเศษสอน','0810079190','t0011@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (13,'T-FIX-01','54bd4b21208f4d7be4962101c563af60:93cc2d4ae6057a673628864a8413edb4e760d47da1f97edecd7321a6413aa17d','ครูสมศรี ใจดี','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810087109','t-fix-01@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (14,'T-FIX-02','1509a9ce26c6d33f1d3a17af075a5814:be7c8fc435079711b9eeed31ca279838e4f5257151d7337b377b97860cbfd692','ครูวิชัย ทองดี','TEACHER','คอมพิวเตอร์ธุรกิจ','ครูพิเศษสอน','0810095028','t-fix-02@ptc.ac.th',NULL,'2026-11-19 06:24:56.143');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (15,'670101001','3b0fc500a6d2e674df6fad1d84a9285e:1dc480ce59c739ffcce9fc280f754cfa89bde87b4f1447fc066b292feeb9f283','มานะ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (16,'670101002','28493c3f0dc28b89b5c6d0268ee4bd9f:88a0be034d1f63cc1a28213bec8b419ebf896ba4acb6668f751973cb2b87f588','สุริยา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (17,'670101003','b427e65b769ed45fc69d55fb4898778f:128e2357cba2002141560159f980797b58c6bb7c6c2698b2a0edb675036259ce','สมชาย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (18,'670101004','0301866b0e53222464fe185d3e835ab0:9ab344e9379741e8ab5fa1025c0a9f25556919bbed3bd5fee5a0389f936b9f7e','ปิยะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (19,'670101005','54dbb4990f2493aa25bac89bf375cb76:db6990e93f94db05fcf215d2257dfee705a3773e56104348dc4cab1b05ce6cae','สมชาย ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (20,'670101006','8d90d26804c84217eac2d671f25d087e:d51a5c604e87ee400c23fbecbb6f60da52e391aa972f0ef83d0e3b952cf566fc','สมชาย ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (21,'670101007','07133560ae7d8be7457195205a7248bf:f0b46c6b438556fa5c79b3ab0bb1da2f1435ebc4cd5ff9780c05db5b239fbaa0','วิชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (22,'670101008','7698c61a45415e18ce1e13e17bdf5672:b36be7ffa8ddad65c4cb7d0564d15a9ccf0c183a4adbda63abf37d5db97db74e','จันทร์เพ็ญ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (23,'670101009','4e7bbc87631ed19a9f2d149f8f6aad8e:798a1e1176c8db77e7aaf8daf4af4fb17a9b88af03d5729637d199d617b33b7b','ศักดิ์ชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (24,'670101010','b37ed7575b3e87d75cce190e63ff0bd1:c340f00298db8db6546222a5a5298180d4df089d255610ca69308c3f7ffc8e4f','อนงค์ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (25,'670101011','b2a53d955055c2b715e6107cf11f48cd:cac77b0c545191fa11184f33770b68ba6608165a744fbd46985326cb8ba8eb37','สมชาย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (26,'670101012','8e71d9abeed16e4f04774ce13cc167e3:b892eb30e33f52eecce39568743f32fb6b64835514f305e8e7b270a7137416b9','รัตนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (27,'670101013','1acbccfc0017af9ed6b0c8e5b9540121:73e17dacc753d486f70715ba8ebe830d1c0b783a819b620405e1eb541a7a4942','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (28,'670101014','8d05dcdee8f4b014d52be82f57935c95:ac1126d53b80c2de5c37671e16f2fb665fdb92f3f8e51ecfcfaae21c2fb7f346','เกียรติ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (29,'670101015','ebc19a4fdc6a10a7707c3ac20db0e6f0:14e69a50dc17278f5c437c66cbd31398bb96f238eb9e4c8c9adeb98346d49a79','ธนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (30,'670101016','d333144ec8043e64c5c7227034bdf945:e005d02465ada33cc67fd9ec267607e59980af36806002c45bde05f3c7297a94','วิชัย ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (31,'670101017','9bc2f6eb0c85ff7914b77aebc40573b7:49cc6a371f981f3814850ce15777352e8c66204a44f4adab23acd733d1906b9f','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (32,'670101018','87a06e87f5aeae2ca509ba0056144f52:668068cb45ea7caaf1936bff82314352392190bf747205c59bd7abf84a49203f','พรทิพย์ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (33,'670101019','6e55264fed57c6f07af836805b54fc96:c6aaeef53c404377ed9339d6ec5c759b599b95d2bf419c9ca38e7d49ca4171ca','สมหญิง พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (34,'670101020','b7aa46145bbecf4e0960f460e79331b3:1c376cee9556027d906d8d9e66081317287063461cf3c0a672762da457f8051b','พรทิพย์ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (35,'670102001','4245fef943fc7cce60d5e40c4cefb5ea:a6f9283e6170332850599016162c93fa72f8f2a205cc6d2da21f073bbb64c7fa','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (36,'670102002','65b09f0bfb0e31599c4442a3f0c334c0:75be02e256f89c90d3ae190af61925158aee78605bba930bb9f70d5cb6fc7bcb','อรุณ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (37,'670102003','64864759038c009be1b07e1fa8b294c7:dae06cd59ec2152167ccce132e26d2b5c5745989ab36423cdac4683973c48bf7','อนงค์ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (38,'670102004','96ed731ab69af911a9851ad42fa65617:a6e083e5973c7ea08a0855d14d2581133ed70334f972af2d4d56a0f855560b43','จันทร์เพ็ญ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (39,'670102005','b9e473a7b0e1ccd33f3c93560f61a032:639614e376d0f52a348d8a91ca8a08b56091f3f3dd347e9e32ae7aa4a09db55a','สมชาย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (40,'670102006','8ae0d2a38355969950d2657b9b192945:7185c68be62c7e199bd8cd36620306bba54ca29f4f27ece69839711df1491c67','บุญมี พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (41,'670102007','5918255be39e708f7231f2db6cb570d6:4ccdcdc86555d712986a93623e91a4127bf80f4e63f4f44c67dee49bc32d8c70','ธนา ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (42,'670102008','12857ee9c49db6cf2cf532807cf5f6f2:50acaf7fb8948c8787a6ce407a65c76c1b5665251fcb78f5947201aaee1eca31','อรุณ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (43,'670102009','c641d73c1fba50d88ce5551c2010409b:1fc48f89f910c2c9147efb082f7bfa1bede1a1894ea6c9addc33f90497b1dfbf','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (44,'670102010','fb85ade000a8393d4db26374575a9411:85ca0053cc9466711be19b77dd77d20dcdf92b445e09d5b5736313f64de8d96c','สมหญิง แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (45,'670102011','ba775712a16638bafd2c7d23f1fc13b5:5b41945600cec190f3910ba22d6bd73d2d2c8514cc578c618d4edd7e70b4c6fd','ปิยะ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (46,'670102012','86bf986d22d17c05e166f73626bbf9d9:6fb5e8bf98023f4cad816e84c53d60a842dffc5500227af2bb27edbdbf0d5d26','ประยุทธ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (47,'670102013','8a52bc61a2bc4150b25a6763f4fe3ad2:2634966122b206109bdf44269ecf2e801e3b99ead4530d21d4b4c3624474bcd7','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (48,'670102014','1183ee9b2ef4017c47bf393c9b61e0b2:6a6db643ed63a9fdfa21aff10e534e260c68bb8d86d6867fa53e46641d62e80d','เกียรติ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (49,'670102015','0b024bee87c2525212ef5619573b96e5:fee9d34542a62c99ac7de451f29ba7319e5760ccf319a96610f4ec112de51041','อรุณ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (50,'670102016','65d72d5f352fc74782541211cd900c9a:bd790011f95d348ab4b625d7d82bdabb250bc96ac5d84b25674b6c5696e496b3','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (51,'670102017','0c5128100da3e52a6d8f9203e17a4d10:3803726498009e1121e813b6d2f4f345cd226a43fe32ceff3c0528808ca40d78','ธนา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (52,'670102018','9937e1a1d5383fa1b9388f8cfed9db54:5dea1cfa1d2dd027d260307a464d7a93316ee3e70cf793ffe2c02adcba14350a','วิชัย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (53,'670102019','4d1f617eac92096dd3dee8f6e654b12a:13d27bcc0720dd58bcf578c1c1a28856b7a8267627d1598d817f0e97e46f97bc','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (54,'670102020','76082821f475e4c01a40e6d380c8d4b1:b446f391bd947b026cea00ac30feb931e97a9d9cc02468fd609803e4ce4a12fa','มานะ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (55,'670111001','d23a1b2c2b306ade580405d17ba36ea1:6bcdef808298140291aa7c6f2a1991894a5f258cafb9b58509e85ac6e1941d3b','สมชาย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (56,'670111002','aec4916aca7d00c82bdf0bd8531d52cc:f33068a8e9793b75309fb9fa7c677a35c63123b579732cc2e8e397781caf7a22','ธนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (57,'670111003','c7dafa869f4d1e5a1d596099b4137eb5:0c21e4c2d417ac1425ae63f3cf7f8a3ea42c56455e749324f467f57177854089','จันทร์เพ็ญ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (58,'670111004','16c9f175b9f920f67c971a4b06079bfc:3b0cb1e9c855a0123be6be2ed4e0b103d239ca27fefb4c6291b117b765cf8525','อำไพ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (59,'670111005','5f78529652898391d11e82aead2fd3db:5c250f4e54aa16cccf909cfc887e5b1fedeaec529768d2c1506332ebbea85881','บุญมี สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (60,'670111006','4ce991581e94d4219e4b594f285611bf:47cfaa6b6ee10d40267c7ec1a611c59f44dc50b0b28888540588c0ce594fc822','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (61,'670111007','d82714ffa213bb33609c27c9fe7ebddc:34bd1b5cd8fa89a0bda4f997a7edd6d0d9a3b314eb5c94ef28adcf72f2af33be','ศักดิ์ชัย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (62,'670111008','18028386cfdb031930851f1149374f8a:3b9c4f8ffa3ab634ac06f2cbd9324e088b29cf187a7f79d0275a13c56882aca6','อรุณ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (63,'670111009','3de863289f653cd75f5d0ea07b533dc3:60e784df13ad5bcefd619fe083c36edf2d885a11434fc8a81e775c6e231b7a72','พรทิพย์ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (64,'670111010','449de8be295077b6c6db1241ddbcd2ed:f60d1ba6991c79107af27a228695baa6b81572d0a7c11d70f1b7a72ea8ecb976','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (65,'670111011','088493ad837e48f979ff9851811dea5d:b00be55ce059a74f8b69da971f81f23deee17621c2462310ba8822fd5dbc55f2','พรทิพย์ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (66,'670111012','727c19a9f121c1b6f1e26afc811baefc:39a7b4a842aadc47383647f4cfccbaae0c86d1bbddc36012f50a887b8ca0c839','สมหญิง ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (67,'670111013','f6540534bdd716a564bdc004119cf15d:2be8f196078ab23faf030b021727dc740c261d0a9e50e031a1bdf9c08bcdab1c','เกียรติ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (68,'670111014','0f32349996917332429d674cc84e49dd:5ce89cf8932306b19b3db64a40b5166654d78edd9ab412d481b4d26042c48f6d','สุดา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (69,'670111015','3bbd994373e90efd08ba5b82e69486f7:7aca7378502e5258cef735f06334adf38fc7cd3c5bc1cfd8f715644bfab4bcda','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (70,'670111016','fac29f78658f2546f396a0919f842363:189c09eff839c8db31326a7c0f281619e33ca9b41589256e9ce10c5f0392bdfa','สุดา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (71,'670111017','794d6391a5f5048b028d3e9d3ddc32a1:4e2b833348b7df553c389038975a8b49f0ab8a3b7d5dba4dbc76a26c9b0abfb1','วิชัย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (72,'670111018','03d327241b77903dae48f63c213a90e4:00568c3812e05337ee4eabec30f15f0853a26b0b4888a3c4b4e3eb22db612baa','อำไพ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (73,'670111019','d908a0c9abb99e5e386ad5a175002bb5:eb45812783b0fd21d4cb4d8006b76fea25019df5241a2d4ba07312bb05767b68','ธนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (74,'670111020','22df07196c2192b6369a5bc429ddd9a3:43e3462cc3dd532fba44cc0c4834627883e3b50d2f65b7b7604f5500edb821d3','สมชาย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (75,'670112001','beab0128463e4f172c88143ae9c9a1e8:26968ee124173b9eb61790b5e40277d3fef55a38db46224695bdeb067ef6f949','สมหญิง ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (76,'670112002','75138780823ed4c9ce58284266e94032:5562afe7f0f759253a358dfa78fe8aecac8401ebb57110f03fc3d7e4c8a76209','ศักดิ์ชัย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (77,'670112003','d49b46fcad442e45459f47c6c3e085ff:76587888961321bb1c3a7d9c07832b3f1ec7a67a5fef0e7b6649b206c13f8ac6','ธนา พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (78,'670112004','2ef80ab9d5bcd2cee1cbfe71abc06cba:8e3c584cd21efad8aff14d118a03536c12a7bb2b254a4640b247ea666bee9bfe','ปิยะ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (79,'670112005','ca7bb7fd5b066e73186576ce5392892f:20a8995266f9ac69075ee4ef8843223b65bb45c880f8632f53f79e8333b7cc89','กมล ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (80,'670112006','db470bd84edc36881af4150c002c7cf6:9e0438e98765c3d456b01eb9da20de8fa62c3d225edd9cd0aa36b984f32e0647','ศักดิ์ชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (81,'670112007','232bf53e1b4c6784f557538979598bd8:8ba99790ea9fd9ab16cbd156f47cc153bedbeefe65472495a2b50874abbe734a','ประยุทธ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (82,'670112008','16dc393904134351584f8c57f38435e4:5e20c1378d4664a9cd5b2972bfa313c9d4337de62755a0c845e3978f9812cc57','ประยุทธ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (83,'670112009','d18f422e207e82c0512b61d526dab163:ded55cec6905bc1e660dfaf0003dfbe4d1eb09655f91606cc38d5d949d1d6f4f','รัตนา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (84,'670112010','3feb6117663e3beff7c321b716088b9b:2dacace822b5784098bf06742fc485ddca0c4b0fb26c2b83cc93bbe85c1376fe','ศักดิ์ชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (85,'670112011','e4679eb837067ddb2c45e7120aad8e1e:bae7bf10190ee3bb6cc4fe1b59f2b125547987c070ec0d20ec10f72406adfc05','สมหญิง บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (86,'670112012','dbf231c194d4476785dd3b1a2081d995:dfdc584b330b0a31b62ec32f953a0ce195f21cc9fd923332903d4e2b9f9826ce','บุญมี แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (87,'670112013','6f9850434a21b462a74089e51b4da37a:5b269a5c137d0d58db42db75d51c0167b6b901b49eeea39b678b83b6511faead','อำไพ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (88,'670112014','7a5dc4cbebb6871dee3cf6574f49efc4:1e12a5ccd2977b4de0fcd7b1ceb8e65bbe9e5401fd5e5933f802a2b2b1b6310e','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (89,'670112015','dcb1479b0802d0f794af2f19832c2d8d:61ae97eb8ce64c2fecd3c80ce795709daf9ced345d43b5118c4cefca86ae31d6','จันทร์เพ็ญ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (90,'670112016','578d32e75a855ae83a18bd14e4b3c290:12fe5cae3136f116cf0ff720983f66f66a1fed5a80c5342dfb6720f3a0418503','สมหญิง จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (91,'670112017','573ed1a13bb955103c588026ffb9e8b6:90065dea7f5a00f56cd4a4ad1a82124f91031c3d2e4500dd79320d413a0c3423','สุดา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (92,'670112018','cf1029f1b0a32ef8e7618211bccafcd3:95b736295c677a2611bd0e259134a35cc59363860494222f5bd67a1f7729d7ae','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (93,'670112019','73b1548328f9f877d6b33fa85d5331c3:56f6fdfc98aefa398dc1947f7dbe1d4ba1f1d76afb57bd74c7782b8c73c35a9f','วิชัย ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (94,'670112020','cd36d3b85eeb4fa45484c5bb1557c5da:1d0a82f7e122854b021d392202ec8a5551d92b6af2584c907138620e3276e7ef','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (95,'670201001','824e6b4fdd2df5c5ff3b8510f9a3fa68:9f6e892343adb37ed708130d040cbd46c293cbdaaa44a7db3f3a9400ef7ff3d2','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (96,'670201002','1ca30ff9af45a135d2d2074c95c79ea1:375b76717dd55e9c59cb8c821097ba0974ffbd36417f8dbe83fc024cb89f6dec','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (97,'670201003','36650e112eade3432facb390bb11bf67:c23913c7fe54ff1bb378a24ac0287033e81b1b6e5948afb27cf9e5ccc6498eec','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (98,'670201004','ab5e5905a7219a1a21f365a858f4bf3f:b949184c5408e90ab03a5afb5c37a06c8cf6ae91141d35cd4062e500abfd07b3','กมล สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (99,'670201005','8d3368b99fb86a6bd3210bf6ac0455e2:bd15d35649898152d5027eafcf18f018bbe68269612a716c9816d0a708e8bc84','ปิยะ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (100,'670201006','8a200cd9208714e71839698202d3becc:d914a8d93726f26d06a7db486ebcd3ec23206ba4092c7b4fcd0d1a1eadd38e31','พรทิพย์ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (101,'670201007','fc649d8035c8fa826920bbfc82faac58:835ccde771783d98fcd653d1262784663919c19b49165947ac66c9a6b0fe5526','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (102,'670201008','67e4c75b33b57329eda3ad9d1e93c9de:bfb2cbc27d3546ee629d3d47ad9753894b07f01751ddb6437f7b9ca0ec4f9aef','ศักดิ์ชัย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (103,'670201009','29df24b3557c4518a45ecb9d69062b9f:d7b611b3ff8f50400e9b2545b4235788cd7af9d85e2d7d02d408833b23295897','ประยุทธ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (104,'670201010','c0a33f381305484a44913d6fb71f2e37:37e1ea8989ec4ef82c972a51e7af608ba3d55065291b2b3a0740ff5b496b3839','เกียรติ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (105,'670201011','9d877273b3dbd9f3703d3de1bb7f47a0:a3d171477c947b112c47492751310d343d1dd76458c140f077e25345c8e57702','อนงค์ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (106,'670201012','16134d6fe59a0c3a448d6e4e18a53d5f:46b3216c96e07e99abd1561d8906a64f58f1c015135ec1c7456a956ed33d7332','พรทิพย์ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (107,'670201013','807bc899fb85d5ed0a6b17653bd285b4:d0805cf530470169ed8a0f87fea08d97125585145880dc5ba676c49342e97502','มานะ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (108,'670201014','e81958f2c89fbbe58eedd2143b27fa9f:bf40385be2bcfc387de8d4a88543dd5fc9803a09d682753e339437fd0d457102','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (109,'670201015','6aa66772e8509ac08349dc434e306e52:ad074cc77fc35397de17753d4e29f2dd86572900d1ba77936106635c3f9483a7','พรทิพย์ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (110,'670201016','3d45b4f576e0388a3c1c68bb74954906:d503a61febeadc138bf3434cc37b33b3d629471c187507ed033ab3db6eaa803c','อนงค์ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (111,'670201017','b1f083cedcc5692b135e733746ae9b26:f98d2e9422a063edcb21075430f5206425185467c3d9aab90ca5085806d751b6','ประยุทธ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (112,'670201018','f14134986654b2bfb927fc1adf4ec4ce:dee08b0ea8aefe98751a2f3434b0cf0b691cdaa262c2403398e0f7b4bca4ba67','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (113,'670201019','c8564fbca5783351d97d658eec6ad380:e235a888d61ee025e8b67a172000cebd4d1cfbdfb6a6faa8e1f8c83a62b2546c','วิชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (114,'670201020','178cc27444b0ab289ad86ee04b521334:7474244c1a687e74b6596657514344625d74bb20d4345aedd7ff5cbf4fe20fe1','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (115,'670202001','2b2def11753e4350531564a48cf91bd0:c4f5d5bfaa9029cec1365f36277ac288b2383dd7db924a35662c55510b2e8254','อำไพ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (116,'670202002','20ee1a8ecedf7e77abfb5759157029bc:e2353e60826154365759590f016ff6776a9fe80f7146fe40b5ec59835e25447f','กมล ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (117,'670202003','8d3b910863ce2b0e4b6d28da6cc2af52:b5f80e3a40c01eaf47822504cdea27c58162691378f98ff9cb597b48e786e09f','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (118,'670202004','e3f0a28adca6be9fa57a2fec2c85e3f5:cfcdb885c9848efb347fd17768806513bdc0037f43058bc260a38d5ca1baaf48','อำไพ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (119,'670202005','dca2b89a6297043f59ce353a823a5e1f:0a394a88b95d741e0e5619fdd3f3c53dceb206a79c9b853650cf284496c4203c','สุริยา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (120,'670202006','156b359c297c54da84dffce711335548:8d0c419e19d3dcbf4fd60506bfb9ffe4c24955e9422a2ea27d93dac63f43b3b4','สุดา พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (121,'670202007','712011c5228f960ec0acbf3882c2c56c:88c07fcbbd42bc1ea6010f0ba9bbf122cce0140736b406f0a8577dc642c50b65','เกียรติ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (122,'670202008','e58ecf685b8da37b8b0e4836acb52032:df8047f5101a6f16c5e527adaefe5b6955b4802fff6524ce660e462913a89433','รัตนา สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (123,'670202009','630d44dfd1b45f94bd27ed07a47350e2:ed1c6e9d15450709e9e29bccc6478c16d0b1f155f54ef70788d27dd1aed37308','รัตนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (124,'670202010','e627c19afc20f0124e75273dc84051f6:aa6e7414e0dc6cd02335c3f4c1faf6a025ad7aebf51a5d60bda93aaa0f413b9c','นภา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (125,'670202011','2518d2cb48da1bf96a959b4cfc8c1275:f6312369ddf159d6043a265a36b29a1b01114dfd0c55690ab1c858bae831ec05','ประยุทธ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (126,'670202012','fc3a7b6b7224de47429c18004f2f09e1:7b78bb34547013d55e5daa2adde29db0e8b443e6c10499dc745bf0f9dd7708e9','สุริยา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (127,'670202013','103e83c06cb3bd7b57a3ac7f617bc5ea:ebdcf8ae66b0d483c0ce438cd06f6952f976a5d5ff190b24120c1c7a9bbd55bc','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (128,'670202014','790212e9f746554025cfae93ca8f3b39:5f32c6f0cbc9a7d4980e03cf4a13e9450838da6d05d76fe7e483e45210efccab','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (129,'670202015','02350642b510586b8e71137947489cc4:4a6865b1cb311114767e16c593a6a89ba1b29302595e12d9afb75e9e5fee2db1','บุญมี ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (130,'670202016','913e4a8237d4b096d749f5b66a7b464d:382dbd3e08e90d4c674d1fbae2dc21e2eb838c3133855549f610fb329ceaeb14','ปิยะ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (131,'670202017','6bf28395e07d29fbb2f7d2b3b45ebcac:8132826427aefe22e33546b2316b4caa2ef9354425e639ab4dafff3674f7ad09','อำไพ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (132,'670202018','7341ab40cfe97e98be58be0c516fda79:60391bd804b6e571344719c9dbe7af338b027105e0170da6a5ee6be3fee97673','อำไพ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (133,'670202019','dd6bc633c46b66003bb2065b0c2a0bb2:4d375994806f64a86b8fe8924aa347e43593983adcfa53557ad6475af22556ee','สุริยา โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (134,'670202020','3e85aa7c811c5e066a75017c33902c38:af3a7199a7d793590cf63fc3f7f4c4e3b4e7ee65112f88ad46e690e32da93495','ศักดิ์ชัย พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (135,'670211001','144079f3ae6dc984c111ce0db5f6d3d7:7d7ba76665767eaeb7f9f4f427ed5c738ac687231118cc89561f92395a055d8f','ประยุทธ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (136,'670211002','7b3165e4be93c7d2def60df3bc808033:d172b0d401171b51d20ef36403e0452a3f389e95bdbf0a5c4a073c180ae9aa67','กมล บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (137,'670211003','30fa30290213253ce94a3567749f0f5a:831e6671fc3201989a144490e5a6ce9476d70f467b732def92f3252fb5a723fb','วิชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (138,'670211004','70a91559c9347094291574a15d4b06cc:f10ead05d7a4661f6129c42cd3b80b3ec274473c7d807e2337869a7f3713c9ef','บุญมี พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (139,'670211005','171d2dcf59bf1d93d26780680e3d238f:4d1575a9aad3ee1d5b287c362f067820c0ca69806383ba816d7b5d39c8451054','กมล พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (140,'670211006','523fd8444dd93ed1c49624d98d4fe0aa:51974a2b09b6c2e126cb12c95de130fd62c9e5e43c059f481642c83fd7f687ca','ศักดิ์ชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (141,'670211007','b9c0a877c59d1c4ec945f6d7ce0595e7:4654a2b76f227de8c1f0d5c839d5240ba993c01b4a69ffb838e7e0f8157660d8','รัตนา ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (142,'670211008','9bfb9a650353211bf082afed880b6583:2c7e3ecbe022db28db18061eb5eb2462ae341806d7f566b147329ba4999e3d3a','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (143,'670211009','cfba8d494db7071c21cf5f4a92743c0c:c2f40b4f9c72d289f389395c2e554491a53c93656bdb652b58cc0ca5751a7f90','อนงค์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (144,'670211010','e0957d73a92efb58a68bab36fa55bee9:eec15200cfdad853ee16d7d20fcbaa0e7394c26265bba4f9473639f5990d764d','อรุณ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (145,'670211011','3f48cce9a86635cc4777394121851edc:269d58900a925db23577f2304715125839cb327b88720744eb005f8a5ed7836f','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (146,'670211012','a20c272b3142e1b3b435345b2d15fb5b:fb84bda5ba9efcf722ad8fa7534898b667e2a374afb3a8b6c5dbbe7a04ed9454','ปิยะ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (147,'670211013','ad5c9362400efa0b3f4192d08e6e8f1d:97d5ddda047501b19c92a5e8e36d513ec11d823ec2c92f6fc891c51fb76cc38d','รัตนา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (148,'670211014','b141f84498c7bebb17becb68ec28b2a4:055e022b16a91b6f9a87dc20a9957e6ead4f49c745d20ad3ffb67ac6dcec04da','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (149,'670211015','8508a1e30bfe738df6d1581cb62396be:2fd49db072f0f6ca63742c5e223e27d26288c1c5364fb631efbef3e2421017d1','ประยุทธ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (150,'670211016','3f80da2ee48d8f69b122799966407387:f87b262e5c402899add98412e29fd42d1c261b9c617504d13fdfc5162a99a166','อรุณ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (151,'670211017','141614673c074eb444d65ec494606fff:676a4385c38e60b788752dd6b72c59ab36792d59ebeba64b3da1d82bc21d1bfc','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (152,'670211018','673c7ea80562ac2876cd83c43875bc58:7944b1cff71fe5fafcf6c99b4fe394bdadf433ef04c42418e1d103dfac18d6c2','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (153,'670211019','791f7dc80dc5d6ac29fe131091ac867a:77f12563d632061c725103563dab7d3383c4e402aaf1777be2bb5d9cef1a985d','พรทิพย์ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (154,'670211020','ce8f2cf8c66c40e4c98db6d0717a557d:5b83cccd8e7dfb88726d0c1f8940d5802157aeeefa897ed9c3ecd25fe40d1784','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (155,'670212001','7582803b2566c84ad4a6506c3e99387c:e74d84b2bfdca278040af41fae31ddb0308348662c03cdcf461409f84f478c60','นภา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (156,'670212002','8f62b31701c2c7c4365231e2ae1184cd:89a95c74645de8187ba7646ae54d6f552cfe15d9a543150d956c2d114e583c4a','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (157,'670212003','f843c77a7fe46e5174918f7134a4c8bc:2126dc5c266e5bede1bf5e34c27eb2260ba4cfbff13d64c9a4332d777ffba50b','พรทิพย์ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (158,'670212004','89dca38fd1eef219f211fa2dbc3c118f:6341b22b02763c0d2bc4cc0ac0da19a78bf6d159e8be68f95b7c4b3202a38213','เกียรติ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (159,'670212005','41f551a4c8b67f0cc426fc74c56ab8ed:3e99ab83d98f092ed7c6c07d17cf7c537ce7b25534f03a0bb05511fe58d73410','พรทิพย์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (160,'670212006','6347db815c723f2189eff0350447ab56:4de61f56b77fa5dce1a886f328ac7107c6e5b8aa27e50a1a9323cdc43c0b4bff','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (161,'670212007','35f4af43c5e7bab3462eae6b76eb70ae:a479760e73af1a2961a589c64be43b3e48b2b37eeb8f3583643617cf938eb32f','พรทิพย์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (162,'670212008','bfd06d15e2fa4b04ed4c264b06fa0f98:ce6e579bc94ee1b1188f679438a020731d46d11f52845e51670638c384e15e51','สมหญิง ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (163,'670212009','80a84cf5cf3569a0e80f8c50ca967507:c0e82b3aa997c0c88e9de8878a4ff9ef53bfc8b75c5a50c69844a6ddd9df149e','กมล โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (164,'670212010','ced75263c45d1942ae87c539a2340295:a50505a15e684b47361013b9f2cb76413f83fe6c6dd6b3039dde670b148b2b30','เกียรติ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (165,'670212011','b5060609d40ebbabe6d7dfa209b923e4:0131a0781b675c68ad11a3c2e015488923aa48b31809991e635375da8353430a','จันทร์เพ็ญ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (166,'670212012','624ab3329fee23dee07fb8d23be71729:6baea6c4a5991f8b77e0838d946ee46d28ba04b9b11b00a8785cb01ceb98e6b4','นภา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (167,'670212013','1b12cc8e945c8e48d0f6df9a3b5d2568:f07ee11606d82a1841f57fc4918e72aaee07d6f182eba68255d357fcba26798b','ธนา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (168,'670212014','53d529691a8e2b81d8c2f37ecfbc28c3:1e950346332c527403c43b86ab2e7a577cd5695cbca4f51fc980df0cdee9f5b5','สมชาย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (169,'670212015','637c31de485b66bd0181de9baf8431c3:fbe2de97ec45f5f2ffbf34b6faf809b714b586d2245360ccc598e5ce178c2374','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (170,'670212016','f1bc84996e32631567bc3e626e2fff11:fa6d8f9a0f7b5e94ff19b1b111270aeebd211fd54f60222576bdd7d992f1e9d3','ธนา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (171,'670212017','1ae6f7759a3922011f9735d573562b20:38bd0d70bc2e6ecae419d1f77792cc4f555122516198ae73b250db2c9bbc40f1','นภา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (172,'670212018','1ea4ce85c9e48f1f3ad459d4fd98522b:a5afaa308e66d87fa84bf87ab3a6696d5470650e5711ae14b6185ab176872767','อรุณ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (173,'670212019','dd94e6d0c065b66d3370d41ad20660e7:5a5d38eea478dc3c10cb65ea16bf78545bd03ce4d91864c593b741775bacbe45','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
-INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `pdpaConsentAt`, `createdAt`) VALUES (174,'670212020','3fd07425bbc555997814e35a47a8893e:35df58b0030a1db09df659522da92f5e62625ef9c925b8188f49ed61934ee21a','กมล สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,'2026-11-19 06:25:00.251');
+INSERT INTO `enrollments` (`id`, `subjectId`, `teacherId`, `groupId`, `studentId`, `allowSplit`) VALUES (1,5,10,1,NULL,0),
+(2,6,11,1,NULL,0),
+(3,7,12,1,NULL,0),
+(4,8,13,1,NULL,0),
+(5,9,12,1,NULL,0),
+(6,10,10,1,NULL,0),
+(7,2,7,1,NULL,0),
+(8,3,8,1,NULL,0),
+(9,11,11,2,NULL,0),
+(10,12,13,2,NULL,0),
+(11,13,10,2,NULL,0),
+(12,14,12,2,NULL,0),
+(13,15,11,2,NULL,0),
+(14,16,13,2,NULL,0),
+(15,3,9,2,NULL,0),
+(16,4,7,2,NULL,0),
+(17,17,10,3,NULL,0),
+(18,18,12,3,NULL,0),
+(19,19,13,3,NULL,0),
+(20,20,11,3,NULL,0),
+(21,21,10,3,NULL,0),
+(22,22,13,3,NULL,0),
+(23,4,8,3,NULL,0),
+(24,1,9,3,NULL,0),
+(25,23,12,4,NULL,0),
+(26,24,11,4,NULL,0),
+(27,25,13,4,NULL,0),
+(28,26,10,4,NULL,0),
+(29,29,14,5,NULL,0),
+(30,30,15,5,NULL,0),
+(31,31,16,5,NULL,0),
+(32,32,17,5,NULL,0),
+(33,33,16,5,NULL,0),
+(34,34,14,5,NULL,0),
+(35,2,7,5,NULL,0),
+(36,3,8,5,NULL,0),
+(37,35,15,6,NULL,0),
+(38,36,17,6,NULL,0),
+(39,37,14,6,NULL,0),
+(40,38,16,6,NULL,0),
+(41,39,15,6,NULL,0),
+(42,40,17,6,NULL,0),
+(43,3,9,6,NULL,0),
+(44,4,7,6,NULL,0),
+(45,41,14,7,NULL,0),
+(46,42,16,7,NULL,0),
+(47,43,17,7,NULL,0),
+(48,44,15,7,NULL,0),
+(49,45,14,7,NULL,0),
+(50,46,17,7,NULL,0),
+(51,4,8,7,NULL,0),
+(52,1,9,7,NULL,0),
+(53,47,16,8,NULL,0),
+(54,48,15,8,NULL,0),
+(55,49,17,8,NULL,0),
+(56,50,14,8,NULL,0),
+(57,53,18,3,NULL,0),
+(58,54,19,3,NULL,0),
+(59,3,7,NULL,61,0),
+(60,1,8,NULL,62,0),
+(61,4,9,NULL,63,0);
+INSERT INTO `rooms` (`id`, `code`, `name`, `capacity`, `roomType`, `building`) VALUES (1,'COMPUTER-01','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 1',40,'COMPUTER','อาคาร 2'),
+(2,'COMPUTER-02','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 2',40,'COMPUTER','อาคาร 3'),
+(3,'COMPUTER-03','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 3',40,'COMPUTER','อาคาร 4'),
+(4,'COMPUTER-04','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 4',40,'COMPUTER','อาคาร 1'),
+(5,'COMPUTER-05','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 5',40,'COMPUTER','อาคาร 2'),
+(6,'COMPUTER-06','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 6',40,'COMPUTER','อาคาร 3'),
+(7,'COMPUTER-07','ห้องปฏิบัติการคอมพิวเตอร์ COMPUTER 7',40,'COMPUTER','อาคาร 4'),
+(8,'LECTURE-01','ห้องเรียน LECTURE 1',40,'LECTURE','อาคาร 2'),
+(9,'LECTURE-02','ห้องเรียน LECTURE 2',40,'LECTURE','อาคาร 3'),
+(10,'LECTURE-03','ห้องเรียน LECTURE 3',40,'LECTURE','อาคาร 4');
+INSERT INTO `student_groups` (`id`, `code`, `name`, `level`, `department`, `isDualVocational`, `studyDays`) VALUES (1,'G001','ปวช.1/1 คอมพิวเตอร์ธุรกิจ','ปวช.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]'),
+(2,'G002','ปวช.1/2 คอมพิวเตอร์ธุรกิจ','ปวช.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]'),
+(3,'G003','ปวส.1/1 คอมพิวเตอร์ธุรกิจ','ปวส.','คอมพิวเตอร์ธุรกิจ',0,'[1,2,3,4,5]'),
+(4,'G004','ปวส.1/2 คอมพิวเตอร์ธุรกิจ','ปวส.','คอมพิวเตอร์ธุรกิจ',1,'[1,2,3]'),
+(5,'G005','ปวช.1/1 การบัญชี','ปวช.','การบัญชี',0,'[1,2,3,4,5]'),
+(6,'G006','ปวช.1/2 การบัญชี','ปวช.','การบัญชี',0,'[1,2,3,4,5]'),
+(7,'G007','ปวส.1/1 การบัญชี','ปวส.','การบัญชี',0,'[1,2,3,4,5]'),
+(8,'G008','ปวส.1/2 การบัญชี','ปวส.','การบัญชี',1,'[1,2,3]');
+INSERT INTO `students` (`id`, `studentCode`, `fullName`, `groupId`, `isDualVocational`, `userId`) VALUES (1,'670101001','มานะ จันทร์แก้ว',1,0,20),
+(2,'670101002','สุริยา แก้วกาญจนา',1,0,21),
+(3,'670101003','สมชาย โพธิ์ทอง',1,0,22),
+(4,'670101004','ปิยะ อินทร์แก้ว',1,0,23),
+(5,'670101005','สมชาย ทองดี',1,0,24),
+(6,'670101006','สมชาย ทองดี',1,0,25),
+(7,'670101007','วิชัย อินทร์แก้ว',1,0,26),
+(8,'670101008','จันทร์เพ็ญ ศรีสุข',1,0,27),
+(9,'670101009','ศักดิ์ชัย อินทร์แก้ว',1,0,28),
+(10,'670101010','อนงค์ ใจดี',1,0,29),
+(11,'670101011','สมชาย โพธิ์ทอง',1,0,30),
+(12,'670101012','รัตนา พรหมมา',1,0,31),
+(13,'670101013','กมล พิมพ์ทอง',1,0,32),
+(14,'670101014','เกียรติ พิมพ์ทอง',1,0,33),
+(15,'670101015','ธนา ทองดี',1,0,34),
+(16,'670101016','วิชัย ศรีภูมิ',1,0,35),
+(17,'670101017','บุญมี จันทร์แก้ว',1,0,36),
+(18,'670101018','พรทิพย์ สายสุข',1,0,37),
+(19,'670101019','สมหญิง พรหมมา',1,0,38),
+(20,'670101020','พรทิพย์ โพธิ์ทอง',1,0,39),
+(21,'670102001','สุดา อินทร์แก้ว',2,0,40),
+(22,'670102002','อรุณ ศรีภูมิ',2,0,41),
+(23,'670102003','อนงค์ พรหมมา',2,0,42),
+(24,'670102004','จันทร์เพ็ญ ทองดี',2,0,43),
+(25,'670102005','สมชาย จันทร์แก้ว',2,0,44),
+(26,'670102006','บุญมี พรหมมา',2,0,45),
+(27,'670102007','ธนา ศรีภูมิ',2,0,46),
+(28,'670102008','อรุณ ใจดี',2,0,47),
+(29,'670102009','กมล จันทร์แก้ว',2,0,48),
+(30,'670102010','สมหญิง แก้วกาญจนา',2,0,49),
+(31,'670102011','ปิยะ บุญมา',2,0,50),
+(32,'670102012','ประยุทธ สายสุข',2,0,51),
+(33,'670102013','ศักดิ์ชัย สายสุข',2,0,52),
+(34,'670102014','เกียรติ พรหมมา',2,0,53),
+(35,'670102015','อรุณ โพธิ์ทอง',2,0,54),
+(36,'670102016','บุญมี จันทร์แก้ว',2,0,55),
+(37,'670102017','ธนา จันทร์แก้ว',2,0,56),
+(38,'670102018','วิชัย โพธิ์ทอง',2,0,57),
+(39,'670102019','รัตนา ใจดี',2,0,58),
+(40,'670102020','มานะ สายสุข',2,0,59),
+(41,'670111001','สมชาย สายสุข',3,0,60),
+(42,'670111002','ธนา พรหมมา',3,0,61),
+(43,'670111003','จันทร์เพ็ญ ใจดี',3,0,62),
+(44,'670111004','อำไพ โพธิ์ทอง',3,0,63),
+(45,'670111005','บุญมี สายสุข',3,0,64),
+(46,'670111006','รัตนา ทองดี',3,0,65),
+(47,'670111007','ศักดิ์ชัย โพธิ์ทอง',3,0,66),
+(48,'670111008','อรุณ อินทร์แก้ว',3,0,67),
+(49,'670111009','พรทิพย์ สายสุข',3,0,68),
+(50,'670111010','วิชัย ใจดี',3,0,69),
+(51,'670111011','พรทิพย์ ศรีภูมิ',3,0,70),
+(52,'670111012','สมหญิง ใจดี',3,0,71),
+(53,'670111013','เกียรติ บุญมา',3,0,72),
+(54,'670111014','สุดา แก้วกาญจนา',3,0,73),
+(55,'670111015','จันทร์เพ็ญ อินทร์แก้ว',3,0,74),
+(56,'670111016','สุดา บุญมา',3,0,75),
+(57,'670111017','วิชัย พิมพ์ทอง',3,0,76),
+(58,'670111018','อำไพ สายสุข',3,0,77),
+(59,'670111019','ธนา ทองดี',3,0,78),
+(60,'670111020','สมชาย พิมพ์ทอง',3,0,79),
+(61,'670112001','สมหญิง ศรีภูมิ',4,1,80),
+(62,'670112002','ศักดิ์ชัย จันทร์แก้ว',4,1,81),
+(63,'670112003','ธนา พิมพ์ทอง',4,1,82),
+(64,'670112004','ปิยะ พิมพ์ทอง',4,1,83),
+(65,'670112005','กมล ทองดี',4,1,84),
+(66,'670112006','ศักดิ์ชัย อินทร์แก้ว',4,1,85),
+(67,'670112007','ประยุทธ โพธิ์ทอง',4,1,86),
+(68,'670112008','ประยุทธ แก้วกาญจนา',4,1,87),
+(69,'670112009','รัตนา ศรีสุข',4,1,88),
+(70,'670112010','ศักดิ์ชัย ใจดี',4,1,89),
+(71,'670112011','สมหญิง บุญมา',4,1,90),
+(72,'670112012','บุญมี แก้วกาญจนา',4,1,91),
+(73,'670112013','อำไพ ศรีภูมิ',4,1,92),
+(74,'670112014','จันทร์เพ็ญ อินทร์แก้ว',4,1,93),
+(75,'670112015','จันทร์เพ็ญ จันทร์แก้ว',4,1,94),
+(76,'670112016','สมหญิง จันทร์แก้ว',4,1,95),
+(77,'670112017','สุดา พรหมมา',4,1,96),
+(78,'670112018','วิชัย ใจดี',4,1,97),
+(79,'670112019','วิชัย ศรีภูมิ',4,1,98),
+(80,'670112020','กมล จันทร์แก้ว',4,1,99),
+(81,'670201001','มานะ อินทร์แก้ว',5,0,100),
+(82,'670201002','ศักดิ์ชัย สายสุข',5,0,101),
+(83,'670201003','สุดา อินทร์แก้ว',5,0,102),
+(84,'670201004','กมล สายสุข',5,0,103),
+(85,'670201005','ปิยะ ทองดี',5,0,104),
+(86,'670201006','พรทิพย์ พิมพ์ทอง',5,0,105),
+(87,'670201007','กมล พิมพ์ทอง',5,0,106),
+(88,'670201008','ศักดิ์ชัย จันทร์แก้ว',5,0,107),
+(89,'670201009','ประยุทธ อินทร์แก้ว',5,0,108),
+(90,'670201010','เกียรติ อินทร์แก้ว',5,0,109),
+(91,'670201011','อนงค์ ทองดี',5,0,110),
+(92,'670201012','พรทิพย์ แก้วกาญจนา',5,0,111),
+(93,'670201013','มานะ พรหมมา',5,0,112),
+(94,'670201014','กมล จันทร์แก้ว',5,0,113),
+(95,'670201015','พรทิพย์ แก้วกาญจนา',5,0,114),
+(96,'670201016','อนงค์ ศรีสุข',5,0,115),
+(97,'670201017','ประยุทธ ศรีสุข',5,0,116),
+(98,'670201018','รัตนา ทองดี',5,0,117),
+(99,'670201019','วิชัย อินทร์แก้ว',5,0,118),
+(100,'670201020','สุดา อินทร์แก้ว',5,0,119),
+(101,'670202001','อำไพ ทองดี',6,0,120),
+(102,'670202002','กมล ศรีภูมิ',6,0,121),
+(103,'670202003','รัตนา ใจดี',6,0,122),
+(104,'670202004','อำไพ พรหมมา',6,0,123),
+(105,'670202005','สุริยา บุญมา',6,0,124),
+(106,'670202006','สุดา พิมพ์ทอง',6,0,125),
+(107,'670202007','เกียรติ จันทร์แก้ว',6,0,126),
+(108,'670202008','รัตนา สายสุข',6,0,127),
+(109,'670202009','รัตนา พรหมมา',6,0,128),
+(110,'670202010','นภา ศรีสุข',6,0,129),
+(111,'670202011','ประยุทธ อินทร์แก้ว',6,0,130),
+(112,'670202012','สุริยา พรหมมา',6,0,131),
+(113,'670202013','กมล พิมพ์ทอง',6,0,132),
+(114,'670202014','วิชัย ใจดี',6,0,133),
+(115,'670202015','บุญมี ศรีภูมิ',6,0,134),
+(116,'670202016','ปิยะ พรหมมา',6,0,135),
+(117,'670202017','อำไพ ศรีสุข',6,0,136),
+(118,'670202018','อำไพ แก้วกาญจนา',6,0,137),
+(119,'670202019','สุริยา โพธิ์ทอง',6,0,138),
+(120,'670202020','ศักดิ์ชัย พรหมมา',6,0,139),
+(121,'670211001','ประยุทธ ศรีภูมิ',7,0,140),
+(122,'670211002','กมล บุญมา',7,0,141),
+(123,'670211003','วิชัย สายสุข',7,0,142),
+(124,'670211004','บุญมี พิมพ์ทอง',7,0,143),
+(125,'670211005','กมล พรหมมา',7,0,144),
+(126,'670211006','ศักดิ์ชัย ใจดี',7,0,145),
+(127,'670211007','รัตนา ศรีภูมิ',7,0,146),
+(128,'670211008','รัตนา ทองดี',7,0,147),
+(129,'670211009','อนงค์ บุญมา',7,0,148),
+(130,'670211010','อรุณ แก้วกาญจนา',7,0,149),
+(131,'670211011','รัตนา ใจดี',7,0,150),
+(132,'670211012','ปิยะ ศรีภูมิ',7,0,151),
+(133,'670211013','รัตนา อินทร์แก้ว',7,0,152),
+(134,'670211014','ศักดิ์ชัย สายสุข',7,0,153),
+(135,'670211015','ประยุทธ สายสุข',7,0,154),
+(136,'670211016','อรุณ จันทร์แก้ว',7,0,155),
+(137,'670211017','สุดา อินทร์แก้ว',7,0,156),
+(138,'670211018','มานะ อินทร์แก้ว',7,0,157),
+(139,'670211019','พรทิพย์ ศรีสุข',7,0,158),
+(140,'670211020','กมล พิมพ์ทอง',7,0,159),
+(141,'670212001','นภา ศรีสุข',8,1,160),
+(142,'670212002','จันทร์เพ็ญ อินทร์แก้ว',8,1,161),
+(143,'670212003','พรทิพย์ โพธิ์ทอง',8,1,162),
+(144,'670212004','เกียรติ จันทร์แก้ว',8,1,163),
+(145,'670212005','พรทิพย์ บุญมา',8,1,164),
+(146,'670212006','มานะ อินทร์แก้ว',8,1,165),
+(147,'670212007','พรทิพย์ บุญมา',8,1,166),
+(148,'670212008','สมหญิง ศรีภูมิ',8,1,167),
+(149,'670212009','กมล โพธิ์ทอง',8,1,168),
+(150,'670212010','เกียรติ ทองดี',8,1,169),
+(151,'670212011','จันทร์เพ็ญ ทองดี',8,1,170),
+(152,'670212012','นภา บุญมา',8,1,171),
+(153,'670212013','ธนา จันทร์แก้ว',8,1,172),
+(154,'670212014','สมชาย พิมพ์ทอง',8,1,173),
+(155,'670212015','รัตนา ใจดี',8,1,174),
+(156,'670212016','ธนา แก้วกาญจนา',8,1,175),
+(157,'670212017','นภา จันทร์แก้ว',8,1,176),
+(158,'670212018','อรุณ โพธิ์ทอง',8,1,177),
+(159,'670212019','บุญมี จันทร์แก้ว',8,1,178),
+(160,'670212020','กมล สายสุข',8,1,179);
+INSERT INTO `subjects` (`id`, `code`, `name`, `theoryHours`, `practiceHours`, `requiredRoomType`) VALUES (1,'2000-1001','ภาษาอังกฤษ 1',2,0,'LECTURE'),
+(2,'2000-1002','คณิตศาสตร์ 2',2,0,'LECTURE'),
+(3,'2000-1003','วิทยาศาสตร์ 3',2,0,'LECTURE'),
+(4,'2000-1004','สังคมศึกษา 4',2,0,'LECTURE'),
+(5,'20001-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 1',0,3,'COMPUTER'),
+(6,'20002-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 2',1,2,'COMPUTER'),
+(7,'20003-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 3',1,1,'COMPUTER'),
+(8,'20004-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 4',0,3,'COMPUTER'),
+(9,'20005-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 5',1,2,'COMPUTER'),
+(10,'20006-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 6',1,1,'COMPUTER'),
+(11,'20007-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 7',0,3,'COMPUTER'),
+(12,'20008-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 8',1,2,'COMPUTER'),
+(13,'20009-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 9',1,1,'COMPUTER'),
+(14,'20010-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 10',0,3,'COMPUTER'),
+(15,'20011-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 11',1,2,'COMPUTER'),
+(16,'20012-1000','คอมพิวเตอร์ธุรกิจ ปวช.1 วิชาชีพ 12',1,1,'COMPUTER'),
+(17,'30101-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 1',0,3,'COMPUTER'),
+(18,'30102-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 2',1,2,'COMPUTER'),
+(19,'30103-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 3',1,1,'COMPUTER'),
+(20,'30104-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 4',0,3,'COMPUTER'),
+(21,'30105-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 5',1,2,'COMPUTER'),
+(22,'30106-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 6',1,1,'COMPUTER'),
+(23,'30107-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 7',0,3,'COMPUTER'),
+(24,'30108-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 8',1,2,'COMPUTER'),
+(25,'30109-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 9',1,1,'COMPUTER'),
+(26,'30110-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 10',0,3,'COMPUTER'),
+(27,'30111-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 11',1,2,'COMPUTER'),
+(28,'30112-1002','คอมพิวเตอร์ธุรกิจ ปวส.1 วิชาชีพ 12',1,1,'COMPUTER'),
+(29,'21001-1004','การบัญชี ปวช.1 วิชาชีพ 1',0,3,'COMPUTER'),
+(30,'21002-1004','การบัญชี ปวช.1 วิชาชีพ 2',1,2,'COMPUTER'),
+(31,'21003-1004','การบัญชี ปวช.1 วิชาชีพ 3',1,1,'COMPUTER'),
+(32,'21004-1004','การบัญชี ปวช.1 วิชาชีพ 4',0,3,'COMPUTER'),
+(33,'21005-1004','การบัญชี ปวช.1 วิชาชีพ 5',1,2,'COMPUTER'),
+(34,'21006-1004','การบัญชี ปวช.1 วิชาชีพ 6',1,1,'COMPUTER'),
+(35,'21007-1004','การบัญชี ปวช.1 วิชาชีพ 7',0,3,'COMPUTER'),
+(36,'21008-1004','การบัญชี ปวช.1 วิชาชีพ 8',1,2,'COMPUTER'),
+(37,'21009-1004','การบัญชี ปวช.1 วิชาชีพ 9',1,1,'COMPUTER'),
+(38,'21010-1004','การบัญชี ปวช.1 วิชาชีพ 10',0,3,'COMPUTER'),
+(39,'21011-1004','การบัญชี ปวช.1 วิชาชีพ 11',1,2,'COMPUTER'),
+(40,'21012-1004','การบัญชี ปวช.1 วิชาชีพ 12',1,1,'COMPUTER'),
+(41,'31101-1006','การบัญชี ปวส.1 วิชาชีพ 1',0,3,'COMPUTER'),
+(42,'31102-1006','การบัญชี ปวส.1 วิชาชีพ 2',1,2,'COMPUTER'),
+(43,'31103-1006','การบัญชี ปวส.1 วิชาชีพ 3',1,1,'COMPUTER'),
+(44,'31104-1006','การบัญชี ปวส.1 วิชาชีพ 4',0,3,'COMPUTER'),
+(45,'31105-1006','การบัญชี ปวส.1 วิชาชีพ 5',1,2,'COMPUTER'),
+(46,'31106-1006','การบัญชี ปวส.1 วิชาชีพ 6',1,1,'COMPUTER'),
+(47,'31107-1006','การบัญชี ปวส.1 วิชาชีพ 7',0,3,'COMPUTER'),
+(48,'31108-1006','การบัญชี ปวส.1 วิชาชีพ 8',1,2,'COMPUTER'),
+(49,'31109-1006','การบัญชี ปวส.1 วิชาชีพ 9',1,1,'COMPUTER'),
+(50,'31110-1006','การบัญชี ปวส.1 วิชาชีพ 10',0,3,'COMPUTER'),
+(51,'31111-1006','การบัญชี ปวส.1 วิชาชีพ 11',1,2,'COMPUTER'),
+(52,'31112-1006','การบัญชี ปวส.1 วิชาชีพ 12',1,1,'COMPUTER'),
+(53,'30204-2101','การเขียนโปรแกรมเว็บ (ปฏิบัติ)',0,3,'COMPUTER'),
+(54,'30204-2102','สัมมนาวิชาชีพ',1,0,'LECTURE');
+INSERT INTO `teachers_constraints` (`teacherId`, `maxHoursPerWeek`, `unavailableSlots`, `preferredTime`) VALUES (7,24,'[]','MORNING'),
+(8,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','MORNING'),
+(9,24,'[{\"day\":2,\"period\":9},{\"day\":5,\"period\":3},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY'),
+(10,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','MORNING'),
+(11,24,'[{\"day\":2,\"period\":3},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY'),
+(12,24,'[{\"day\":2,\"period\":6},{\"day\":3,\"period\":9},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','AFTERNOON'),
+(13,24,'[{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":2,\"period\":7}]','ANY'),
+(14,24,'[{\"day\":2,\"period\":4}]','ANY'),
+(15,24,'[{\"day\":3,\"period\":4},{\"day\":4,\"period\":8}]','MORNING'),
+(16,24,'[]','ANY'),
+(17,24,'[]','AFTERNOON'),
+(18,24,'[{\"day\":1,\"period\":1},{\"day\":1,\"period\":2},{\"day\":1,\"period\":7},{\"day\":1,\"period\":8},{\"day\":1,\"period\":9},{\"day\":1,\"period\":10},{\"day\":2,\"period\":1},{\"day\":2,\"period\":2},{\"day\":2,\"period\":3},{\"day\":2,\"period\":4},{\"day\":2,\"period\":6},{\"day\":2,\"period\":8},{\"day\":2,\"period\":9},{\"day\":2,\"period\":10},{\"day\":3,\"period\":1},{\"day\":3,\"period\":2},{\"day\":3,\"period\":3},{\"day\":3,\"period\":4},{\"day\":3,\"period\":6},{\"day\":3,\"period\":7},{\"day\":3,\"period\":8},{\"day\":3,\"period\":9},{\"day\":3,\"period\":10},{\"day\":4,\"period\":1},{\"day\":4,\"period\":2},{\"day\":4,\"period\":3},{\"day\":4,\"period\":4},{\"day\":4,\"period\":6},{\"day\":4,\"period\":7},{\"day\":4,\"period\":8},{\"day\":4,\"period\":9},{\"day\":4,\"period\":10},{\"day\":5,\"period\":1},{\"day\":5,\"period\":2},{\"day\":5,\"period\":3},{\"day\":5,\"period\":4},{\"day\":5,\"period\":6},{\"day\":5,\"period\":7},{\"day\":5,\"period\":8},{\"day\":5,\"period\":9},{\"day\":5,\"period\":10}]','ANY'),
+(19,6,'[{\"day\":1,\"period\":1},{\"day\":1,\"period\":2},{\"day\":1,\"period\":3},{\"day\":1,\"period\":4},{\"day\":1,\"period\":7},{\"day\":1,\"period\":8},{\"day\":1,\"period\":9},{\"day\":1,\"period\":10},{\"day\":2,\"period\":1},{\"day\":2,\"period\":2},{\"day\":2,\"period\":3},{\"day\":2,\"period\":4},{\"day\":2,\"period\":6},{\"day\":2,\"period\":7},{\"day\":2,\"period\":8},{\"day\":2,\"period\":9},{\"day\":2,\"period\":10},{\"day\":3,\"period\":1},{\"day\":3,\"period\":2},{\"day\":3,\"period\":3},{\"day\":3,\"period\":4},{\"day\":3,\"period\":6},{\"day\":3,\"period\":7},{\"day\":3,\"period\":8},{\"day\":3,\"period\":9},{\"day\":3,\"period\":10},{\"day\":4,\"period\":1},{\"day\":4,\"period\":2},{\"day\":4,\"period\":3},{\"day\":4,\"period\":4},{\"day\":4,\"period\":6},{\"day\":4,\"period\":7},{\"day\":4,\"period\":8},{\"day\":4,\"period\":9},{\"day\":4,\"period\":10},{\"day\":5,\"period\":1},{\"day\":5,\"period\":2},{\"day\":5,\"period\":3},{\"day\":5,\"period\":4},{\"day\":5,\"period\":6},{\"day\":5,\"period\":7},{\"day\":5,\"period\":8},{\"day\":5,\"period\":9},{\"day\":5,\"period\":10}]','ANY');
+INSERT INTO `timeslots` (`id`, `dayOfWeek`, `periodNo`, `startTime`, `endTime`, `isLunchBreak`) VALUES (1,1,1,'08:00','09:00',0),
+(2,1,2,'09:00','10:00',0),
+(3,1,3,'10:00','11:00',0),
+(4,1,4,'11:00','12:00',0),
+(5,1,5,'12:00','13:00',1),
+(6,1,6,'13:00','14:00',0),
+(7,1,7,'14:00','15:00',0),
+(8,1,8,'15:00','16:00',0),
+(9,1,9,'16:00','17:00',0),
+(10,1,10,'17:00','18:00',0),
+(11,2,1,'08:00','09:00',0),
+(12,2,2,'09:00','10:00',0),
+(13,2,3,'10:00','11:00',0),
+(14,2,4,'11:00','12:00',0),
+(15,2,5,'12:00','13:00',1),
+(16,2,6,'13:00','14:00',0),
+(17,2,7,'14:00','15:00',0),
+(18,2,8,'15:00','16:00',0),
+(19,2,9,'16:00','17:00',0),
+(20,2,10,'17:00','18:00',0),
+(21,3,1,'08:00','09:00',0),
+(22,3,2,'09:00','10:00',0),
+(23,3,3,'10:00','11:00',0),
+(24,3,4,'11:00','12:00',0),
+(25,3,5,'12:00','13:00',1),
+(26,3,6,'13:00','14:00',0),
+(27,3,7,'14:00','15:00',0),
+(28,3,8,'15:00','16:00',0),
+(29,3,9,'16:00','17:00',0),
+(30,3,10,'17:00','18:00',0),
+(31,4,1,'08:00','09:00',0),
+(32,4,2,'09:00','10:00',0),
+(33,4,3,'10:00','11:00',0),
+(34,4,4,'11:00','12:00',0),
+(35,4,5,'12:00','13:00',1),
+(36,4,6,'13:00','14:00',0),
+(37,4,7,'14:00','15:00',0),
+(38,4,8,'15:00','16:00',0),
+(39,4,9,'16:00','17:00',0),
+(40,4,10,'17:00','18:00',0),
+(41,5,1,'08:00','09:00',0),
+(42,5,2,'09:00','10:00',0),
+(43,5,3,'10:00','11:00',0),
+(44,5,4,'11:00','12:00',0),
+(45,5,5,'12:00','13:00',1),
+(46,5,6,'13:00','14:00',0),
+(47,5,7,'14:00','15:00',0),
+(48,5,8,'15:00','16:00',0),
+(49,5,9,'16:00','17:00',0),
+(50,5,10,'17:00','18:00',0);
+INSERT INTO `users` (`id`, `username`, `passwordHash`, `fullName`, `role`, `department`, `position`, `phone`, `email`, `duties`, `bio`, `boardOrder`, `pdpaConsentAt`, `createdAt`) VALUES (1,'admin','419a9cbe4cef8883e298f81a0898ef11:ce41e7d456583d8066269938ee2c50b30ff551067a6e736c1dd94296823904f9','ฝ่ายวิชาการ (ผู้ดูแลระบบ)','ADMIN','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายวิชาการ','0812345678','academic@ptc.ac.th','ดูแลระบบจัดตารางเรียน-ตารางสอน นำเข้าข้อมูล และตอบเรื่องแจ้งปัญหา',NULL,NULL,NULL,'2026-11-19 07:35:43.178'),
+(2,'EXEC-01','!','(รอระบุชื่อ)','TEACHER','ฝ่ายบริหาร','ผู้อำนวยการวิทยาลัยการอาชีพโพนทอง',NULL,NULL,'บริหารงานวิทยาลัยทั้งหมด กำหนดนโยบาย ทิศทาง และกำกับดูแลการดำเนินงานของทุกฝ่ายให้เป็นไปตามระเบียบของสำนักงานคณะกรรมการการอาชีวศึกษา',NULL,1,NULL,'2026-11-19 07:35:43.181'),
+(3,'EXEC-02','!','(รอระบุชื่อ)','TEACHER','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายบริหารทรัพยากร',NULL,NULL,'กำกับงานบริหารทั่วไป งานบุคลากร งานการเงิน งานบัญชี งานพัสดุ งานอาคารสถานที่ งานทะเบียน และงานประชาสัมพันธ์',NULL,2,NULL,'2026-11-19 07:35:43.181'),
+(4,'EXEC-03','!','(รอระบุชื่อ)','TEACHER','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายแผนงานและความร่วมมือ',NULL,NULL,'กำกับงานวางแผนและงบประมาณ งานศูนย์ข้อมูลสารสนเทศ งานความร่วมมือ งานวิจัยพัฒนานวัตกรรม และงานประกันคุณภาพการศึกษา',NULL,3,NULL,'2026-11-19 07:35:43.181'),
+(5,'EXEC-04','!','(รอระบุชื่อ)','TEACHER','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายพัฒนากิจการนักเรียนนักศึกษา',NULL,NULL,'กำกับงานกิจกรรมนักเรียนนักศึกษา งานครูที่ปรึกษา งานปกครอง งานแนะแนวอาชีพและการจัดหางาน และงานสวัสดิการนักเรียนนักศึกษา',NULL,4,NULL,'2026-11-19 07:35:43.181'),
+(6,'EXEC-05','!','(รอระบุชื่อ)','TEACHER','ฝ่ายบริหาร','รองผู้อำนวยการฝ่ายวิชาการ',NULL,NULL,'กำกับงานพัฒนาหลักสูตร การจัดการเรียนการสอน การจัดตารางเรียน-ตารางสอน งานวัดผลและประเมินผล งานวิทยบริการและห้องสมุด และงานทวิภาคี',NULL,5,NULL,'2026-11-19 07:35:43.181'),
+(7,'T0001','6fb58f4f72ececa9e7d37f761ebbf42f:58f32b55ddaf163e374344cca8b91b007dc1aad61f5ab910ddc4577582add77b','ครูกมล อินทร์แก้ว','TEACHER','สามัญสัมพันธ์','หัวหน้าแผนกวิชา','0810000000','t0001@ptc.ac.th','หัวหน้าแผนกวิชาสามัญสัมพันธ์: วางแผนการสอนของแผนก จัดครูผู้สอน ดูแลห้องปฏิบัติการ/โรงฝึกงาน และสอนวิชาชีพ',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(8,'T0002','ccfdea58906ccc451b9afd29dcb10eea:ef945d9359b65cbabeeca17b68d743fcf3774bcb9a662aac39e5b550a0356ba0','ครูศักดิ์ชัย แก้วกาญจนา','TEACHER','สามัญสัมพันธ์','ครู','0810007919','t0002@ptc.ac.th','สอนวิชาสามัญและวิชาพื้นฐานให้นักเรียนทุกแผนก',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(9,'T0003','1bf4c2d0ef9d6c8b9ebd9c10cbbcac98:dc61437db2d9eefb5b5e0d232b39844bc9e7a04492edb0d89aa34e509ce77242','ครูอำไพ สายสุข','TEACHER','สามัญสัมพันธ์','ครู','0810015838','t0003@ptc.ac.th','สอนวิชาสามัญและวิชาพื้นฐานให้นักเรียนทุกแผนก',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(10,'T0004','ba0bfb7d04aed45ebb15e1ed4a47b120:06df7dcd6cb67780cc9caef5e0eb1c685579bf36da7fb96a85eaa7dcc27bac5e','ครูสุดา ศรีสุข','TEACHER','คอมพิวเตอร์ธุรกิจ','หัวหน้าแผนกวิชา','0810023757','t0004@ptc.ac.th','หัวหน้าแผนกวิชาคอมพิวเตอร์ธุรกิจ: วางแผนการสอนของแผนก จัดครูผู้สอน ดูแลห้องปฏิบัติการ/โรงฝึกงาน และสอนวิชาชีพ',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(11,'T0005','578654c98631f6f726747bc9ee20ea79:822f8f55d4941759bd310348e8b945e69c7a4f5786bd2fabfcfeb0dd092bc902','ครูประยุทธ โพธิ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810031676','t0005@ptc.ac.th','สอนวิชาชีพแผนกวิชาคอมพิวเตอร์ธุรกิจ และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(12,'T0006','2c40caa64e3085ce34fdb73d75582a29:32e590c0cf6b30d23822a48a8dfd06339964488d8942057801c46f1dd921b118','ครูสุริยา พิมพ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครูพิเศษสอน','0810039595','t0006@ptc.ac.th','สอนวิชาชีพแผนกวิชาคอมพิวเตอร์ธุรกิจ และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(13,'T0007','73de40d04b4b9f44d7ea6982b00f7681:41a29dceb972c0a444a0739788a814019f8b8e441fe068ef95006749ddbad286','ครูกมล พิมพ์ทอง','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810047514','t0007@ptc.ac.th','สอนวิชาชีพแผนกวิชาคอมพิวเตอร์ธุรกิจ และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(14,'T0008','15cfeeeb2b732dc5e6fcc67739ccc0df:3a29a4b2e0a81d6a739206df507e5e3bbe05017703dfa0c092e024ed12e26046','ครูเกียรติ ศรีสุข','TEACHER','การบัญชี','หัวหน้าแผนกวิชา','0810055433','t0008@ptc.ac.th','หัวหน้าแผนกวิชาการบัญชี: วางแผนการสอนของแผนก จัดครูผู้สอน ดูแลห้องปฏิบัติการ/โรงฝึกงาน และสอนวิชาชีพ',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(15,'T0009','cfc3f29c0e361a9c3b1b4bce86e465fd:5a7bc6c18192c1f793aec330d0e695aa49bcac81f27612e303a6316409a0c9b1','ครูจันทร์เพ็ญ พิมพ์ทอง','TEACHER','การบัญชี','ครู','0810063352','t0009@ptc.ac.th','สอนวิชาชีพแผนกวิชาการบัญชี และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(16,'T0010','c074a9e8f4e1de1507f0d3c6123fcb30:327d4a3c087d934c9ebdb78de8e8379fb1746abe6fa69afa32f711398defac00','ครูเกียรติ ทองดี','TEACHER','การบัญชี','ครู','0810071271','t0010@ptc.ac.th','สอนวิชาชีพแผนกวิชาการบัญชี และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(17,'T0011','d71220fb46106ddcbd640e0c5de28b32:7af1cbe5ae86feebd56db9dda2f3d624107b7b587faf40dc64fb9194a9023793','ครูปิยะ ทองดี','TEACHER','การบัญชี','ครูพิเศษสอน','0810079190','t0011@ptc.ac.th','สอนวิชาชีพแผนกวิชาการบัญชี และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(18,'T-FIX-01','e7a82079e4b5013c8d0dc416e6bcd27b:7e6cfd37207754cb4111de92c867825caf0dfb8b92b0a1b0e46d9d1a6a339aa4','ครูสมศรี ใจดี','TEACHER','คอมพิวเตอร์ธุรกิจ','ครู','0810087109','t-fix-01@ptc.ac.th','สอนวิชาชีพแผนกวิชาคอมพิวเตอร์ธุรกิจ และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(19,'T-FIX-02','5b1d2d5619c8cc3a60430000cd6c9eb6:672b6e17fb320a0484df5c2e5d892d305dfb0725a4331db3fffa0796002577f0','ครูวิชัย ทองดี','TEACHER','คอมพิวเตอร์ธุรกิจ','ครูพิเศษสอน','0810095028','t-fix-02@ptc.ac.th','สอนวิชาชีพแผนกวิชาคอมพิวเตอร์ธุรกิจ และเป็นครูที่ปรึกษานักเรียน',NULL,NULL,NULL,'2026-11-19 07:35:43.526'),
+(20,'670101001','e2478328721765d583266786822ce5c5:7554197dc02648da3c9d2efad71d1192fc25428a6b4950abb536693778c82fb1','มานะ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(21,'670101002','9dcef1e8f685c88780ae83888d7cb88a:a7c6717f196ddd159dc9d0ef546fff1c598df810b059886dc41cabc5939705be','สุริยา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(22,'670101003','f8fa6786fd799a7b1ee7e1c654b1b806:a328d19c9aecb55e21cd161e98598e357911060079cf96bf40dac5c8c89eabea','สมชาย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(23,'670101004','b2db08341d87eec3ebd287408c917b13:dc5a93bc08acf852ab8621869f63fe379543f80590b25a422697235c24b72430','ปิยะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(24,'670101005','eb99a0c7004237a58467ec46011a8129:86c9cf7e29a699e408c65d1a0fd7df414016c820756679e97086dd439d088441','สมชาย ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(25,'670101006','d066e1c875512106f6f84723d27ef557:6328ffe75c440324b51e40f546a0646f07dcff1263fbb0822a05959157fbebc2','สมชาย ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(26,'670101007','92b9b016ee45dd3d65de75baf3b33b6d:8689d93d4ec4418c855b9e5d46fabab3f4e2bc4cc163b5064e90c3ad3fa6ba2e','วิชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(27,'670101008','e9a53f3bc33aa30928d205eea5f199c2:3949620cf8548bde1bc98e68f401dfb2a316063dd0ec011de57a4c72bb9f94e0','จันทร์เพ็ญ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(28,'670101009','807c6d3802c7f77cbf3d1386619624ef:07ef1d93d867a7488441dd9d233f37b3b39ea2092db6738191ff24abb2588ea3','ศักดิ์ชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(29,'670101010','d46e7a2b16b8a224d0acb1b094133c7b:7711c9c8ac563a9e2c822c4d46f61347337a5dee2ec705fd67950dd694f0bc3b','อนงค์ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(30,'670101011','2b753e023a76f58cf1af3e12ce3620f5:35d8a400060fa81ed3a0aada32fa1cd0fd71d23e9f4efd89081d5edaa82755cd','สมชาย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(31,'670101012','6fbd82fd005d144e638a251831d89748:5cac10aef3670c6dc473f5e27371bf0cf510c2405590f7ef3aa5db8b63fcef86','รัตนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(32,'670101013','2d74b90a9091696502c3dc0f23f662ad:5e0b7aaf0a9754d1fce6d8622147c483a5fc531451c878e706387c379613942f','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(33,'670101014','ed60d6d98ecc79dad69c0896fc22ac62:5e8b083a88bb365b1a310866078f6a15d203bec31bf3c007c9340db58ebe7dc7','เกียรติ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(34,'670101015','caff3fad933f5678e37c732bdf54b9f9:2f4122a4e47528261a970b20652ba98586616087d8f45be891efeceb9ad85758','ธนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(35,'670101016','951d47449abe7b48a4a4eca7da57e34e:fbb07a6d2c1b3317861d8d6cbbc4f515ce4ad0c1677634952cd511b99b0089ee','วิชัย ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(36,'670101017','73f5d4fdc83241f9f448507a6347efb9:a081c01c51d27440198be7066b500d0b8678f866f15949c58b099d465806cc51','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(37,'670101018','53a2044791906cf66d82d38382e95bc7:14874c8540cac53b031f53554206a8a0ec09b852cb209c027873ddcf4021a6cd','พรทิพย์ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(38,'670101019','58d5f955547ec50fb82258a3d0594ed6:6c54edbb9e5cd8d15a5f92915f4ccc18c84fa653761a49ac3880c861bd8d222b','สมหญิง พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(39,'670101020','50ea5fa06f40190590737a8e5f11df9a:1cec13e5910593a499cc36cf9c4be894cfa2f4ab65a7b8efcd25dc684061bc26','พรทิพย์ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(40,'670102001','90d3819bf26cb58483ffc18ff0e4dc94:2dafe550176804fb772c1d2c99a91b5ef269169d0f3e4baebf861f0c55908d87','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(41,'670102002','a39a90c192d18940afd42beb92ddf217:ec63a5a68d562da1659d123f44c1a9343066a674f900f98bef10622f7e1d059e','อรุณ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(42,'670102003','16ba9828baf34ed920a33b7e9e828fd2:04e0519231c9e1fc6c44481f987f3f5ff164d580d2366534b092b1cf26136ed3','อนงค์ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(43,'670102004','0a94fec85dd851e78dcca7d04d7d9084:7dd3b6587366c496d2a254e112351b6d91a7cc644cbef93e6330d5c12ba6d0b4','จันทร์เพ็ญ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(44,'670102005','5e3c83c86ebe6de7a066f224d23973d7:82e98146d5c4045c5bc8e796555abc30cfc7ffca494ca651017658ba837928b9','สมชาย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(45,'670102006','86a19663e364b5c4cb28a883a951f268:0eb95005df6803b0b05bc44a7c2e8320b8ba1932cbea3a8bd36884691f66771d','บุญมี พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(46,'670102007','a5c907ec9f2fb5809a0d233e88401843:910c147df6d5dd17114da7e4ea59bbd14d93bbb5fa67cf366194bd6138f48063','ธนา ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(47,'670102008','a2faa3820dd01e50b985b5397902dde7:c2be8cf73da2cb6ed1783d79f3f55f44abc27cd89c1bb1a14943752ab0aee6a5','อรุณ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(48,'670102009','3f80efa9411e5642dd43f97c78dbd8c6:8df7a11eb75569136e0ce55ccb37677b661fd5729de93d86e8e00a9ebcc87187','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(49,'670102010','f04351fb52f23c5a6b70ed14bce8ec5e:9851550c77ad472d8b08593695729ab9253644eafb849c42a42acaceae6a7d07','สมหญิง แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(50,'670102011','e9701bab5780d11df3dfddfb6c3a5709:f965014a6a16002cf1ed64b03596cc73683d430515ff96020fa91843966eb465','ปิยะ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(51,'670102012','7c5b821cf0dca638f4e3c912c003630e:6d3424745570afb72cac6bc313cba0c7117a23b9355dbd46fcca9ff54ffc73d7','ประยุทธ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(52,'670102013','3439b06632ba935885b1f06b3faa7856:41ccb6a894900f87e9d0e68772e42a2c1d8dc126dc39a12531e00e24d01ff139','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(53,'670102014','b7784b76f6b002761631169c37c08405:ef7d088a8e49ec19e33417c8f6ea98909a1601272df8b1433a873018db86d9ed','เกียรติ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(54,'670102015','666581c4951b12c72c7fbfd54d13d6dd:425ae4834194b6f37753d4f623f92974ce8152184bc4d9242208a656e90ebd58','อรุณ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(55,'670102016','81db71d37ba45848b415c9de2f006cee:40b789f7a5d5a3f61457064d8e941f667a442649ed70685ab6e08d5849c8e574','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(56,'670102017','8d974e0732eb2d6a33954e8c0f58351a:e6c89fc6b25cf86038e1c097de76111b5ceedba56f4c5a3ead90dcadc4472af5','ธนา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(57,'670102018','9722980f62d16a25d6616e68c41a1a8e:a06b4f9a0de84017b226a9e6fae1c26b0e80c357dc4f309620d248cddb617187','วิชัย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(58,'670102019','9eaad05521acb7574f76607de9e8319a:13afe0b151d312ceca27bb1267dd04f2b1a356015df6cf975971cfe99a6c3a70','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(59,'670102020','cceddf19700add501b76e4089ad4b210:3e66a8a36ace9e0517f1033a4f4e102b22b8bc6beda0c54a9191b873359f9a2a','มานะ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(60,'670111001','176e692ca5a764ff70447081957fdc25:d91115b92ae0068f8cdc563ef5db47b083c866e64f117dc425d1d4bca8cda34c','สมชาย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(61,'670111002','f8e48c935e1ff971e5d558fdc94eef4a:89b006181771f3c155dbadfc0646e0341fabd172a1beae9d40f53102163be6ec','ธนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(62,'670111003','5d1b5656caba1a0032c94e49994a4c0c:a30c3cd6d03816385b8e5e727d75a371df59667ce492b7d6da123941c964f27f','จันทร์เพ็ญ ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(63,'670111004','fbf9539c67fcf8cd2d32a29b85bc227f:0f1258f3a78deb3ed194b8ffa0b802d2727a08d33f2cd383c53eff1ca455f4df','อำไพ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(64,'670111005','2145e40718ad29bf9570b42081f1cd48:47cdcb0ebbbc7743c2b0e0f80104f27f5304f34089c2803e96fe50668fe28176','บุญมี สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(65,'670111006','50a1aad87763cee8ca17befb38b8e7c4:7bd7373c8c1f5285824cc152861d37330e84c3000057cfbb932f4ac8ced68af1','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(66,'670111007','246e131310efc209eb44de5b3b8c0929:f4bb5b22eabb4ab41b16daf834a5f1ee3db8fd89feb1ed521e1efe2e564c66c1','ศักดิ์ชัย โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(67,'670111008','b63551ea94c80dedd1d839164046fd5c:729fe688fca81c2f1f1eb91711005ca1569c8cdb706591362ddf2e5333250f81','อรุณ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(68,'670111009','ecb13d846c2c06eeb47eac7d6d6f7c05:844196555b2af09b313abefe9478b678630b6f12fb81743defdb69d6c0be5152','พรทิพย์ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(69,'670111010','d1ccd509db1bc8a48768e7c8df2b1e51:7b0f9184c05feb3f991010668471ccd5c6981f0a80885e7bdd875980e9aa609c','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(70,'670111011','02754ecbd7d525aca5a940e2126b22eb:ac5ba86692e027f77b13c0e781147e3e520de0430739416c210aa42fa870f4d6','พรทิพย์ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(71,'670111012','d82c51ed4b7e0ae2cb16d7745e3ebde7:670a5290b75dee1e41a97de7154c929c364b25115f00ee37b74a47d93ee6bfe4','สมหญิง ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(72,'670111013','2de91ff95c809ac562777df007286c81:c27979e1e3e55494b8d118e0795f39bc7d4e471eb60a588ab0d7a505b467ae55','เกียรติ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(73,'670111014','5d235c25e78e184609f9bd716054ef03:e3287685ee660577938bcc337ecd759ab3af445cf322446fe0342deb29b97db4','สุดา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(74,'670111015','106d1d2cde0677865fce85e64cace31d:0156ea81b25d2faa901c3a07ee25ab356d5bbbfe285c2367532965be1d0336e0','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(75,'670111016','5e91795ae0113e86405f5f87bde020f1:364428a34eaa148bb9bf12b26eb6e6a05d91b6fe5bb804d78795f32914758e3d','สุดา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(76,'670111017','4758a7e78bf7a8eb59403c7f68a8da4e:623aaf6fcbbd038b43fffe8cb5faa6bdb88c66e6784d7939439757971ea40825','วิชัย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(77,'670111018','5c5e00720418f09cda368d9d2068bd3e:e551138e575b58d3cd63483a9b039fa4a5e311528a97f61f72aeb3161dd07419','อำไพ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(78,'670111019','3bf60c72bc2a01dc0d0b921d4055a330:6de7d2309ec1857d30b0994b8b0f3c14c4dd768f592bbf27e6a6a4f82d720c4d','ธนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(79,'670111020','3fc5afe160976437b575eeb0c211c33d:8d9b4f09ae14852720f8763bbdc006f2a6b7a2e50ea062f028eae3298e33aa98','สมชาย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(80,'670112001','77a9a2619eb5eaa72d5124c1774a9a16:4d713f464a0ee462d4c85c5c04e19ca8eeb6295d5242ffe18dc1611c7c56a2ed','สมหญิง ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(81,'670112002','93e4d8c0fd1248e17773a863621f48e2:a17c73fad4e0792b4e17c223bff16868864b2493211abdc6328360088150b9c6','ศักดิ์ชัย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(82,'670112003','8f69cbfbc111a5f019cb9fc24f1c9a71:46c00ba020f452accd3836686ad710e3b27438e30ba776c97bf9a42d799d2261','ธนา พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(83,'670112004','00dbdf409e9d32378296e653dc30ec20:54fcfcce61c494cf9bcc44de27a567902329d90678fcd7b7854091b37a99b7a4','ปิยะ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(84,'670112005','299c7cb8fecd6789b250e39b5907a597:5a7a789b422023df3c300b79adbf3f310a5eab0bc45d7f55f0430482151bebad','กมล ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(85,'670112006','77ed38a4ef0f86cae1a83408f12743fd:7ab0e134c973775038bb76b889fe727e1da0bbc141071d8148f81bed4c377e3e','ศักดิ์ชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(86,'670112007','361bc2fa91e67e3ee1f0531e0c9da5f5:beaec01d8648eb8246f476f043a8b01176d95d5c31ec53374b5c9b6f43622141','ประยุทธ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(87,'670112008','bc667afbcd26274808ebcb3a3b6ab2b3:44b0758e30e4116d49e1e122132cdf61e2db4f3a53c2c3bd7a374858a1fcd693','ประยุทธ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(88,'670112009','fec39407a14b1518fe79bdf07be36b96:10dfc76dbdd9732d6647b73d30724e7c3325624358871fa0da214ce5a36855d4','รัตนา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(89,'670112010','f31df572d796248c87074f3f2138624d:0d0dd5179dc3b07cf0b4836bb602d6c5f0f4dc2c42bd2a79c4e67b37ee1771a5','ศักดิ์ชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(90,'670112011','6f8c25a0f6afd4f126dcbaa8ccf9c37a:c1c8e4b52eda193c7e003c594417df6aff322286b5acf4819e4c2cfe3b45fc01','สมหญิง บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(91,'670112012','a499a63c6d970e218efb0712345140ea:327a11c853be6cc3ddaa379a41854e562790d14296e769fa11f73e7d99fd351b','บุญมี แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(92,'670112013','b13b4545eaa5fb9ae4d768434fcbc917:be6a0f318e751761d3b3743ae11cf166468e2f941549657ef6fd3e188b438101','อำไพ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(93,'670112014','1dd6bfc1dde6b39821557644c8c51939:825d785b3b971e08279f4956fa5e0eddabf52ee7ae87923211cf42d3135ec32d','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(94,'670112015','bcd2ea8dde299f92b736e7508a602c6e:f568d2d07efa1a287024c27fcec24c6803656884c0ef9f3244d09035c5693212','จันทร์เพ็ญ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(95,'670112016','b2d9d5dbbcef16ab427997b04de60f7c:31c02f6a1933bc9e66e822ebac63d697d1999ccdc50586983ef48c3b67adea52','สมหญิง จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(96,'670112017','81dcd5729f19a7edfc51c7a02209d7a8:df87d669c1b6a91db70a60f38e55607ca9326ad6c08f5cf2a8e8f979be829e17','สุดา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(97,'670112018','f998bf4f838feb73439b6857c5ca85d4:43188b3387b26e7bf17ba5902649d16730e07db6ea45a25425923e03e4222e69','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(98,'670112019','c697237d3effaea59c8982c121d6c3e8:8db8221e0be406f8ca00edd204dd554db2a224a0cc4b5145eb19a98fb93b1d0a','วิชัย ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(99,'670112020','70086f953b9719f4355cff08f4d0f3de:14f718fac28e13cddd68233e7c6ec9974ba0d32bc838e7e66d41454def1f5155','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(100,'670201001','f2d732b47a3d6ed8ae2df5db7f1ce90a:400a76178b3cf091ba67204f7b6a56b5234d80086c1ec32a195e157a9e20039a','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(101,'670201002','ad292a04148ed362b84908adde568bbf:862441cdf6c2f52184f141901345aeb2f3e29507c1519beff979b3d209f4fd0f','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(102,'670201003','44f53dd02d3808c60fa98657bf2c1db2:ddb2b156782c819d27a695c90f8643168d53e88de587a1d088777e4a26a51726','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(103,'670201004','b794c5a7604247c54d3d801f371ed05c:8729c661c8fb0f3123933118516a95436d76bc235f873b47ad772677fd19bf2a','กมล สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(104,'670201005','8d856015379895b6a49fe4767796e4f2:f4fdd009d75acfdc73448ec7a2bae224a24f4139188989a2527ed07390746b4a','ปิยะ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(105,'670201006','2e27e75f4bad3d85df184244778e2921:a691c16e8053db34c97e5740504cfd2a9419b07b42414c01694bea7b69669032','พรทิพย์ พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(106,'670201007','ddfb30327bee2d1720894611c242b808:74d98ccd1be4725b3d09696bd65c6cdb3dc53a103aff43135c13eabbc39b3633','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(107,'670201008','e8bd8042c588ef879829c115dcf4b9b6:104296f671596d3a388e12d657dace7d5425d07254040cad9e5f7f74e3704e3e','ศักดิ์ชัย จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(108,'670201009','5368901c153b832113337e0bc92f1f75:3c03cec7dbcbeb68121eaad370788910eef99a2fcb50067c63e22bf81ba5ff92','ประยุทธ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(109,'670201010','ebe0df441b9981bdd2f057e82f1392ec:969ce0bb80f08191da2c45a391086a01aae61ec9172eaf798cf703092d567d6f','เกียรติ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(110,'670201011','e9268e118dd62781ae4a9855b9f798f7:391add14443c45d1b2bc5bceadeaad57c4a1cc8f02b8121e9ac2671f145de920','อนงค์ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(111,'670201012','7df80c3c26dfc8533accc7f6cc460356:46ac5207adc93e4fcd1f186e350fa6a16b0fe5bf6cdea3e11e74e018452524a1','พรทิพย์ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(112,'670201013','09b95a8aeb1a08def4f46626bd62487d:fdd6c07e4c71f2b3ef73fd5292bb5fae62637dfa403905d0cd9f7c5ea1abdc27','มานะ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(113,'670201014','45c5964707efeb2672b0627ac1ee4ee7:1252cbc491048b50be192281e76802806852d54f911420b71711e0fb22cd4c21','กมล จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(114,'670201015','9455968ca6b657a7e2632dd367c497ec:63a335f4583e995898828130488373aa6cb13c0083977daa14374e6193cf7635','พรทิพย์ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(115,'670201016','53c6aee402ebe58ad844bbe6d3c2a560:3de7222aff01cb82371f71b81aa96a279e27ec8166fcfc425d6e4fe84addf129','อนงค์ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(116,'670201017','70896d9061570453dea90df0af9e8e63:3dc9a3f0754dd2e79d0850435516f54efecbf33d2b3373857ce313938809f4a5','ประยุทธ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(117,'670201018','2641775e9cd072e5e6b685341beb5b38:77c8ea96967d204d4994c6edda8320b8bdf2c2826b616426ca14475c6a7b0a0c','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(118,'670201019','a1e11a213757571c8b47e32a28433e42:61b767abe1db0c73fa41055334bf7269d8878793427dc3aaf9bf63627ab5fd2d','วิชัย อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(119,'670201020','7988d7ea642043d29908015965fb0491:f5cc4388b77b5e36a4e6221aa6429c506279ee70feb94de9ab5d4e093b8e6374','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(120,'670202001','44fc263058f59e366c89079701712481:005b7fa2b2a6d463df553a99c13440b617d1c08102618033a670a0c059cbf698','อำไพ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(121,'670202002','1b2befc6bc4bdb11e029e223e607a663:c8e69d34c63b849085dbf43144b9721814eed980e6c2ad10ba2fc6870a3aa2f9','กมล ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(122,'670202003','be2b2daeca1b4bd139a3efc243c58116:61dfb1aa63bf4fc4bb77ecbef30ff66dc8fe48d75daaf027bb09d38eee71520a','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(123,'670202004','d6476a9cd21f3bc0c2b2f5c535a5546e:684c858ff2249f6cea13d6a5a574df9b1070da050dd36d3a21fab46d3fd7606a','อำไพ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(124,'670202005','6c5b6c38d3d2d8795ca8cb283e8303c8:a248ea1f013d5d31ada66f20345f326cae9ab15bf38fd3218911830cfcdfecc0','สุริยา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(125,'670202006','e8c9597ac0d6b3aefd5c8aa4ab7981da:850adbecfac60b836d3187d34751b7afee34e60d9b4d9053865b99be9f13416d','สุดา พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(126,'670202007','f31437b27e79e93ea0c483fbc73c75d6:931ffcd001d44f3c28b392da50217d7ba8ab49009307d9682770095fa79d57e5','เกียรติ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(127,'670202008','198f3494557864d395a2b6a6cf6f96fc:7957818ba422ba0212ec456de6bb2e822ba3e6d007b741fd22a271a827b6a5f1','รัตนา สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(128,'670202009','c79d4fe0d6ea76f2841e510cc6c3a4be:24649451ae075e5434e66af28456181cea1ca6e3fd5d8779f5757e86be022e40','รัตนา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(129,'670202010','4e46fe857a643f6735d4a662b916bc55:c85bad406ecb502ed1d24b3f5f09c06764c6307bf04ce839b373d64f1f1df4ea','นภา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(130,'670202011','97e08d956cb3462cbfa0bca985c58d52:ce27429a270c228e018e12c2dc7a3e3de60d1119b2b5029897aa38cd81fdc130','ประยุทธ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(131,'670202012','c279417ddd5753383974b6c3ba74165a:fcfeda88ad8b020d1e340bac7fcd55ba325b6579b4fb92e6a50d8041eae2cce3','สุริยา พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(132,'670202013','4840d939bde5c0eee27cd254d500d61c:291ca1a81b3e9b39217dfab5957d161f5e044f46522c6ced08ef7fe6bdd06860','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(133,'670202014','e8cdd82044ea691c51555af96e2755a2:40bf337c100cd7d580df2c6fb062357a815dfae48c6919cf8baca2015e4a5040','วิชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(134,'670202015','0805f2cc87255616b3b1c0165d9cd9d7:fadddd33a1669ee6d2eda48fc0a8aff4d93615cbfc9da6cddcb37712ab10fa17','บุญมี ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(135,'670202016','352d5ad9fcbb9842a12f9ddd7515bf96:8d91123fc422dd720786db1dce7fccbcf6b2f4a7c47fe038f0da99d523a73dfe','ปิยะ พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(136,'670202017','b752a13f42cd74fddf2fd23ca9123bec:205150e586da816aa14a455d8508821cf8b69696e0627c169f900f6773bd6f06','อำไพ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(137,'670202018','ff5bc7b88db10fca8fb99034711a623a:f2d515c47b20d345366c68aa5ccb252b6fd6f91991ef73fe9fc2786c12366bc7','อำไพ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(138,'670202019','d2d952fe4153b371cb57251b4d3b7167:91374c2df31e080f19b23464c3330510710c472f984a3ded5333fe1f962dd814','สุริยา โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(139,'670202020','922de4355f0a0d6ee14cb40a084ddd0e:d5371048d0a9dbf3f9effe94339d9ff78c60f6f83588d816db6a59b5fc2c609c','ศักดิ์ชัย พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(140,'670211001','aef4096923265ee1d9bd3f04a6a1f71f:bff762396ecf7bc8d10e674d3ad9508dcb0d740926a8818b36e96d5218c2aac0','ประยุทธ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(141,'670211002','12cabe65b472c987772296c693fb07b3:1386dce65c24bf365223ac3c4061bc5fd89df2f053f48b500599b493a86f456d','กมล บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(142,'670211003','e086d1dbbfe2fd840e725f312041de82:857a7e9766196f19aece2f973c47e045c3ebe2d1f1a6a8088f98811146778302','วิชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(143,'670211004','efc6daae699c9c60970fa049d4c811b7:726df42f99d831b2dca4d5abc8c50e64878551930201ae5053123c24550ba210','บุญมี พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(144,'670211005','245dab64867dd766ec77d920d983fc13:9e58b5cc34ae2a23d0f9fd80e3b7a48a870ab180acf27f896e1704d497f0728f','กมล พรหมมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(145,'670211006','06c3e86c8884ee7a3263bf0d133d895f:860e68aec9486380f59e74fe570dbed97582172ba95b48eaf4b816654d7a2436','ศักดิ์ชัย ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(146,'670211007','37ff79c17651f5080b6ee630f8862e24:243f77f6d38ab1971227db7d9cd25ab64bbcec48e56f39a02197b0a7ccbfcfd8','รัตนา ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(147,'670211008','1b429ec331ec174fb2f79011b102260e:136bad78063efd113cd9bda367e8f5377add00ffac0f16a4b02cef222b7684a6','รัตนา ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(148,'670211009','01b4362e12e4df66229334222040ca14:4ab48c6b5d9ca866cf9a610e6974c67c0a67f357f5d2e5edca797e2f337c6f44','อนงค์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(149,'670211010','c1865273b0d8779e4383efa6ae347991:ecebcd3d53d110e4e6f69ea2db598e0f06041895782a79a74e3c9ef1cf03a1ed','อรุณ แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(150,'670211011','44598cc2ece4b1cc2ccca9108183b68e:95e325aef768e871b627901cfe82dd6e7b57f98f4467f829f382a9df98aa75cb','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(151,'670211012','20106a912d3499113c7d09ac68cb4853:8c067f15202196290405eb09fed797266319ff1f016902b76ccbaf9d9b97fe4e','ปิยะ ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(152,'670211013','245bbd3de2e762c289c438d99711cec5:3be96b410844371c5dc81abe55d3f9be876662b1022f046d99074477f0588bd3','รัตนา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(153,'670211014','ed6918a53ad9497cacc6335c3540c1b0:d1c2d69a9466e634e1df5fb1ef21a8297f29662d95b0ecbebd08f1a4ba3f1121','ศักดิ์ชัย สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(154,'670211015','8a4843838d70862db3eda70099f585f8:57711c48790a0ce66372ab15e39070cf611421e57aa2ed152658aabb448ece97','ประยุทธ สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(155,'670211016','b14edf2635766aef4259ce46578b8649:05edaceed5235901a091a9641cfb26ae2a783639fccd1c20c28fa324b749b5eb','อรุณ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(156,'670211017','79d9e6a07145805a71aaed05c84f7701:11e122ad4badd2c8b131e3c953c235cb8459d1c9da599248fc4ba101e9ba94e6','สุดา อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(157,'670211018','9061f745a1a0dbdf566876dc6cada667:6533de226a511bbddc0acb11c96900cd8211b2eb190c77ad70a0923b967b4a8b','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(158,'670211019','a7d17e5d92adfda695e40acfc3fac10b:b34da741716468712d754ec7a929e25eacef3d177984067e75b9a9a5436f6ce2','พรทิพย์ ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(159,'670211020','0066b3d4f6686e439a9ff4b14eca0f39:4870f25b7452edbe3bc04a819abe9908a32e4649abe18a36f865220f720e97ef','กมล พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(160,'670212001','8c264af11fb4a965c7e01e98febb3448:757a3f4dd18cf7519ba0880318b3692acff4c73f2b9efbb4cbe81112e0e32235','นภา ศรีสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(161,'670212002','c6adc42889235012f81fc3c4eb9a572b:6a7159e261ae5b33de44ac6a50a5d5613548cc85569a8bff2f0fd7273502166a','จันทร์เพ็ญ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(162,'670212003','06259fa6afc390852f80d0f574af4950:8e9b3af29154eebcfd36da7d6996f4b0806e10b1d554590552b18c23f3ea0ea3','พรทิพย์ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(163,'670212004','f7b232ea52b7257b7924f0c00145f3c2:b30099ab6298ac58f875c3d7868268dc09f0b9c1c1ec6b0b56c74d5604b27250','เกียรติ จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(164,'670212005','397452d6b2d61711f38556e9ab95233a:d06a7da07fa52c13ebc70c684d5fda4c8e410e759aad51f00e7a3df1e6f01809','พรทิพย์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(165,'670212006','8b9b5773dc230c93b26197c184e611c7:307a417fc162aaabbf10b2feefc515d5488397dc428e5b62b46b2e50630b9f13','มานะ อินทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(166,'670212007','0ae7c0bc96b2c7b594a566ca721afb70:d563b8be7c49da009bcd8c73258ad1bfc4745168ace5c84b966f90adc48df5a8','พรทิพย์ บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(167,'670212008','ab02afef91d96af2ac49a5c90a5e96e3:522e83ddef12baa0499881c00d711239cf6e00a09b1b195b23f0fb918b25bf8e','สมหญิง ศรีภูมิ','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(168,'670212009','8fa32642c421a6173384b4d63d30d489:e4f9127c694602521dc2f02385a723d7ef49f38c04fc62e1e5f18c4e5ff98a1f','กมล โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(169,'670212010','03f4e7de6da1e2c284f3ab6a7170e572:ce1336090a3054b5d4129d0a9e4d1a297ed568e38e53d7db2724d93160683b2f','เกียรติ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(170,'670212011','7c1992fe5172e79cabfd4ff759c3c2b6:e805cf4965b49b8ee1def6e79c628c8fe77bf45bcc84e575b97a6c35f64294e4','จันทร์เพ็ญ ทองดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(171,'670212012','d3cdba28dbdbc8d6752f9ed17f553f0b:89a0eb1bee996d8bbd24d1f8bd3264af59683ca82a27fdb01dd4ad5ce42388e6','นภา บุญมา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(172,'670212013','749adeb3ba50a8752cb65f8f70262d10:4af2a1c359332746f7acd456cceb4e85185d987cbe29ff90ed020d70e365bfc6','ธนา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(173,'670212014','d7978eff29b4275b8beb7721c8be9a62:941c4e6489d4cd8b90857d268654bfc9ff2743875d1c36268fc9c539158208f7','สมชาย พิมพ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(174,'670212015','e954ce1a54f364c70b80574a9bef79d0:dc45e4671f866499932d4f473ee0525a289e15cd4095f21254e6400fb6ed5c16','รัตนา ใจดี','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(175,'670212016','3e110e72c71c6f1b2f8c5bde6fa9aa3f:6b6f6584fc85d53b592a520d912eee51d1031cbb18e895dbdfc2cdf2a2677f7b','ธนา แก้วกาญจนา','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(176,'670212017','85120f70e70f2b284235d0ded69fcf1d:d3c8abb8f10bd605f00c67f3cb476d6da81b2ac306d2621476f65f03477c284a','นภา จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(177,'670212018','2ee499ebe011d7225f76fc0282a1b2bf:69b0cf2ce2af691240a225387375a7429760dc46d89d414a75ae17c0f0b0c318','อรุณ โพธิ์ทอง','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(178,'670212019','77c6190b0fa9e69e43a60fffd1306983:ee288f075196eed53c12df058947704bf58354202f7fdb74fc2cbda4660e1782','บุญมี จันทร์แก้ว','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699'),
+(179,'670212020','e2a384979377cdfaa5fcc9da56c26058:0b1cde6e11babcab0877ae4445067610809206ffc23b798533187ba7d165fee1','กมล สายสุข','STUDENT',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2026-11-19 07:35:47.699');
 SET FOREIGN_KEY_CHECKS = 1;

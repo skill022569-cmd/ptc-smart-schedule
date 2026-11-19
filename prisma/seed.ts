@@ -2,7 +2,7 @@
 // SEED_SCALE=stress npm run db:seed → นักเรียน 2,000 / ครู 100+ / วิชา 500+
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/password";
-import { LUNCH, SLOT_TIMES, makeDataset } from "./data";
+import { LUNCH, SLOT_TIMES, makeDataset, teacherDuties } from "./data";
 
 const prisma = new PrismaClient();
 const scale = process.env.SEED_SCALE === "stress" ? "stress" : "demo";
@@ -25,9 +25,12 @@ async function main() {
 
   // demo password: admin = "admin1234", บุคลากร = รหัสบุคลากร, นักเรียน = รหัสนักเรียน (ต้องเปลี่ยนก่อนใช้งานจริง)
   const pw = (s: string) => hashPassword(s);
-  await prisma.user.create({ data: { username: "admin", passwordHash: pw("admin1234"), fullName: ds.admins[0].name, role: "ADMIN", position: ds.admins[0].position, department: "ฝ่ายบริหาร", phone: "0812345678", email: "academic@ptc.ac.th" } });
+  await prisma.user.create({ data: { username: "admin", passwordHash: pw("admin1234"), fullName: ds.admins[0].name, role: "ADMIN", position: ds.admins[0].position, duties: "ดูแลระบบจัดตารางเรียน-ตารางสอน นำเข้าข้อมูล และตอบเรื่องแจ้งปัญหา", department: "ฝ่ายบริหาร", phone: "0812345678", email: "academic@ptc.ac.th" } });
+  // ผู้บริหาร: ยังไม่มีรหัสผ่าน ("!" เข้าสู่ระบบไม่ได้) ให้แอดมินแก้ชื่อจริงในหน้าประวัติ
+  await prisma.user.createMany({ data: ds.executives.map((e, i) => ({ username: e.code, passwordHash: "!", fullName: "(รอระบุชื่อ)", role: "TEACHER" as const,
+    department: "ฝ่ายบริหาร", position: e.position, duties: e.duties, boardOrder: i + 1 })) });
   await insert(ds.teachers, (c) => prisma.user.createMany({ data: c.map((t, i) => ({
-    username: t.code, passwordHash: pw(t.code), fullName: t.name, role: "TEACHER" as const, department: t.department, position: t.position,
+    username: t.code, passwordHash: pw(t.code), fullName: t.name, role: "TEACHER" as const, department: t.department, position: t.position, duties: teacherDuties(t.position, t.department),
     phone: `08${String(10000000 + i * 7919).slice(0, 8)}`, email: `${t.code.toLowerCase()}@ptc.ac.th` })) }));
   const users = new Map((await prisma.user.findMany()).map((u) => [u.username, u.id]));
   await prisma.teacherConstraint.createMany({ data: ds.teachers.map((t) => ({ teacherId: users.get(t.code)!, maxHoursPerWeek: t.maxHours, unavailableSlots: t.unavailable, preferredTime: t.preferred })) });
