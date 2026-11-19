@@ -8,9 +8,15 @@ export default function LoginPage() {
     e.preventDefault();
     setBusy(true); setErr("");
     const f = new FormData(e.currentTarget);
-    const res = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.fromEntries(f)) });
-    if (res.ok) location.href = "/";
-    else { setErr((await res.json()).error ?? "เข้าสู่ระบบไม่สำเร็จ"); setBusy(false); }
+    try {
+      const res = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.fromEntries(f)) });
+      if (res.ok) { location.href = "/"; return; }
+      const j = await res.json().catch(() => ({}));
+      setErr(j.error ?? `เซิร์ฟเวอร์ผิดพลาด (HTTP ${res.status})`);
+    } catch {
+      setErr("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+    }
+    setBusy(false);
   }
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
