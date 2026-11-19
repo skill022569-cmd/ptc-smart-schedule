@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { maskPhone } from "@/lib/mask";
-import { StaffEditForm } from "@/components/forms";
+import { ResetPasswordButton, StaffEditForm } from "@/components/forms";
 
 export default async function StaffProfile({ params }: { params: Promise<{ id: string }> }) {
   const u = await requireUser();
@@ -28,6 +28,7 @@ export default async function StaffProfile({ params }: { params: Promise<{ id: s
             <form action="/api/view-as" method="post"><input type="hidden" name="userId" value={p.id} /><button className="btn-outline">👁 ดูในมุมมองครูท่านนี้</button></form>
           )}
         </div>
+        {u.role === "ADMIN" && !u.previewBy && u.id !== p.id && <div className="mt-3"><ResetPasswordButton userId={p.id} name={p.fullName} /></div>}
       </section>
       {(u.role === "ADMIN" || u.id === p.id) && (
         <StaffEditForm admin={u.role === "ADMIN"}

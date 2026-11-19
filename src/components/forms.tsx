@@ -124,3 +124,25 @@ export function ChangePasswordForm({ username }: { username: string }) {
     </form>
   );
 }
+
+export function ResetPasswordButton({ userId, name }: { userId: number; name: string }) {
+  const [res, setRes] = useState<{ username: string; password: string } | null>(null);
+  const [msg, setMsg] = useState("");
+  async function reset() {
+    if (!confirm(`รีเซ็ตรหัสผ่านของ ${name}? รหัสเดิมจะใช้ไม่ได้ทันที`)) return;
+    const r = await send("/api/account/reset", "POST", { userId });
+    if (r.ok) { setRes({ username: r.username, password: r.password }); setMsg(""); } else setMsg(`❌ ${r.error}`);
+  }
+  return (
+    <div className="space-y-2">
+      <button type="button" className="btn-outline" onClick={reset}>🔑 รีเซ็ตรหัสผ่าน</button>
+      {msg && <p role="alert" className="text-sm">{msg}</p>}
+      {res && (
+        <div role="status" className="rounded border border-gold-500 bg-gold-300/20 p-3 text-sm">
+          <p>แจ้งครูให้เข้าสู่ระบบด้วยข้อมูลนี้ แล้วเปลี่ยนรหัสผ่านทันที (แสดงครั้งเดียว):</p>
+          <p className="mt-1 font-mono text-base">ชื่อผู้ใช้: <b>{res.username}</b> · รหัสชั่วคราว: <b className="select-all">{res.password}</b></p>
+        </div>
+      )}
+    </div>
+  );
+}
