@@ -128,19 +128,27 @@ export function ChangePasswordForm({ username }: { username: string }) {
 export function ResetPasswordButton({ userId, name }: { userId: number; name: string }) {
   const [res, setRes] = useState<{ username: string; password: string } | null>(null);
   const [msg, setMsg] = useState("");
-  async function reset() {
-    if (!confirm(`รีเซ็ตรหัสผ่านของ ${name}? รหัสเดิมจะใช้ไม่ได้ทันที`)) return;
-    const r = await send("/api/account/reset", "POST", { userId });
-    if (r.ok) { setRes({ username: r.username, password: r.password }); setMsg(""); } else setMsg(`❌ ${r.error}`);
+  const [pw, setPw] = useState("");
+  async function reset(password?: string) {
+    if (!confirm(`ตั้งรหัสผ่านใหม่ให้ ${name}? รหัสเดิมจะใช้ไม่ได้ทันที`)) return;
+    const r = await send("/api/account/reset", "POST", { userId, password });
+    if (r.ok) { setRes({ username: r.username, password: r.password }); setMsg(""); setPw(""); } else setMsg(`❌ ${r.error}`);
   }
   return (
-    <div className="space-y-2">
-      <button type="button" className="btn-outline" onClick={reset}>🔑 รีเซ็ตรหัสผ่าน</button>
-      {msg && <p role="alert" className="text-sm">{msg}</p>}
+    <div className="space-y-2 rounded border border-brand-200 p-3 text-sm">
+      <h3 className="font-semibold">🔑 แก้ไขรหัสผ่าน (กรณีลืมรหัส)</h3>
+      <form className="flex flex-wrap items-end gap-2" onSubmit={(e) => { e.preventDefault(); reset(pw); }}>
+        <label className="flex-1">ตั้งรหัสผ่านใหม่ให้ (อย่างน้อย 8 ตัวอักษร)
+          <input type="text" value={pw} onChange={(e) => setPw(e.target.value)} minLength={8} maxLength={100} required autoComplete="off" className="input mt-1 w-full font-mono" />
+        </label>
+        <button className="btn">บันทึกรหัสนี้</button>
+        <button type="button" className="btn-outline" onClick={() => reset()}>สุ่มรหัสชั่วคราว</button>
+      </form>
+      {msg && <p role="alert">{msg}</p>}
       {res && (
-        <div role="status" className="rounded border border-gold-500 bg-gold-300/20 p-3 text-sm">
-          <p>แจ้งครูให้เข้าสู่ระบบด้วยข้อมูลนี้ แล้วเปลี่ยนรหัสผ่านทันที (แสดงครั้งเดียว):</p>
-          <p className="mt-1 font-mono text-base">ชื่อผู้ใช้: <b>{res.username}</b> · รหัสชั่วคราว: <b className="select-all">{res.password}</b></p>
+        <div role="status" className="rounded border border-gold-500 bg-gold-300/20 p-3">
+          <p>✅ บันทึกแล้ว แจ้งครูให้เข้าสู่ระบบด้วยข้อมูลนี้ (แนะนำให้เปลี่ยนเป็นรหัสของตนเองที่เมนู &quot;เปลี่ยนรหัสผ่าน&quot;):</p>
+          <p className="mt-1 font-mono text-base">ชื่อผู้ใช้: <b>{res.username}</b> · รหัสผ่าน: <b className="select-all">{res.password}</b></p>
         </div>
       )}
     </div>
