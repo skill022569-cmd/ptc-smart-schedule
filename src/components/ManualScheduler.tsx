@@ -3,6 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import ScheduleGrid, { type Highlight } from "./ScheduleGrid";
 import type { Cell, SlotRow } from "@/lib/schedule-query";
 
+type AiAction = { type: "place" | "move" | "remove" | "setSplit"; enrollmentId: number; day: number; start: number; fromDay: number; fromPeriod: number; allowSplit: boolean; label: string };
+type ChatMsg = { role: "user" | "assistant"; content: string; actions?: AiAction[] };
+const AI_EXAMPLES = ["แนะนำการวางวิชาที่ยังจัดไม่ครบ", "ทำไมวิชาที่ยังไม่ครบถึงวางไม่ได้", "ช่วยลดคาบว่างระหว่างวันของกลุ่มนี้"];
 type Enr = { id: number; subject: string; teacher: string; hours: number; placed: number; allowSplit: boolean; nextLength: number; feasible: string[] };
 const DAYS = ["", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"];
 const post = (body: unknown) => fetch("/api/resolve", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
@@ -16,12 +19,33 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
   const [moving, setMoving] = useState<Cell | null>(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [chat, setChat] = useState<ChatMsg[]>([]);
+  const [aiBusy, setAiBusy] = useState(false);
 
   const load = useCallback(async () => {
     const r = await fetch(`/api/manual?groupId=${gid}`);
     setData(r.ok ? await r.json() : { cells: [], enrollments: [] });
   }, [gid]);
-  useEffect(() => { setSel(null); setPicked(null); setMoving(null); load(); }, [load]);
+  useEffect(() => { setSel(null); setPicked(null); setMoving(null); setChat([]); load(); }, [load]);
+
+  async function ask(q: string) {
+    if (!q.trim() || aiBusy) return;
+    const next: ChatMsg[] = [...chat, { role: "user" as const, content: q.trim() }].slice(-10);
+    setChat(next); setAiBusy(true);
+    try {
+      const r = await fetch("/api/manual/ai", { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ groupId: gid, messages: next.map(({ role, content }) => ({ role, content })) }) });
+      const j = await r.json().catch(() => ({ error: `HTTP ${r.status}` }));
+      setChat([...next, { role: "assistant", content: j.answer ?? `⚠️ ${j.error ?? "เกิดข้อผิดพลาด"}`, actions: j.actions ?? [] }]);
+    } catch { setChat([...next, { role: "assistant", content: "⚠️ เชื่อมต่อไม่ได้" }]); }
+    setAiBusy(false);
+  }
+  // คำแนะนำจาก AI ผ่าน /api/resolve เหมือนการกดเอง จึงถูกตรวจ hard constraints ทุกครั้ง
+  const applyAi = (a: AiAction) =>
+    a.type === "place" ? act({ action: "manual", enrollmentId: a.enrollmentId, day: a.day, start: a.start }, a.label)
+    : a.type === "move" ? act({ action: "move", enrollmentId: a.enrollmentId, fromDay: a.fromDay, fromPeriod: a.fromPeriod, day: a.day, start: a.start }, a.label)
+    : a.type === "remove" ? act({ action: "remove", enrollmentId: a.enrollmentId, day: a.day, start: a.start }, a.label)
+    : act({ action: "setSplit", enrollmentId: a.enrollmentId, value: a.allowSplit }, a.label);
 
   async function act(body: Record<string, unknown>, ok: string) {
     setBusy(true);
@@ -91,6 +115,28 @@ export default function ManualScheduler({ slots, groups }: { slots: SlotRow[]; g
             </div>
           )}
           <ScheduleGrid slots={slots} cells={data?.cells ?? []} highlight={highlight} onCellClick={click} show={["teacher", "room"]} />
+          <div className="space-y-2 rounded-lg border border-gold-500/50 bg-gold-300/10 p-3">
+            <h3 className="font-semibold text-brand-800">🤖 ผู้ช่วย AI จัดตาราง</h3>
+            <p className="text-xs text-stone-500">AI เห็นตารางของกลุ่มนี้ ช่องว่าง และเวลาที่ครูติด — คำแนะนำเป็นปุ่มให้กดยืนยันเอง ระบบตรวจการชนซ้ำทุกครั้ง</p>
+            <div className="max-h-80 space-y-2 overflow-y-auto text-sm" aria-live="polite">
+              {!chat.length && <div className="flex flex-wrap gap-2">{AI_EXAMPLES.map((e) => <button key={e} className="btn-outline text-xs" onClick={() => ask(e)}>{e}</button>)}</div>}
+              {chat.map((m, i) => (
+                <div key={i} className={`rounded-md px-2 py-1 ${m.role === "user" ? "ml-10 bg-brand-50" : "mr-10 bg-white"}`}>
+                  <div className="whitespace-pre-wrap">{m.content}</div>
+                  {!!m.actions?.length && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {m.actions.map((a, k) => <button key={k} className="btn text-xs" disabled={busy} onClick={() => applyAi(a)}>✔ {a.label}</button>)}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {aiBusy && <div className="text-stone-400">AI กำลังวิเคราะห์ตาราง...</div>}
+            </div>
+            <form className="flex gap-1" onSubmit={(e) => { e.preventDefault(); const f = e.currentTarget; ask(String(new FormData(f).get("q") ?? "")); f.reset(); }}>
+              <input name="q" aria-label="ถามผู้ช่วย AI" className="input flex-1" placeholder="เช่น วิชา 20001 ควรวางวันไหนดี" maxLength={2000} />
+              <button className="btn" disabled={aiBusy}>ถาม</button>
+            </form>
+          </div>
         </section>
       </div>
     </div>
