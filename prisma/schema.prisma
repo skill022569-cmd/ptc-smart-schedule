@@ -1,0 +1,199 @@
+// TiDB Serverless ใช้ provider "mysql" ได้ทันที (MySQL wire protocol)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum ScheduleStatus {
+  VALID
+  CONFLICT
+}
+
+enum IssueStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+// users + staff profile (รวมเป็นตารางเดียว: ข้อมูลบุคลากรเป็นคอลัมน์ของ user)
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique // emp_code ของบุคลากร หรือ student_code ของนักเรียน
+  passwordHash  String
+  fullName      String
+  role          Role
+  department    String?
+  position      String?
+  phone         String?
+  email         String?
+  pdpaConsentAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  constraint  TeacherConstraint?
+  student     Student?
+  teaching    Enrollment[]
+  issues      IssueReport[]
+  backups     SystemBackup[]
+  consentLogs PdpaConsentLog[]
+
+  @@index([role, department])
+  @@map("users")
+}
+
+model TeacherConstraint {
+  teacherId        Int    @id
+  maxHoursPerWeek  Int    @default(24)
+  unavailableSlots Json // [{ "day": 1, "period": 3 }, ...]
+  preferredTime    String @default("ANY") // MORNING | AFTERNOON | ANY
+  teacher          User   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("teachers_constraints")
+}
+
+model StudentGroup {
+  id               Int          @id @default(autoincrement())
+  code             String       @unique
+  name             String // เช่น ปวส.1/1 คอมพิวเตอร์ธุรกิจ
+  level            String // ปวช. | ปวส.
+  department       String
+  isDualVocational Boolean      @default(false) // ทวิภาคี/คู่ขนาน
+  studyDays        Json // วันที่มาเรียนที่วิทยาลัย เช่น [1,2,3]
+  students         Student[]
+  enrollments      Enrollment[]
+
+  @@map("student_groups")
+}
+
+model Student {
+  id               Int          @id @default(autoincrement())
+  studentCode      String       @unique
+  fullName         String
+  groupId          Int
+  isDualVocational Boolean      @default(false)
+  userId           Int?         @unique
+  group            StudentGroup @relation(fields: [groupId], references: [id])
+  user             User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  enrollments      Enrollment[]
+
+  @@map("students")
+}
+
+model Subject {
+  id               Int          @id @default(autoincrement())
+  code             String       @unique
+  name             String
+  theoryHours      Int
+  practiceHours    Int
+  requiredRoomType String? // null = ห้องใดก็ได้
+  enrollments      Enrollment[]
+
+  @@map("subjects")
+}
+
+model Room {
+  id        Int        @id @default(autoincrement())
+  code      String     @unique
+  name      String
+  capacity  Int
+  roomType  String // LECTURE | COMPUTER | WORKSHOP | ...
+  building  String
+  schedules Schedule[]
+
+  @@map("rooms")
+}
+
+model Enrollment {
+  id         Int           @id @default(autoincrement())
+  subjectId  Int
+  teacherId  Int
+  groupId    Int? // ลงทั้งกลุ่ม
+  studentId  Int? // ลงรายบุคคล (เช่น เด็กคู่ขนานเรียนข้ามกลุ่ม)
+  allowSplit Boolean       @default(false) // อนุญาตแบ่งคาบ (แนวทางแก้ที่ 1)
+  subject    Subject       @relation(fields: [subjectId], references: [id])
+  teacher    User          @relation(fields: [teacherId], references: [id])
+  group      StudentGroup? @relation(fields: [groupId], references: [id])
+  student    Student?      @relation(fields: [studentId], references: [id])
+  schedules  Schedule[]
+
+  @@index([teacherId])
+  @@index([groupId])
+  @@map("enrollments")
+}
+
+model Timeslot {
+  id           Int        @id @default(autoincrement())
+  dayOfWeek    Int // 1-5
+  periodNo     Int // 1-10
+  startTime    String
+  endTime      String
+  isLunchBreak Boolean    @default(false)
+  schedules    Schedule[]
+
+  @@unique([dayOfWeek, periodNo])
+  @@map("timeslots")
+}
+
+// 1 แถว = 1 คาบ; แถวที่ slotId = null คือรายการที่จัดไม่สำเร็จ
+model Schedule {
+  id             Int            @id @default(autoincrement())
+  semester       String
+  enrollmentId   Int
+  roomId         Int?
+  slotId         Int?
+  status         ScheduleStatus @default(VALID)
+  conflictReason String?        @db.Text
+  enrollment     Enrollment     @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  room           Room?          @relation(fields: [roomId], references: [id])
+  slot           Timeslot?      @relation(fields: [slotId], references: [id])
+
+  @@index([semester, status])
+  @@map("schedules")
+}
+
+model IssueReport {
+  id          Int         @id @default(autoincrement())
+  reporterId  Int
+  category    String
+  description String      @db.Text
+  status      IssueStatus @default(PENDING)
+  adminReply  String?     @db.Text
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  reporter    User        @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("issue_reports")
+}
+
+model SystemBackup {
+  id           Int      @id @default(autoincrement())
+  backupName   String
+  snapshotData Json
+  createdById  Int
+  createdAt    DateTime @default(now())
+  createdBy    User     @relation(fields: [createdById], references: [id])
+
+  @@map("system_backups")
+}
+
+model PdpaConsentLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String // CONSENT | WITHDRAW | EXPORT | DELETE_REQUEST | CORRECT_REQUEST
+  ip        String?
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("pdpa_consent_logs")
+}
