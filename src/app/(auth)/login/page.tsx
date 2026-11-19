@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 
+const MARQUEE_TH = "วิทยาลัยการอาชีพโพนทอง  ✦  ";
+const MARQUEE_EN = "Phonthong Industrial and Community Education College  ✦  ";
+
 export default function LoginPage() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,8 +22,16 @@ export default function LoginPage() {
     setBusy(false);
   }
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <form onSubmit={submit} className="card w-full max-w-sm space-y-3 border-t-4 border-t-brand-800">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-brand-50 via-stone-50 to-gold-300/20 p-4">
+      <div aria-hidden className="pointer-events-none absolute inset-0 flex select-none flex-col justify-around">
+        {Array.from({ length: 8 }, (_, i) => (
+          <div key={i} className={`marquee flex w-max whitespace-nowrap text-4xl font-bold sm:text-6xl ${i % 2 ? "marquee-rev text-gold-500/15" : "text-brand-800/[0.07]"}`}
+            style={{ animationDuration: `${45 + i * 7}s` }}>
+            {[0, 1].map((k) => <span key={k} className="pr-12">{(i % 2 ? MARQUEE_EN : MARQUEE_TH).repeat(3)}</span>)}
+          </div>
+        ))}
+      </div>
+      <form onSubmit={submit} className="card relative z-10 w-full max-w-sm space-y-3 border-t-4 border-t-brand-800 bg-white/95 shadow-xl backdrop-blur">
         <img src="/logo.png" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={96} height={96} className="mx-auto h-24 w-24" />
         <div className="text-center">
           <h1 className="text-lg font-bold">วิทยาลัยการอาชีพโพนทอง</h1>

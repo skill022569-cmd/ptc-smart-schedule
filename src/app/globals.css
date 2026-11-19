@@ -13,3 +13,9 @@ h1 { @apply text-brand-800; }
   body { background: white; }
   @page { size: A4 landscape; margin: 10mm; }
 }
+
+/* พื้นหลังหน้าเข้าสู่ระบบ: ชื่อวิทยาลัยเลื่อนวนต่อเนื่อง (ข้อความซ้ำ 2 ชุด แล้วเลื่อนครึ่งหนึ่งจะต่อกันพอดี) */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee { animation: marquee 60s linear infinite; }
+.marquee-rev { animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) { .marquee { animation: none; } }
