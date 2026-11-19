@@ -8,7 +8,7 @@ export interface Cell { day: number; period: number; enrollmentId: number; subje
 
 export async function entityOptions(view: View): Promise<{ id: number; label: string }[]> {
   switch (view) {
-    case "teacher": return (await prisma.user.findMany({ where: { role: "TEACHER" }, orderBy: { fullName: "asc" } })).map((t) => ({ id: t.id, label: t.fullName }));
+    case "teacher": return (await prisma.user.findMany({ where: { role: "TEACHER", boardOrder: null }, orderBy: { fullName: "asc" } })).map((t) => ({ id: t.id, label: t.fullName }));
     case "room": return (await prisma.room.findMany({ orderBy: { code: "asc" } })).map((r) => ({ id: r.id, label: `${r.code} ${r.name}` }));
     case "group": return (await prisma.studentGroup.findMany({ orderBy: { code: "asc" } })).map((g) => ({ id: g.id, label: g.name }));
     case "subject": return (await prisma.subject.findMany({ orderBy: { code: "asc" } })).map((s) => ({ id: s.id, label: `${s.code} ${s.name}` }));
