@@ -13,6 +13,7 @@ export default async function PrintPage({ searchParams }: { searchParams: Promis
     <div className="space-y-3 bg-white p-4">
       <PrintButton auto />
       <div className="text-center">
+        <img src="/logo.png" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={72} height={72} className="mx-auto mb-1 h-[72px] w-[72px]" />
         <p className="text-lg font-bold">{COLLEGE}</p>
         <p className="font-semibold">{r.title}</p>
         <p>ภาคเรียนที่ {SEMESTER}</p>

@@ -26,14 +26,14 @@ export default async function Directory({ searchParams }: { searchParams: Promis
       </form>
       {[...groups].map(([d, list]) => (
         <section key={d} className="card">
-          <h2 className="mb-2 font-semibold text-blue-800">{d} ({list.length})</h2>
+          <h2 className="mb-2 font-semibold text-brand-800">{d} ({list.length})</h2>
           <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((s) => (
               <li key={s.id} className="rounded border p-2 text-sm">
                 <div className="font-semibold">{s.fullName}</div>
                 <div className="text-slate-600">{s.position ?? "-"}</div>
                 <div className="text-xs text-slate-500">โทร {canSeeContact(s.id) ? s.phone ?? "-" : maskPhone(s.phone)} · {canSeeContact(s.id) ? s.email ?? "-" : "อีเมลปกปิดตาม PDPA"}</div>
-                {s.role === "TEACHER" && <Link className="text-xs text-blue-700 underline" href={`/schedule?view=teacher&id=${s.id}`}>ดูตารางสอน</Link>}
+                {s.role === "TEACHER" && <Link className="text-xs text-brand-700 underline" href={`/schedule?view=teacher&id=${s.id}`}>ดูตารางสอน</Link>}
               </li>
             ))}
           </ul>

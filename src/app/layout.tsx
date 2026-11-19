@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = { title: "PTC Smart Schedule", description: "ระบบจัดตารางเรียน-ตารางสอนอัตโนมัติ วิทยาลัยการอาชีพโพนทอง" };
+export const metadata: Metadata = { title: "ระบบจัดตารางเรียน-ตารางสอน | วิทยาลัยการอาชีพโพนทอง", description: "ระบบจัดตารางเรียน-ตารางสอนอัตโนมัติ วิทยาลัยการอาชีพโพนทอง" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

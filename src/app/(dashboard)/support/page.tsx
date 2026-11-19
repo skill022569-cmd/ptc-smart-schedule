@@ -25,7 +25,7 @@ export default async function Support() {
               <span className="text-slate-500">#{i.id} · {i.createdAt.toLocaleString("th-TH")}{admin && ` · ${i.reporter.fullName}`}</span>
             </div>
             <p className="mt-1 whitespace-pre-wrap">{i.description}</p>
-            {!admin && i.adminReply && <p className="mt-1 rounded bg-blue-50 p-2">ตอบกลับ: {i.adminReply}</p>}
+            {!admin && i.adminReply && <p className="mt-1 rounded bg-brand-50 p-2">ตอบกลับ: {i.adminReply}</p>}
             {admin && <IssueAdmin id={i.id} status={i.status} reply={i.adminReply} />}
           </div>
         ))}

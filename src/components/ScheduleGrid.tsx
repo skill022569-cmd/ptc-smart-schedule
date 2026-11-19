@@ -18,8 +18,8 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
       <table className="w-full border-collapse text-xs">
         <thead>
           <tr>
-            <th className="border bg-slate-100 p-1">วัน/คาบ</th>
-            {periods.map((p) => <th key={p.period} className="border bg-slate-100 p-1">{p.period}<div className="font-normal text-slate-500">{p.start}-{p.end}</div></th>)}
+            <th className="border bg-brand-50 p-1">วัน/คาบ</th>
+            {periods.map((p) => <th key={p.period} className="border bg-brand-50 p-1">{p.period}<div className="font-normal text-slate-500">{p.start}-{p.end}</div></th>)}
           </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
               const hl = highlight?.[`${d}-${p}`];
               tds.push(
                 <td key={p} colSpan={span}
-                  className={`h-16 min-w-24 border p-1 text-center align-middle ${lunch ? "bg-slate-200 text-slate-500" : c ? "bg-blue-50" : hl ? HL[hl] : ""} ${onCellClick && !lunch ? "cursor-pointer hover:ring-2 hover:ring-blue-400" : ""}`}
+                  className={`h-16 min-w-24 border p-1 text-center align-middle ${lunch ? "bg-stone-200 text-stone-500" : c ? "bg-brand-50" : hl ? HL[hl] : ""} ${onCellClick && !lunch ? "cursor-pointer hover:ring-2 hover:ring-brand-400" : ""}`}
                   onClick={onCellClick && !lunch ? () => onCellClick(d, p) : undefined}>
                   {lunch ? "พักกลางวัน" : c && (
                     <>
@@ -48,7 +48,7 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
               );
               i += span - 1;
             }
-            return <tr key={d}><th className="border bg-slate-100 p-1">{DAYS[d]}</th>{tds}</tr>;
+            return <tr key={d}><th className="border bg-brand-50 p-1">{DAYS[d]}</th>{tds}</tr>;
           })}
         </tbody>
       </table>

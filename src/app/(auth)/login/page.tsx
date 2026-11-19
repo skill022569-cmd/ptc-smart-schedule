@@ -20,9 +20,14 @@ export default function LoginPage() {
   }
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
-      <form onSubmit={submit} className="card w-full max-w-sm space-y-3">
-        <h1 className="text-xl font-bold text-blue-800">PTC Smart Schedule</h1>
-        <p className="text-sm text-slate-500">วิทยาลัยการอาชีพโพนทอง — เข้าสู่ระบบด้วยรหัสบุคลากร/รหัสนักเรียน</p>
+      <form onSubmit={submit} className="card w-full max-w-sm space-y-3 border-t-4 border-t-brand-800">
+        <img src="/logo.png" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={96} height={96} className="mx-auto h-24 w-24" />
+        <div className="text-center">
+          <h1 className="text-lg font-bold">วิทยาลัยการอาชีพโพนทอง</h1>
+          <p className="text-sm text-stone-600">ระบบจัดตารางเรียน-ตารางสอน (PTC Smart Schedule)</p>
+        </div>
+        <hr className="border-gold-500" />
+        <p className="text-sm text-stone-500">เข้าสู่ระบบด้วยรหัสบุคลากร / รหัสนักเรียน</p>
         <label className="block text-sm">ชื่อผู้ใช้<input name="username" required autoComplete="username" className="input mt-1 w-full" /></label>
         <label className="block text-sm">รหัสผ่าน<input name="password" type="password" required autoComplete="current-password" className="input mt-1 w-full" /></label>
         {err && <p role="alert" className="text-sm text-red-600">{err}</p>}
