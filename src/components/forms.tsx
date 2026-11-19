@@ -101,3 +101,26 @@ export function StaffEditForm({ p, admin }: { admin: boolean; p: { id: number; f
     </form>
   );
 }
+
+export function ChangePasswordForm({ username }: { username: string }) {
+  const [msg, setMsg] = useState("");
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const f = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (f.next !== f.confirm) return setMsg("❌ รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน");
+    const r = await send("/api/account/password", "POST", { current: f.current, next: f.next });
+    setMsg(r.ok ? "✅ เปลี่ยนรหัสผ่านแล้ว ครั้งต่อไปให้เข้าสู่ระบบด้วยรหัสใหม่" : `❌ ${r.error}`);
+    if (r.ok) form.reset();
+  }
+  return (
+    <form onSubmit={submit} className="card space-y-2 text-sm">
+      <p className="text-stone-600">ชื่อผู้ใช้: <b>{username}</b></p>
+      <label className="block">รหัสผ่านปัจจุบัน<input name="current" type="password" required autoComplete="current-password" className="input mt-1 w-full" /></label>
+      <label className="block">รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)<input name="next" type="password" required minLength={8} maxLength={100} autoComplete="new-password" className="input mt-1 w-full" /></label>
+      <label className="block">ยืนยันรหัสผ่านใหม่<input name="confirm" type="password" required minLength={8} maxLength={100} autoComplete="new-password" className="input mt-1 w-full" /></label>
+      {msg && <p role="alert">{msg}</p>}
+      <button className="btn">บันทึกรหัสผ่านใหม่</button>
+    </form>
+  );
+}

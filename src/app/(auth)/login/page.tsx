@@ -44,7 +44,7 @@ export default function LoginPage() {
         {err && <p role="alert" className="text-sm text-red-600">{err}</p>}
         <button className="btn w-full justify-center" disabled={busy}>{busy ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ"}</button>
         <div className="flex items-center gap-2 text-xs text-stone-400"><hr className="flex-1" />หรือ<hr className="flex-1" /></div>
-        <a href="/public" className="btn-outline w-full justify-center border-gold-500 py-2 font-semibold text-brand-800">👁 ดูตารางเรียน-ตารางสอน (สาธารณะ)</a>
+        <a href="/" className="btn-outline w-full justify-center border-gold-500 py-2 font-semibold text-brand-800">👁 ดูตารางเรียน-ตารางสอน (สาธารณะ)</a>
         <p className="text-center text-xs text-stone-500">นักเรียน ผู้ปกครอง และบุคคลทั่วไป ดูได้โดยไม่ต้องเข้าสู่ระบบ</p>
       </form>
     </main>

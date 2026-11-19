@@ -19,17 +19,10 @@ export default async function PublicSchedule({ searchParams }: { searchParams: P
   const title = options.find((o) => o.id === id)?.label ?? "";
   const show = view === "teacher" ? ["group", "room"] as const : view === "room" ? ["teacher", "group"] as const : ["teacher", "group", "room"] as const;
   return (
-    <div className="min-h-screen">
-      <header className="no-print border-b-4 border-gold-500 bg-brand-800 text-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-2">
-          <img src="/logo.webp" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={48} height={48} className="h-12 w-12" />
-          <div className="flex-1"><div className="font-bold leading-tight">{COLLEGE}</div><div className="text-xs text-gold-300">ตารางเรียน-ตารางสอน · ภาคเรียนที่ {SEMESTER} · มุมมองสาธารณะ</div></div>
-          <Link href="/login" className="rounded border border-white/60 px-3 py-1 text-sm hover:bg-white/10">เข้าสู่ระบบ (บุคลากร)</Link>
-        </div>
-      </header>
+    <>
       <main className="mx-auto max-w-7xl space-y-3 p-4">
         <div className="no-print flex flex-wrap gap-2 text-sm">
-          {Object.entries(TABS).map(([v, l]) => <Link key={v} href={`/public?view=${v}`} className={v === view ? "btn" : "btn-outline"}>ตาม{l}</Link>)}
+          {Object.entries(TABS).map(([v, l]) => <Link key={v} href={`?view=${v}`} className={v === view ? "btn" : "btn-outline"}>ตาม{l}</Link>)}
         </div>
         <form className="no-print flex flex-wrap items-center gap-2">
           <input type="hidden" name="view" value={view} />
@@ -45,6 +38,6 @@ export default async function PublicSchedule({ searchParams }: { searchParams: P
           <p className="text-xs text-stone-500">รวม {cells.length} คาบ/สัปดาห์ · ข้อมูลอาจเปลี่ยนแปลงได้ ติดต่อฝ่ายวิชาการ</p>
         </section>
       </main>
-    </div>
+    </>
   );
 }

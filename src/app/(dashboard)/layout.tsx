@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <div><div className="font-bold leading-tight">{COLLEGE}</div><div className="text-xs text-gold-300">ระบบจัดตารางเรียน-ตารางสอน · ภาคเรียนที่ {SEMESTER}</div></div>
           </Link>
           <nav className="flex flex-1 flex-wrap gap-4 text-sm">{nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-gold-300 hover:underline">{l}</Link>)}</nav>
-          <form action="/api/auth/logout" method="post" className="text-sm">{u.fullName} <button className="ml-2 underline hover:text-gold-300">ออกจากระบบ</button></form>
+          <form action="/api/auth/logout" method="post" className="text-sm">{u.fullName} <Link href="/account" className="ml-2 underline hover:text-gold-300">เปลี่ยนรหัสผ่าน</Link> <button className="ml-2 underline hover:text-gold-300">ออกจากระบบ</button></form>
         </div>
       </header>
       {u.previewBy && (
