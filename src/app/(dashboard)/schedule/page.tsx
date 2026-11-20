@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { SEMESTER } from "@/lib/db";
-import { VIEWS, timeslots } from "@/lib/schedule-query";
+import { VIEWS, cellFields, timeslots } from "@/lib/schedule-query";
 import { resolveSchedule } from "@/lib/schedule-page";
 import ScheduleGrid from "@/components/ScheduleGrid";
+import { AutoSubmitSelect } from "@/components/forms";
 
 export default async function SchedulePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const u = await requireUser();
   const sp = await searchParams;
   const [r, slots] = await Promise.all([resolveSchedule(u, sp), timeslots()]);
-  const show = r.view === "teacher" ? ["group", "room"] as const : r.view === "room" ? ["teacher", "group"] as const : ["teacher", "group", "room"] as const;
   const qs = new URLSearchParams({ view: r.view, id: String(r.id) }).toString();
   return (
     <div className="space-y-3">
@@ -20,7 +20,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
         <input type="hidden" name="view" value={r.view} />
         {r.view === "student"
           ? u.role !== "STUDENT" && <><input name="q" aria-label="รหัสนักเรียน" placeholder="รหัสนักเรียน" defaultValue={sp.q} className="input" /><button className="btn-outline">ค้นหา</button></>
-          : <><select name="id" aria-label={`เลือก${r.viewLabel}`} defaultValue={r.id} className="input max-w-md">{r.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select><button className="btn-outline">แสดง</button></>}
+          : <><AutoSubmitSelect name="id" aria-label={`เลือก${r.viewLabel}`} defaultValue={r.id} className="input max-w-md">{r.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</AutoSubmitSelect><noscript><button className="btn-outline">แสดง</button></noscript></>}
         <span className="flex-1" />
         <Link className="btn-outline" href={`/schedule/print?${qs}`} target="_blank">📄 Export PDF</Link>
         {u.role !== "STUDENT" && r.view !== "student" && <a className="btn-outline" href={`/api/export?view=${r.view}`}>📊 Export Excel (ทุก{r.viewLabel} แยก Sheet)</a>}
@@ -28,7 +28,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
       {r.error && <p className="text-sm text-red-600">{r.error}</p>}
       <div className="card space-y-2">
         <h1 className="font-semibold">{r.title} <span className="font-normal text-slate-500">ภาคเรียน {SEMESTER}</span></h1>
-        <ScheduleGrid slots={slots} cells={r.cells} show={[...show]} />
+        <ScheduleGrid slots={slots} cells={r.cells} show={cellFields(r.view)} />
         <p className="text-xs text-slate-500">รวม {r.cells.length} คาบ/สัปดาห์</p>
       </div>
       {r.members.length > 0 && (

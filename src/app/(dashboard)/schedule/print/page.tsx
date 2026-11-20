@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { COLLEGE, SEMESTER } from "@/lib/db";
-import { timeslots } from "@/lib/schedule-query";
+import { cellFields, timeslots } from "@/lib/schedule-query";
 import { resolveSchedule } from "@/lib/schedule-page";
 import ScheduleGrid from "@/components/ScheduleGrid";
 import { PrintButton } from "@/components/forms";
@@ -18,7 +18,7 @@ export default async function PrintPage({ searchParams }: { searchParams: Promis
         <p className="font-semibold">{r.title}</p>
         <p>ภาคเรียนที่ {SEMESTER}</p>
       </div>
-      <ScheduleGrid slots={slots} cells={r.cells} />
+      <ScheduleGrid slots={slots} cells={r.cells} show={cellFields(r.view)} />
       <p className="text-sm">รวม {r.cells.length} คาบ/สัปดาห์</p>
       <div className="grid grid-cols-3 gap-6 pt-10 text-center text-sm">
         {["ผู้จัดตาราง", "รองผู้อำนวยการฝ่ายวิชาการ", "ผู้อำนวยการ" + COLLEGE].map((x) => (

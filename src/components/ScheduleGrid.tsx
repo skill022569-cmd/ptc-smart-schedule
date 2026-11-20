@@ -10,7 +10,10 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
   slots: SlotRow[]; cells: Cell[]; highlight?: Record<string, Highlight>;
   onCellClick?: (day: number, period: number) => void; show?: ("teacher" | "group" | "room")[];
 }) {
-  const periods = [...new Map(slots.map((s) => [s.period, s])).values()].sort((a, b) => a.period - b.period);
+  // ซ่อนคาบเย็น (เริ่ม 17:00 ขึ้นไป) ถ้าไม่มีวิชาหรือช่องไฮไลต์ใช้ — ตารางแคบลงโดยเฉพาะบนมือถือ
+  const used = new Set([...cells.map((c) => c.period), ...Object.keys(highlight ?? {}).map((k) => Number(k.split("-")[1]))]);
+  const periods = [...new Map(slots.map((s) => [s.period, s])).values()].sort((a, b) => a.period - b.period)
+    .filter((p) => p.start < "17:00" || used.has(p.period));
   const days = [...new Set(slots.map((s) => s.day))].sort();
   const at = new Map(cells.map((c) => [`${c.day}-${c.period}`, c]));
   return (
@@ -18,8 +21,8 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
       <table className="w-full border-collapse text-xs">
         <thead>
           <tr>
-            <th className="border bg-brand-50 p-1">วัน/คาบ</th>
-            {periods.map((p) => <th key={p.period} className="border bg-brand-50 p-1">{p.period}<div className="font-normal text-slate-500">{p.start}-{p.end}</div></th>)}
+            <th scope="col" className="sticky left-0 z-10 border bg-brand-50 p-1">วัน/คาบ</th>
+            {periods.map((p) => <th key={p.period} scope="col" className="border bg-brand-50 p-1">{p.period}<div className="font-normal text-slate-500">{p.start}-{p.end}</div></th>)}
           </tr>
         </thead>
         <tbody>
@@ -48,7 +51,7 @@ export default function ScheduleGrid({ slots, cells, highlight, onCellClick, sho
               );
               i += span - 1;
             }
-            return <tr key={d}><th className="border bg-brand-50 p-1">{DAYS[d]}</th>{tds}</tr>;
+            return <tr key={d}><th scope="row" className="sticky left-0 z-10 border bg-brand-50 p-1 shadow-[2px_0_0_rgba(0,0,0,0.06)]">{DAYS[d]}</th>{tds}</tr>;
           })}
         </tbody>
       </table>

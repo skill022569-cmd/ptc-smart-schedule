@@ -5,11 +5,16 @@ export const VIEWS = { teacher: "ครู", room: "ห้อง", group: "ก�
 export type View = keyof typeof VIEWS;
 export const isView = (v: unknown): v is View => typeof v === "string" && v in VIEWS;
 
+/** ข้อมูลในแต่ละช่อง ตามมุมมอง — ไม่ซ้ำกับสิ่งที่หัวตารางบอกอยู่แล้ว */
+export const cellFields = (view: View): ("teacher" | "group" | "room")[] =>
+  view === "teacher" ? ["group", "room"] : view === "room" ? ["teacher", "group"] : view === "subject" ? ["teacher", "group", "room"] : ["teacher", "room"];
+
 export interface Cell { day: number; period: number; enrollmentId: number; subject: string; teacher: string; room: string; group: string }
 
 export async function entityOptions(view: View): Promise<{ id: number; label: string }[]> {
   switch (view) {
-    case "teacher": return (await prisma.user.findMany({ where: { role: "TEACHER", boardOrder: null }, orderBy: { fullName: "asc" } })).map((t) => ({ id: t.id, label: t.fullName }));
+    // ต่อท้ายแผนก เพราะชื่อครูซ้ำกันได้ (เช่น ครูกมล คนละแผนก)
+    case "teacher": return (await prisma.user.findMany({ where: { role: "TEACHER", boardOrder: null }, orderBy: { fullName: "asc" } })).map((t) => ({ id: t.id, label: t.department ? `${t.fullName} · ${t.department}` : t.fullName }));
     case "room": return (await prisma.room.findMany({ orderBy: { code: "asc" } })).map((r) => ({ id: r.id, label: `${r.code} ${r.name}` }));
     case "group": return (await prisma.studentGroup.findMany({ orderBy: { code: "asc" } })).map((g) => ({ id: g.id, label: g.name }));
     case "subject": return (await prisma.subject.findMany({ orderBy: { code: "asc" } })).map((s) => ({ id: s.id, label: `${s.code} ${s.name}` }));

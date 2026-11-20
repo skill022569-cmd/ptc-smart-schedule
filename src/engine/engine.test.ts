@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeDataset, toEngineInput } from "../../prisma/data";
+import { SUBJECT_CODE, makeDataset, toEngineInput } from "../../prisma/data";
 import { buildCtx, runEngine, validate, type EngineInput } from "./index";
 import { analyze } from "./conflict-analyzer";
 
@@ -80,4 +80,23 @@ test("autoSplit: ข้อมูลทั้งวิทยาลัย 8 แผ
   assert.ok(auto.conflicts.length <= plain.conflicts.length);
   assert.ok(auto.conflicts.length <= 2, `ยังเหลือ ${auto.conflicts.length} รายการ: ${auto.conflicts.map((c) => c.subjectCode).join(", ")}`);
   console.log(`  plain=${plain.conflicts.length} auto=${auto.conflicts.length} split=${auto.splitIds.length}`);
+});
+
+test("ข้อมูลตัวอย่าง: รหัสวิชารูปแบบเดียวกัน (5-4 หลัก) ไม่ซ้ำ และหน้าที่ตรงกับแผนก", async () => {
+  const { teacherDuties } = await import("../../prisma/data");
+  for (const scale of ["demo", "stress"] as const) {
+    const ds = makeDataset(scale);
+    const bad = ds.subjects.filter((s) => !SUBJECT_CODE.test(s.code)).map((s) => s.code);
+    assert.deepEqual(bad, [], `รหัสผิดรูปแบบ: ${bad.join(", ")}`);
+    assert.equal(new Set(ds.subjects.map((s) => s.code)).size, ds.subjects.length, "รหัสวิชาซ้ำ");
+    assert.ok(!ds.subjects.some((s) => /วิชาชีพ \d/.test(s.name)), "ยังมีชื่อวิชาแบบตัวอย่าง");
+  }
+  assert.doesNotMatch(teacherDuties("หัวหน้าแผนกวิชา", "สามัญสัมพันธ์"), /โรงฝึกงาน|วิชาชีพ/);
+});
+
+test("safeNext: กลับได้เฉพาะหน้าภายในเว็บ", async () => {
+  const { safeNext } = await import("../lib/safe-next");
+  assert.equal(safeNext("/directory/30002"), "/directory/30002");
+  assert.equal(safeNext("/schedule?view=teacher&id=3"), "/schedule?view=teacher&id=3");
+  for (const bad of [null, "", "https://evil.com", "//evil.com", "/\\evil.com", "javascript:alert(1)", "/login?next=/x"]) assert.equal(safeNext(bad), "/");
 });

@@ -4,6 +4,8 @@ import { COLLEGE, SEMESTER } from "@/lib/db";
 import PdpaBanner from "@/components/PdpaBanner";
 import AiChatWidget from "@/components/AiChatWidget";
 import ScrollReveal from "@/components/ScrollReveal";
+import MobileMenu from "@/components/MobileMenu";
+import { Suspense } from "react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const u = await requireUser();
@@ -20,8 +22,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <img src="/logo.webp" alt="ตราวิทยาลัยการอาชีพโพนทอง" width={48} height={48} className="h-12 w-12" />
             <div><div className="font-bold leading-tight">{COLLEGE}</div><div className="text-xs text-gold-300">ระบบจัดตารางเรียน-ตารางสอน · ภาคเรียนที่ {SEMESTER}</div></div>
           </Link>
-          <nav className="flex flex-1 flex-wrap gap-4 text-sm">{nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-gold-300 hover:underline">{l}</Link>)}</nav>
-          <form action="/api/auth/logout" method="post" className="text-sm">{u.fullName} <Link href="/account" className="ml-2 underline hover:text-gold-300">เปลี่ยนรหัสผ่าน</Link> <button className="ml-2 underline hover:text-gold-300">ออกจากระบบ</button></form>
+          <nav aria-label="เมนูหลัก" className="hidden flex-1 flex-wrap gap-4 text-sm md:flex">{nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-gold-300 hover:underline">{l}</Link>)}</nav>
+          <form action="/api/auth/logout" method="post" className="hidden text-sm md:block">{u.fullName} <Link href="/account" className="ml-2 underline hover:text-gold-300">เปลี่ยนรหัสผ่าน</Link> <button className="ml-2 underline hover:text-gold-300">ออกจากระบบ</button></form>
+          <div className="ml-auto md:hidden">
+            <Suspense>
+              <MobileMenu>
+                <nav aria-label="เมนูหลัก" className="flex flex-col">{nav.map(([h, l]) => <Link key={h} href={h}>{l}</Link>)}</nav>
+                <hr className="my-1 border-white/30" />
+                <span className="px-2 text-xs text-gold-300">{u.fullName}</span>
+                <Link href="/account">เปลี่ยนรหัสผ่าน</Link>
+                <form action="/api/auth/logout" method="post"><button className="w-full rounded px-2 py-1.5 text-left hover:bg-white/10">ออกจากระบบ</button></form>
+              </MobileMenu>
+            </Suspense>
+          </div>
         </div>
       </header>
       {u.previewBy && (

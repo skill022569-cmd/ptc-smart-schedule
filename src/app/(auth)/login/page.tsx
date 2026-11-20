@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { safeNext } from "@/lib/safe-next";
 
 const MARQUEE_TH = "วิทยาลัยการอาชีพโพนทอง  ✦  ";
 const MARQUEE_EN = "Phonthong Industrial and Community Education College  ✦  ";
@@ -13,7 +14,7 @@ export default function LoginPage() {
     const f = new FormData(e.currentTarget);
     try {
       const res = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.fromEntries(f)) });
-      if (res.ok) { location.href = "/"; return; }
+      if (res.ok) { location.href = safeNext(new URLSearchParams(location.search).get("next")); return; }
       const j = await res.json().catch(() => ({}));
       setErr(j.error ?? `เซิร์ฟเวอร์ผิดพลาด (HTTP ${res.status})`);
     } catch {

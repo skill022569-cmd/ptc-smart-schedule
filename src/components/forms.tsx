@@ -154,3 +154,8 @@ export function ResetPasswordButton({ userId, name }: { userId: number; name: st
     </div>
   );
 }
+
+/** select ที่ส่งฟอร์ม GET ทันทีเมื่อเปลี่ยน → URL เปลี่ยนตาม (?view=&id=) แชร์ลิงก์ได้ */
+export function AutoSubmitSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select {...props} onChange={(e) => e.currentTarget.form?.requestSubmit()} />;
+}

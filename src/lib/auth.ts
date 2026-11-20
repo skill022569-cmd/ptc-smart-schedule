@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 export { hashPassword, verifyPassword } from "./password";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
@@ -54,7 +54,10 @@ export type SessionUser = NonNullable<Awaited<ReturnType<typeof currentUser>>>;
  */
 export async function requireUser(roles?: Role[]): Promise<SessionUser & { previewBy?: string }> {
   const u = await viewingUser();
-  if (!u) redirect("/login");
+  if (!u) {
+    const next = (await headers()).get("x-next-url");
+    redirect(next && next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login");
+  }
   if (roles && !roles.includes(u.role)) redirect("/");
   return u;
 }

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { SEMESTER, prisma } from "@/lib/db";
-import { timeslots } from "@/lib/schedule-query";
+import { cellFields, timeslots } from "@/lib/schedule-query";
 import { resolveSchedule } from "@/lib/schedule-page";
 import ScheduleGrid from "@/components/ScheduleGrid";
+import { AutoSubmitSelect } from "@/components/forms";
 
 export default async function Overview({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const u = await requireUser();
@@ -22,7 +23,6 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     ? [["นักเรียน", students], ["ครู", teachers], ["รายวิชา", subjects], ["ห้องเรียน", rooms],
       ["คาบที่จัดแล้ว", placed], ["รายการจัดไม่สำเร็จ/ชน", conflicts, conflicts ? "text-red-600" : "text-emerald-600"], ["เรื่องแจ้งที่ยังไม่เสร็จ", issues]]
     : [["คาบของฉัน/สัปดาห์", sched.cells.length], ["เรื่องแจ้งที่ยังไม่เสร็จ", issues]];
-  const show = sched.view === "teacher" ? (["group", "room"] as const) : (["teacher", "room"] as const);
 
   return (
     <div className="space-y-4">
@@ -37,14 +37,14 @@ export default async function Overview({ searchParams }: { searchParams: Promise
           <span className="flex-1" />
           {admin && (
             <form className="flex gap-2">
-              <select name="id" aria-label="เลือกกลุ่มเรียน" defaultValue={sched.id} className="input max-w-xs">{sched.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select>
-              <button className="btn-outline">แสดง</button>
+              <AutoSubmitSelect name="id" aria-label="เลือกกลุ่มเรียน" defaultValue={sched.id} className="input max-w-xs">{sched.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</AutoSubmitSelect>
+              <noscript><button className="btn-outline">แสดง</button></noscript>
             </form>
           )}
           <Link className="btn-outline" href={`/schedule?view=${sched.view}&id=${sched.id}`}>ดูแบบเต็ม / Export</Link>
         </div>
         {sched.cells.length
-          ? <ScheduleGrid slots={slots} cells={sched.cells} show={[...show]} />
+          ? <ScheduleGrid slots={slots} cells={sched.cells} show={cellFields(sched.view)} />
           : <p className="rounded bg-stone-100 p-4 text-sm text-stone-600">
               ยังไม่มีคาบในตารางนี้{admin && placed === 0 && <> — ภาคเรียนนี้ยังไม่ได้จัดตาราง ไปที่ <Link href="/admin" className="text-brand-700 underline">จัดตารางอัตโนมัติ</Link> หรือ <Link href="/admin/manual" className="text-brand-700 underline">จัดตารางเอง</Link></>}
             </p>}
