@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { COLLEGE, SEMESTER } from "@/lib/db";
 import MobileMenu from "@/components/MobileMenu";
+import AiChatWidget from "@/components/AiChatWidget";
 
 // ส่วนหัวของมุมมองสาธารณะ (ไม่ต้องเข้าสู่ระบบ)
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         </div>
       </header>
       {children}
+      <AiChatWidget />
     </div>
   );
 }

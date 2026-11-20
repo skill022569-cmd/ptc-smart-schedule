@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { viewingUser } from "@/lib/auth";
 import { buildCollegeContext } from "@/lib/ai-context";
+import { allow } from "@/lib/rate-limit";
 import { COLLEGE, SEMESTER } from "@/lib/db";
 import { scheduleFor, type Cell } from "@/lib/schedule-query";
 import { dayName } from "@/engine/validator";
@@ -27,9 +28,13 @@ const fmt = (cells: Cell[]) => cells.sort((a, b) => a.day - b.day || a.period - 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const u = await viewingUser(); // โหมดดูมุมมอง: ตอบในมุมมองของผู้ใช้ที่แอดมินกำลังดู (อ่านอย่างเดียว)
-  if (!u) return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
+  // ไม่ล็อกอิน = บุคคลทั่วไป (หน้าสาธารณะ) ตอบจากข้อมูลส่วนกลางเท่านั้น; โหมดดูมุมมอง: ตอบในมุมมองผู้ใช้ที่แอดมินดูอยู่
+  const u = await viewingUser();
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "ยังไม่ได้ตั้งค่า ANTHROPIC_API_KEY" }, { status: 503 });
+  // ทุกคำถามมีค่าใช้จ่าย → จำกัดต่อ IP (คนทั่วไป) หรือต่อบัญชี (บุคลากร)
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!(u ? allow(`u:${u.id}`, 60, 3_600_000) : allow(`ip:${ip}`, 15, 3_600_000)))
+    return NextResponse.json({ error: "ถามครบโควตาชั่วโมงนี้แล้ว กรุณาลองใหม่ภายหลัง" }, { status: 429 });
   const { messages } = await req.json().catch(() => ({}));
   if (!Array.isArray(messages) || !messages.length || messages.length > 20) return NextResponse.json({ error: "รูปแบบข้อความไม่ถูกต้อง" }, { status: 400 });
   const history: Anthropic.Beta.BetaMessageParam[] = messages
@@ -41,11 +46,12 @@ export async function POST(req: Request) {
   // ข้อมูลทั้งวิทยาลัย (เหมือนกันทุกคน → cache) + ข้อมูลเฉพาะผู้ถาม (ท้าย prompt)
   const [college, own] = await Promise.all([
     buildCollegeContext(),
-    u.role === "TEACHER" ? scheduleFor(SEMESTER, "teacher", u.id) : u.student ? scheduleFor(SEMESTER, "student", u.student.id) : Promise.resolve(null),
+    u?.role === "TEACHER" ? scheduleFor(SEMESTER, "teacher", u.id) : u?.student ? scheduleFor(SEMESTER, "student", u.student.id) : Promise.resolve(null),
   ]);
   const now = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "full", timeStyle: "short" });
-  const role = u.role === "ADMIN" ? "ผู้ดูแลระบบ" : u.role === "TEACHER" ? "ครู" : "นักเรียน";
-  const me = `ผู้ถาม: ${u.fullName} (${role}) | ขณะนี้: ${now}` + (own ? `\nตารางของผู้ถาม:\n${fmt(own)}` : "");
+  const role = !u ? "" : u.role === "ADMIN" ? "ผู้ดูแลระบบ" : u.role === "TEACHER" ? "ครู" : "นักเรียน";
+  const me = (u ? `ผู้ถาม: ${u.fullName} (${role})` : "ผู้ถาม: บุคคลทั่วไป/นักเรียน (ไม่ได้เข้าสู่ระบบ) — ถ้าถามตารางของตัวเองให้ถามกลุ่มเรียนก่อน")
+    + ` | ขณะนี้: ${now}` + (own ? `\nตารางของผู้ถาม:\n${fmt(own)}` : "");
   history[history.length - 1] = { role: "user", content: [{ type: "text", text: me }, { type: "text", text: last.content as string }] };
 
   try {

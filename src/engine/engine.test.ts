@@ -100,3 +100,12 @@ test("safeNext: กลับได้เฉพาะหน้าภายใน�
   assert.equal(safeNext("/schedule?view=teacher&id=3"), "/schedule?view=teacher&id=3");
   for (const bad of [null, "", "https://evil.com", "//evil.com", "/\\evil.com", "javascript:alert(1)", "/login?next=/x"]) assert.equal(safeNext(bad), "/");
 });
+
+test("rate limit: เกินโควตาแล้วปฏิเสธ และกลับมาได้เมื่อพ้นช่วงเวลา", async () => {
+  const { allow } = await import("../lib/rate-limit");
+  const t = 1_000_000;
+  for (let i = 0; i < 3; i++) assert.equal(allow("test-ip", 3, 1000, t + i), true);
+  assert.equal(allow("test-ip", 3, 1000, t + 10), false);
+  assert.equal(allow("other-ip", 3, 1000, t + 10), true);
+  assert.equal(allow("test-ip", 3, 1000, t + 2000), true);
+});

@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 
 type Msg = { role: "user" | "assistant"; content: string };
-const EXAMPLES = ["พรุ่งนี้เช้ามีเรียนห้องไหน", "ครูสมศรีว่างวันไหนบ้าง", "ใครคือรองผู้อำนวยการฝ่ายวิชาการ", "ห้อง COMPUTER-01 วันพุธว่างคาบไหน", "ขั้นตอนการแจ้งขอเปลี่ยนห้องเรียนทำอย่างไร"];
+const EXAMPLES = ["กลุ่ม ปวช.1/1 คอมพิวเตอร์ธุรกิจ พรุ่งนี้เรียนอะไร", "ครูสมศรีว่างวันไหนบ้าง", "ใครคือรองผู้อำนวยการฝ่ายวิชาการ", "ห้อง COMPUTER-01 วันพุธว่างคาบไหน", "ขั้นตอนการแจ้งขอเปลี่ยนห้องเรียนทำอย่างไร"];
 
 export default function AiChatWidget() {
   const [open, setOpen] = useState(false);
